@@ -1,7 +1,15 @@
 @import "tailwindcss";
 
 :root {
-
+    --text: #000;
+    --muted: #666;
+    --header-muted: #999;
+    --header-bg: #fff;
+    --header-top-bg: #000;
+    --section-gray: #f9f9f9;
+    --footer-top-bg: #1d1e20;
+    --footer-bottom-bg: #000;
+    --white-text: #fff;
 }
 
 
