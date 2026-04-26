@@ -4,15 +4,25 @@ import ActionButtons from "@/components/layout/header/ActionButtons";
 import cn from "classnames"
 import {useStickyStore} from "@/store/useStickyStore";
 import {useSearchStore} from "@/store/useSearchOpen";
-import SearchDropdown from "@/components/layout/header/SearchDropdown";
+import { AnimatePresence } from "framer-motion"
+import {useEffect, useRef} from "react";
+import {useMiddleBarHeight} from "@/store/useHeaderBarHeightStore";
+import SearchDropdown from "@/components/layout/header/search-dropdown/SearchDropdown";
 
-export default function MiddleBar(){
+export default function MiddleBar() {
     const isSticky = useStickyStore(state => state.isSticky)
     const searchOpen = useSearchStore(state => state.searchOpen);
 
+    const setMiddleBarHeight = useMiddleBarHeight(state => state.setMiddleBarHeight)
+    const ref = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        setMiddleBarHeight(ref.current?.offsetHeight ?? 0)
+    }, [])
+
 
     return(
-        <div className={cn("bg-white sticky top-0",{
+        <div ref={ref} className={cn("bg-white z-50 sticky top-0",{
             ["shadow-[0_2px_8px_rgba(0,0,0,0.08)]"]: isSticky
         })}>
             <div className="max-w-[1200px] mx-auto flex items-center justify-between py-4">
@@ -21,7 +31,11 @@ export default function MiddleBar(){
                 <ActionButtons/>
             </div>
 
-            {searchOpen && <SearchDropdown />}
+
+            {/* вместо {searchOpen && <SearchDropdown />} */}
+            <AnimatePresence>
+                {searchOpen && <SearchDropdown />}
+            </AnimatePresence>
         </div>
     )
 }
