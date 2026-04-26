@@ -13,4 +13,6 @@
     --white-text: #fff;
 }
 
+html, body { overflow-x: clip; }
+
 
