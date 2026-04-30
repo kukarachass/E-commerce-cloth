@@ -13,7 +13,7 @@ export default function () {
     ]
 
     return (
-        <div className="flex flex-col p-6 gap-6 max-w-[1224px] mx-auto justify-center">
+        <div className="flex flex-col py-6 gap-6 max-w-[1200px] mx-auto justify-center">
             <Breadcrumb/>
             <h1 className="text-[var(--text)] font-bold text-[28px]">ALL CATEGORIES</h1>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">

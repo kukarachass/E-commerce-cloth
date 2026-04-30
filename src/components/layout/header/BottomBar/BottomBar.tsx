@@ -19,7 +19,7 @@ export default function BottomBar(){
     }, [])
 
     return (
-        <div ref={ref} className={` ${searchOpen ? "relative z-50": ""} bg-white border-b border-gray-200`}>
+        <div ref={ref} className={` ${searchOpen ? "relative z-40": "border-b border-gray-300"} bg-white`}>
             <div className="max-w-[1200px] mx-auto flex justify-between items-center py-4">
                 <motion.div
                     animate={{ width: searchOpen ? 0 : "auto", opacity: searchOpen ? 0 : 1 }}

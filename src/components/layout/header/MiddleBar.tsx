@@ -1,6 +1,5 @@
 import GenderSwitcher from "@/components/layout/header/GenderSwitcher";
 import Image from "next/image";
-import ActionButtons from "@/components/layout/header/ActionButtons";
 import cn from "classnames"
 import {useStickyStore} from "@/store/useStickyStore";
 import {useSearchStore} from "@/store/useSearchOpen";
@@ -8,6 +7,7 @@ import { AnimatePresence } from "framer-motion"
 import {useEffect, useRef} from "react";
 import {useMiddleBarHeight} from "@/store/useHeaderBarHeightStore";
 import SearchDropdown from "@/components/layout/header/search-dropdown/SearchDropdown";
+import ActionButtons from "@/components/layout/header/action-buttons/ActionButtons";
 
 export default function MiddleBar() {
     const isSticky = useStickyStore(state => state.isSticky)
