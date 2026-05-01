@@ -1,7 +1,6 @@
 "use client";
 import {useState} from "react";
 import cn from "classnames";
-import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 
 export default function PromoCodeInput() {
     const [promoCode, setPromoCode] = useState<string>("");

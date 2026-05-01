@@ -76,7 +76,7 @@ export default function EmptyCart() {
     ]
     const router = useRouter();
     return (
-        <div className="flex flex-col gap-10 items-center">
+        <div className="flex flex-col gap-6 items-center">
             <div className="flex flex-col gap-2">
                 <CartTitle/>
                 <span className="text-center text-[var(--text)] text-[16px]">It looks like your shopping cart is still empty</span>

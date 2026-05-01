@@ -21,7 +21,7 @@ export default function SummaryBlock() {
     return (
         <div className="max-w-[400px] sticky bg-[#f9f9f9] h-fit rounded-[10px] top-[100px]">
             <div className="flex flex-col gap-4 p-6">
-                <h1 className="text-[var(--text)] text-[20px] leading-[120%]">Order Summary</h1>
+                <h1 className="text-[var(--text)] text-[20px] font-bold leading-[120%]">Order Summary</h1>
                 <span className="text-[var(--text)] text-[16px] pb-2">Apply promo code</span>
                 <PromoCodeInput/>
                 <span className="underline text-[var(--text)] text-[14px] leading-[143%]">Promotions FAQ's</span>
