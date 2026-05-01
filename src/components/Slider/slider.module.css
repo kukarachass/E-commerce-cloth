@@ -1,0 +1,75 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    overflow: visible;
+    position: relative;
+
+}
+
+.btnsWrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding-right: 1rem;
+    gap: 1rem;
+}
+
+.track {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 1rem;
+    scroll-snap-type: x mandatory;
+}
+
+.heroTrackGap{
+    gap: 5rem;
+}
+
+/* скрываем скроллбар */
+.track::-webkit-scrollbar {
+    display: none;
+}
+.track {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.button {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    background: #fff;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.button:hover {
+    background: #e5e7eb;
+    color: #111827;
+}
+
+.left {
+    position: absolute;
+    left: -45px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.right {
+    position: absolute;
+    right: -45px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* можно использовать для примера карточек */

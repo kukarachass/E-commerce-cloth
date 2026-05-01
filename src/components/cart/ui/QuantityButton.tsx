@@ -1,0 +1,17 @@
+export default function QuantityButton(){
+    return(
+        <div className="flex flex-row justify-between gap-4 max-w-[100px] items-center">
+            <button>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.6673 8.66634H3.33398V7.33301H12.6673V8.66634V8.66634" fill="#999999" />
+                </svg>
+            </button>
+            <span className="text-[var(--text)] text-[16px] font-bold ">1</span>
+            <button>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12.6673 8.66634H8.66732V12.6663H7.33398V8.66634H3.33398V7.33301H7.33398V3.33301H8.66732V7.33301H12.6673V8.66634V8.66634" fill="#999999" />
+                </svg>
+            </button>
+        </div>
+    )
+}
