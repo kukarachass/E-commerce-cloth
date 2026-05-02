@@ -10,8 +10,8 @@ export default function CartPage() {
         {id: 4, name: "Michael Kors", desc: "ORIGINALS ADICOLOR CLASSIC LOOSE TRACK TRACKSUIT BOTTOMS", size: "S", price: 230, imageUrl: "/cart-items/cart-item-4.webp"},
         {id: 5, name: "Michael Kors", desc: "ORIGINALS ADICOLOR CLASSIC LOOSE TRACK TRACKSUIT BOTTOMS", size: "S", price: 230, imageUrl: "/cart-items/cart-item-4.webp"},
         {id: 6, name: "Michael Kors", desc: "ORIGINALS ADICOLOR CLASSIC LOOSE TRACK TRACKSUIT BOTTOMS", size: "S", price: 230, imageUrl: "/cart-items/cart-item-4.webp"},
-
     ];
+
     return (
         <div className="w-full">
             <div className="max-w-[1200px] mx-auto py-10">

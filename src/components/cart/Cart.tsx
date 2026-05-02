@@ -1,16 +1,19 @@
+"use client";
+
 import CartTitle from "@/components/cart/ui/CartTitle";
 import InfoSvg from "@/components/ui/icons/InfoSvg";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import SummaryBlock from "@/components/cart/ui/SummaryBlock/SummaryBlock";
 import CartItem from "@/components/cart/CartItem";
-import ProductsRelated from "@/components/product/ProductsRelated";
 import FreeShippingProgress from "@/components/cart/ui/FreeShippingProgressBar";
+import {useRouter} from "next/navigation";
 
 interface Props {
     cartItems: any[]
 }
 
 export default function Cart({ cartItems }: Props){
+    const router = useRouter();
     return(
         <div className="max-w-[1200px] mx-auto py-4">
             <div className="flex flex-col gap-6">
@@ -26,7 +29,7 @@ export default function Cart({ cartItems }: Props){
                         <ButtonPrimary variant={"secondary"}>
                             Continue shopping
                         </ButtonPrimary>
-                        <ButtonPrimary variant={"primary"}>
+                        <ButtonPrimary onClick={() => router.push("/checkout?step=1")} variant={"primary"}>
                             Continue to checkout
                         </ButtonPrimary>
                     </div>
