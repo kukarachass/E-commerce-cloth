@@ -1,10 +1,14 @@
+"use client"
+
 import PromoCodeInput from "@/components/cart/ui/PromoCodeInput";
 import {formatPrice} from "@/lib/formatPrice";
 import CustomsFee from "@/components/cart/ui/SummaryBlock/CustomsFee";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import Image from "next/image";
+import {useRouter} from "next/navigation";
 
 export default function SummaryBlock() {
+    const router = useRouter();
     const order = {
         items: 6,
         totalAmount: 455,
@@ -56,7 +60,7 @@ export default function SummaryBlock() {
                 </span>
             </div>
             <div className="flex items-center justify-center p-6 w-full">
-                <ButtonPrimary className="w-full" variant={"primary"}>
+                <ButtonPrimary onClick={() => router.push("/checkout?step=1")} className="w-full" variant={"primary"}>
                     Continue to checkout
                 </ButtonPrimary>
             </div>

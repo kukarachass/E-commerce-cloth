@@ -1,15 +1,22 @@
 "use client";
 
-import Arrow from "@/components/ui/icons/Arrow";
-import {useState} from "react";
 import CheckoutItemsList from "@/components/checkout/SummaryBlock/CheckoutItemsList";
 import CustomsFee from "@/components/cart/ui/SummaryBlock/CustomsFee";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import Image from "next/image";
 import Link from "next/link";
 import Trustpilot from "@/components/ui/icons/Trustpilot";
+import {useRouter, useSearchParams} from "next/navigation";
 
-export default function CheckoutSummaryBlock() {
+export default function CheckoutSummaryBlock({ href }: { href: string }) {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const step = Number(searchParams.get("step")) || 1
+
+    const buttonTitles: Record<number, string> = {
+        1: "Continue to payment",
+        2: "Order and Pay",
+    }
 
     const providers = [
         { path: "/card-prov/SVG.svg"},
@@ -55,8 +62,8 @@ export default function CheckoutSummaryBlock() {
                 <div className="h-[1px] w-full bg-[#f0f0f0]"/>
 
                 <div className="flex items-center justify-center w-full">
-                    <ButtonPrimary className="w-full" variant={"primary"}>
-                        Continue to checkout
+                    <ButtonPrimary onClick={() => router.push(href)} className="w-full" variant={"primary"}>
+                        {buttonTitles[step]}
                     </ButtonPrimary>
                 </div>
                 <div className="flex flex-row items-center justify-center">
