@@ -8,6 +8,7 @@ import {useEffect, useRef} from "react";
 import {useMiddleBarHeight} from "@/store/useHeaderBarHeightStore";
 import SearchDropdown from "@/components/layout/header/search-dropdown/SearchDropdown";
 import ActionButtons from "@/components/layout/header/action-buttons/ActionButtons";
+import Link from "next/link";
 
 export default function MiddleBar() {
     const isSticky = useStickyStore(state => state.isSticky)
@@ -27,7 +28,9 @@ export default function MiddleBar() {
         })}>
             <div className="max-w-[1200px] mx-auto flex items-center justify-between py-4">
                 <GenderSwitcher/>
-                <Image src={"/logo.svg"} alt={"logo"} width={100} height={24}/>
+                <Link href="/">
+                    <Image src={"/logo.svg"} alt={"logo"} width={100} height={24}/>
+                </Link>
                 <ActionButtons/>
             </div>
 
