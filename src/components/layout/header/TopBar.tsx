@@ -44,7 +44,7 @@ export default function TopBar() {
 
                             <div className="flex flex-row justify-between w-full min-[870px]:w-auto min-[870px]:flex-row gap-6 items-center">
                                 <div className="flex pb-1">
-                                    <Image src={"trustpilot.svg"} alt={"trustpilot"} width={95} height={29}/>
+                                    <Image src={"/trustpilot.svg"} alt={"trustpilot"} width={95} height={29}/>
                                 </div>
                                 <div className="hidden min-[870px]:flex flex-1 flex-row items-center justify-center gap-1">
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -54,7 +54,7 @@ export default function TopBar() {
                                     <span className="text-[14px] font-medium">Help centre</span>
                                 </div>
                                 <div className="flex flex-row items-center gap-1 ml-auto min-[870px]:ml-0">
-                                    <Image src={"language.svg"} alt={"language"} width={24} height={24}/>
+                                    <Image src={"/language.svg"} alt={"language"} width={24} height={24}/>
                                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M12 6.66656L11.06 5.72656L8 8.7799L4.94 5.72656L4 6.66656L8 10.6666L12 6.66656" fill="#999999"/>
                                     </svg>

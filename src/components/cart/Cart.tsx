@@ -15,7 +15,7 @@ interface Props {
 export default function Cart({ cartItems }: Props){
     const router = useRouter();
     return(
-        <div className="max-w-[1200px] mx-auto py-4">
+        <div className="max-w-[1200px] py-4">
             <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-4 items-center">
                     <CartTitle/>
@@ -34,8 +34,8 @@ export default function Cart({ cartItems }: Props){
                         </ButtonPrimary>
                     </div>
                 </div>
-                <div className="flex flex-row gap-6 relative mx-auto w-full justify-center">
-                    <div className="flex flex-col gap-4">
+                <div className="flex mx-auto flex-row gap-6 relative w-full justify-center">
+                    <div className="flex flex-col gap-4 flex-1 max-w-[600px]">
                         {cartItems.map((item) => (
                             <CartItem key={item.id} cartItem={item} />
                         ))}

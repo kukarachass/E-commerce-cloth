@@ -1,31 +1,30 @@
 "use client"
 
 import Link from "next/link";
-import {useParams, usePathname} from "next/navigation";
+import {useParams, usePathname, useRouter} from "next/navigation";
+import {useGenderStore} from "@/store/useGenderStore";
 
 export default function HeaderNav(){
-    const pathname = usePathname()
-    const gender = pathname.split("/")[1] // "women" или "men"
+    const gender = useGenderStore(s => s.gender);
 
     return(
         <div className="flex flex-row gap-6 items-center">
             <Link href={`/${gender}/new-items`}>
-                New Items
+                New items
             </Link>
             <Link href={`/${gender}/brands`}>
             Brands
             </Link>
-            <Link href={"/clothing"}>
+            <Link href={`/${gender}/clothing`}>
                 Clothing
             </Link>
-
-            <Link href={"/sportswear"}>
+            <Link href={`/${gender}/sportswear`}>
                 Sportswear
             </Link>
-            <Link href={"/shoes"}>
+            <Link href={`/${gender}/shoes`}>
                 Shoes
             </Link>
-            <Link href={"/accessories"}>
+            <Link href={`/${gender}/accessories`}>
                 Accessories
             </Link>
         </div>

@@ -31,12 +31,18 @@ export default function Slider({ children }: Props) {
     };
 
     useEffect(() => {
-        updateScrollState();
         const el = scrollRef.current;
         if (!el) return;
+
+        const ro = new ResizeObserver(() => updateScrollState());
+        ro.observe(el);
+
         el.addEventListener("scroll", updateScrollState);
         window.addEventListener("resize", updateScrollState);
+        updateScrollState();
+
         return () => {
+            ro.disconnect();
             el.removeEventListener("scroll", updateScrollState);
             window.removeEventListener("resize", updateScrollState);
         };

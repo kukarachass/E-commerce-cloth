@@ -1,6 +1,13 @@
 export interface IProduct {
-    id: number;
+    id: string;
+    sizes: string[];
     name: string;
+    brand: string;
+    description: string;
     price: number;
-    imageUrl: string;
+    imgUrl: string[];
+
+    descriptionFull: string
+    material: string;
+    careInstructions: string;
 }
