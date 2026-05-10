@@ -6,7 +6,6 @@ import {useFavoritesStore} from "@/store/useFavoritesStore";
 import Link from "next/link";
 import {IProduct} from "@/components/product/IProduct";
 
-
 export default function CatalogProductCard({ product }: {product: IProduct }) {
     const sizes = product.sizes.length > 5 ? `${product.sizes.length} available` : product.sizes.map(size => size);
     const toggleFavorites = useFavoritesStore(s => s.toggle);

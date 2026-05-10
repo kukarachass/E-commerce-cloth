@@ -3,8 +3,9 @@
 import { useState } from "react"
 import cn from "classnames"
 import { motion } from "framer-motion"
+import {categoryItems} from "@/mocks/catalogStore";
 
-interface CategoryItem {
+export interface CategoryItem {
     name: string
     subcategories: readonly string[]
 }
@@ -12,6 +13,7 @@ interface CategoryItem {
 interface Props {
     title: string
     items: readonly CategoryItem[]
+    noTitle?: boolean;
 }
 
 function SidebarCheckbox({ checked }: { checked: boolean }) {
@@ -30,7 +32,7 @@ function SidebarCheckbox({ checked }: { checked: boolean }) {
     )
 }
 
-export default function Sidebar({ title, items }: Props) {
+export default function Sidebar({ title, items, noTitle = false }: Props) {
     const [selectedAll, setSelectedAll] = useState(false)
     const [selected, setSelected] = useState<string[]>([])
 
@@ -41,34 +43,52 @@ export default function Sidebar({ title, items }: Props) {
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex flex-row gap-4 py-6 max-h-[75px]">
+        <div className="flex flex-col gap-4 pb-6">
+            <div className="flex flex-row gap-4 pt-6 pb-3 max-h-[75px]">
                 <h1 className="text-[var(--text)] text-[24px] leading-[133%] font-bold">{title}</h1>
                 <span className="flex items-center text-[var(--text)] font-bold text-[12px] bg-[#f0f0f0] rounded-[16px] px-2">
                     11,525 results
                 </span>
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 overflow-y-auto h-[calc(100vh-113px)]">
                 {/* заголовок категории */}
-                <label
-                    className="flex items-center gap-3 py-1 cursor-pointer"
-                    onClick={() => setSelectedAll(!selectedAll)}
-                >
-                    <SidebarCheckbox checked={selectedAll} />
-                    <span className="text-[16px] font-bold text-[var(--text)]">{title}</span>
-                </label>
+                {!noTitle && (
+                    <label
+                        className="flex items-center gap-3 cursor-pointer"
+                        onClick={() => setSelectedAll(!selectedAll)}
+                    >
+                        <SidebarCheckbox checked={selectedAll} />
+                        <span className="text-[16px] font-bold text-[var(--text)]">{title}</span>
+                    </label>
+                )}
 
                 {/* подкатегории */}
-                <div className="flex flex-col pl-7">
+                <div className="flex flex-col pl-5">
                     {items.map((item) => (
-                        <label
-                            key={item.name}
-                            className="flex items-center gap-3 py-1 cursor-pointer"
-                            onClick={() => toggle(item.name)}
-                        >
-                            <SidebarCheckbox checked={selected.includes(item.name)} />
-                            <span className="text-[16px] text-[var(--text)]">{item.name}</span>
-                        </label>
+                        <div key={item.name}>
+                            <label
+                                className="flex items-center gap-3 py-1 cursor-pointer hover:bg-gray-100 transition-all duration-300 pl-2 rounded-[4px]"
+                                onClick={() => toggle(item.name)}
+                            >
+                                <SidebarCheckbox checked={selected.includes(item.name)} />
+                                <span className="text-[16px] text-[var(--text)]">{item.name}</span>
+                            </label>
+
+                            {item.subcategories.length > 0 && (
+                                <div className="flex flex-col pl-5">
+                                    {item.subcategories.map((sub) => (
+                                        <label
+                                            key={sub}
+                                            className="flex items-center gap-3 py-1 cursor-pointer hover:bg-gray-100 transition-all duration-300 pl-2 rounded-[4px]"
+                                            onClick={() => toggle(sub)}
+                                        >
+                                            <SidebarCheckbox checked={selected.includes(sub)} />
+                                            <span className="text-[16px] text-[var(--text)]">{sub}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     ))}
                 </div>
             </div>
