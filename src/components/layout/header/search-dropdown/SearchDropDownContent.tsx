@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Search from "@/components/layout/header/BottomBar/Search";
 import {useStickyStore} from "@/store/useStickyStore";
+import Container from "@/components/layout/Сontainer";
 
 export default function SearchDropDownContent() {
     const isSticky = useStickyStore(state => state.isSticky)
@@ -26,8 +27,8 @@ export default function SearchDropDownContent() {
 
     return (
         <div className="bg-white w-full ">
-            <div className="max-w-[1200px] mx-auto w-full ">
-                <div className="flex flex-col gap-6 p-4 ">
+            <Container>
+                <div className="flex flex-col gap-6 py-4">
                     {isSticky && (
                         <Search/>
                     )}
@@ -62,7 +63,7 @@ export default function SearchDropDownContent() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </Container>
         </div>
     )
 }

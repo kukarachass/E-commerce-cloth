@@ -9,6 +9,7 @@ import {useMiddleBarHeight} from "@/store/useHeaderBarHeightStore";
 import SearchDropdown from "@/components/layout/header/search-dropdown/SearchDropdown";
 import ActionButtons from "@/components/layout/header/action-buttons/ActionButtons";
 import Link from "next/link";
+import Container from "@/components/layout/Сontainer";
 
 export default function MiddleBar() {
     const isSticky = useStickyStore(state => state.isSticky)
@@ -26,14 +27,13 @@ export default function MiddleBar() {
         <div ref={ref} className={cn("bg-white z-50 sticky top-0",{
             ["shadow-[0_2px_8px_rgba(0,0,0,0.08)]"]: isSticky
         })}>
-            <div className="max-w-[1200px] mx-auto flex items-center justify-between py-4">
+            <Container className="flex items-center justify-between py-4">
                 <GenderSwitcher/>
                 <Link href="/">
                     <Image src={"/logo.svg"} alt={"logo"} width={100} height={24}/>
                 </Link>
                 <ActionButtons/>
-            </div>
-
+            </Container>
 
             {/* вместо {searchOpen && <SearchDropdown />} */}
             <AnimatePresence>

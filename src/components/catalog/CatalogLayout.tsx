@@ -15,7 +15,7 @@ export default function CatalogLayout({ children, items, title, noTitle }: Catal
             </aside>
 
             <div className="flex flex-col gap-8 w-full">
-                <div className="sticky top-[57px] z-40 bg-white">
+                <div className="sticky w-[100%] top-[57px] z-20 bg-white">
                     <FilterBar/>
                 </div>
                 {/* контент — обычный поток */}

@@ -11,7 +11,7 @@ export default function TopBar() {
 
     return (
         <div className="w-full bg-black">
-            <div className="max-w-[1200px] mx-auto p-3 text-white relative">
+            <div className="max-w-[1232px] mx-auto p-3 text-white relative">
                 {promoOpen ? (
                     <div className="flex flex-row gap-8 text-center justify-center items-center text-[14px]">
                     <span className="flex-1 text-center text-[clamp(13px,2vw,16px)]">

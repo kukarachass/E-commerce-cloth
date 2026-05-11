@@ -5,8 +5,9 @@ import HeaderNav from "@/components/layout/header/BottomBar/HeaderNav"
 import Search from "@/components/layout/header/BottomBar/Search"
 import { useStickyStore } from "@/store/useStickyStore"
 import { useSearchStore } from "@/store/useSearchOpen"
-import {useBottomBarHeight, useMiddleBarHeight} from "@/store/useHeaderBarHeightStore";
+import {useBottomBarHeight} from "@/store/useHeaderBarHeightStore";
 import {useEffect, useRef} from "react";
+import Container from "@/components/layout/Сontainer";
 
 export default function BottomBar(){
     const isSticky = useStickyStore(state => state.isSticky)
@@ -19,8 +20,8 @@ export default function BottomBar(){
     }, [])
 
     return (
-        <div ref={ref} className={` ${searchOpen ? "relative z-40": "border-b border-gray-300"} bg-white`}>
-            <div className="max-w-[1200px] mx-auto flex justify-between items-center py-4">
+        <div ref={ref} className={` ${searchOpen && "relative z-40"} bg-white`}>
+            <Container className="flex justify-between items-center py-4">
                 <motion.div
                     animate={{ width: searchOpen ? 0 : "auto", opacity: searchOpen ? 0 : 1 }}
                     transition={{ duration: 0.35, ease: "easeInOut" }}
@@ -40,7 +41,7 @@ export default function BottomBar(){
                         </motion.div>
                     )}
                 </AnimatePresence>
-            </div>
+            </Container>
         </div>
     )
 }

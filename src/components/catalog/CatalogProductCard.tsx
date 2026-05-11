@@ -32,10 +32,10 @@ export default function CatalogProductCard({ product }: {product: IProduct }) {
                     </svg>
                 </button>
             </div>
-            <div className="flex flex-col gap-1 text-[var(--text)] text-[14px]">
+            <div className="flex flex-col gap-1 text-[var(--text)] text-[16px]">
                 <span className="font-bold leading-[150%]">{product.name}</span>
                 <span className="leading-[143%]">{product.description}</span>
-                <span className="leading-[150%] font-bold">{formatPrice(product.price)}</span>
+                <span className="leading-[150%] font-[600]">{formatPrice(product.price)}</span>
                 <span className="leading-[143%] text-[#999]">{Array.isArray(sizes) ? sizes.join(" / ") : sizes}</span>
             </div>
         </Link>

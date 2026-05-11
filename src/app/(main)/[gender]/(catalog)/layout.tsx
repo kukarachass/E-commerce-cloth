@@ -1,13 +1,14 @@
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import Container from "@/components/layout/Сontainer";
 
 export default function CatalogLayout({children}: { children: React.ReactNode }) {
     return (
-        <div className="max-w-[1200px] mx-auto">
+        <Container>
             <div className="flex flex-col pt-4">
                 <Breadcrumb className="pb-1"/>
                 {children}
             </div>
-        </div>
+        </Container>
 
     )
 }

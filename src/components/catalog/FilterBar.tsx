@@ -45,13 +45,13 @@ export default function FilterBar() {
         }
     }
     return (
-        <div className="flex flex-row justify-between w-full py-6 z-30">
+        <div className="flex flex-row justify-between w-full py-6 pr-1">
             <div ref={ref} className="flex flex-row gap-2">
                 {filters.map((filter) => (
                     <div
                         onClick={() => handleSetFilter(filter.name)}
                         key={filter.id}
-                        className="relative select-none flex flex-row items-center gap-3 text-[var(--text)] text-[16px] font-[600] border cursor-pointer border-[#ddd] rounded-[4px] px-2 py-[2px] bg-white">
+                        className="relative select-none flex flex-row items-center gap-3 text-[var(--text)] text-[16px] font-[600] border cursor-pointer border-[#ddd] rounded-[4px] px-2 py-[2px]">
                         <span>{filter.name}</span>
                         <Arrow className={`transition-all duration-200 ${openedFilter && filter.name === openedFilter && "rotate-180"}`}/>
 
