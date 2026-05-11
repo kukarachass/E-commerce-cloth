@@ -1,17 +1,14 @@
 import Image from "next/image";
 import {formatPrice} from "@/lib/formatPrice";
 import {IProduct} from "@/components/product/IProduct";
+import Link from "next/link";
 
-interface ProductCardProps {
-    product: IProduct;
-}
-
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product }: {product: IProduct }) {
     return(
-        <div className="max-w-[180px] h-full w-full">
+        <Link href={`/product/${product.id}`} className="max-w-[180px] h-full w-full">
             <div className="flex flex-col gap-4">
                 <div className="w-[180px] h-[270px] relative">
-                    <Image src={product.imageUrl} alt={"product"} fill className="object-cover rounded-[8px]"/>
+                    <Image src={product.imgUrl[0]} alt={"product"} fill className="object-cover rounded-[8px]"/>
                 </div>
                 <div className="flex flex-col">
                     <span className="text-[var(--text)] text-[16px] leading-[150%] font-bold">{product.name}</span>
@@ -24,6 +21,6 @@ export default function ProductCard({ product }: ProductCardProps) {
                     Add to bag
                 </button>
             </div>
-        </div>
+        </Link>
     )
 }

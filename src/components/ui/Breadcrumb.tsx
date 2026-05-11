@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function Breadcrumb() {
+interface Props {
+    className?: string;
+}
+
+export default function Breadcrumb({ className }: Props) {
     const pathname = usePathname();
 
     const segments = pathname.split("/").filter(Boolean);
@@ -17,7 +21,7 @@ export default function Breadcrumb() {
     ];
 
     return (
-        <nav className="flex items-center gap-2">
+        <nav className={`${className} flex items-center gap-2`}>
             {items.map((item, index) => {
                 const isLast = index === items.length - 1;
                 return (
