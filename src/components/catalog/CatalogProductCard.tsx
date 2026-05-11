@@ -23,7 +23,7 @@ export default function CatalogProductCard({ product }: {product: IProduct }) {
                 <Image className="rounded" src={product.imgUrl[0]} alt={product.name} fill/>
                 <button
                     onClick={(e) => handleFav(product.id, e)}
-                    className="absolute right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/60 backdrop-blur-sm rounded-full p-2"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/60 backdrop-blur-sm rounded-full p-2"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
                          fill={isFavorite ? "currentColor" : "none"}

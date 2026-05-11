@@ -8,12 +8,15 @@ export default function HeaderNav(){
     const gender = useGenderStore(s => s.gender);
 
     return(
-        <div className="flex flex-row gap-6 items-center">
+        <div className="flex flex-row gap-8 items-center text-[var(--text)] text-[16px] capitalize">
             <Link href={`/${gender}/new-items`}>
                 New items
             </Link>
             <Link href={`/${gender}/brands`}>
             Brands
+            </Link>
+            <Link href={`/${gender}/collections/everything-summer`}>
+                Everything Summer
             </Link>
             <Link href={`/${gender}/clothing`}>
                 Clothing

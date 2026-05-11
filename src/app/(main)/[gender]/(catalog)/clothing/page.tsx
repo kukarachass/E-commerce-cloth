@@ -3,6 +3,6 @@ import {productsArray} from "@/mocks/catalogStore";
 
 export default function ClothingPage(){
     return(
-        <CatalogContainer products={productsArray}/>
+        <CatalogContainer variant={"catalog"} products={productsArray}/>
     )
 }
