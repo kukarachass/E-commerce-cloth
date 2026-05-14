@@ -36,12 +36,12 @@ export default function Footer() {
                         <NewsletterInput/>
                     </div>
                     <div className="flex justify-around border-y border-[#333] py-6">
-                        <Image src={"footer/visa.svg"} alt={"visa"} width={96} height={40}/>
-                        <Image src={"footer/mastercard.svg"} alt={"mastercard"} width={96} height={40}/>
+                        <Image src={"/footer/visa.svg"} alt={"visa"} width={96} height={40}/>
+                        <Image src={"/footer/mastercard.svg"} alt={"mastercard"} width={96} height={40}/>
                     </div>
                     <div className="min-[880px]:hidden flex justify-around border-y border-[#333] py-2">
-                        <Image src={"trustpilot.svg"} alt={"trustpilot"} width={96} height={40}/>
-                        <Image className="fill-white" src={"footer/certified.svg"} alt={"certified"} width={70}
+                        <Image src={"/trustpilot.svg"} alt={"trustpilot"} width={96} height={40}/>
+                        <Image className="fill-white" src={"/footer/certified.svg"} alt={"certified"} width={70}
                                height={100}/>
                     </div>
                     <div className="flex flex-wrap flex-row justify-between items-center w-full py-4 min-[880px]:py-0">
@@ -62,9 +62,9 @@ export default function Footer() {
                                     className="text-[var(--header-muted)] leading-[188%] text-[16px]">{adv.text}</span>
                             </div>
                         ))}
-                        <Image className="hidden min-[880px]:block" src={"trustpilot.svg"} alt={"trustpilot"} width={96}
+                        <Image className="hidden min-[880px]:block" src={"/trustpilot.svg"} alt={"trustpilot"} width={96}
                                height={40}/>
-                        <Image className="hidden min-[880px]:block" src={"footer/certified.svg"} alt={"certified"}
+                        <Image className="hidden min-[880px]:block" src={"/footer/certified.svg"} alt={"certified"}
                                width={70} height={100}/>
                     </div>
                 </div>
@@ -86,12 +86,12 @@ export default function Footer() {
                             <div className="flex flex-row gap-4">
                                 <div
                                     className="bg-[#1d1e20] w-full min-[880px]:w-auto rounded-[24px] py-2 px-[60px] flex items-center">
-                                    <Image className="mx-auto min-[880px]:mx-0" src={"footer/apple.svg"} alt={"apple"}
+                                    <Image className="mx-auto min-[880px]:mx-0" src={"/footer/apple.svg"} alt={"apple"}
                                            width={26} height={32}/>
                                 </div>
                                 <div
                                     className="bg-[#1d1e20] w-full min-[880px]:w-auto rounded-[24px] py-2 px-[60px] flex items-center">
-                                    <Image className="mx-auto min-[880px]:mx-0" src={"footer/android.svg"} alt={"apple"}
+                                    <Image className="mx-auto min-[880px]:mx-0" src={"/footer/android.svg"} alt={"apple"}
                                            width={26} height={32}/>
                                 </div>
                             </div>
@@ -101,12 +101,12 @@ export default function Footer() {
                             <div className="flex flex-row gap-4">
                                 <div
                                     className="bg-[#1d1e20] w-full min-[880px]:w-auto rounded-[24px] py-2 px-[60px] flex items-center">
-                                    <Image className="mx-auto min-[880px]:mx-0" src={"footer/tiktok.svg"} alt={"apple"}
+                                    <Image className="mx-auto min-[880px]:mx-0" src={"/footer/tiktok.svg"} alt={"apple"}
                                            width={26} height={32}/>
                                 </div>
                                 <div
                                     className="bg-[#1d1e20] w-full min-[880px]:w-auto rounded-[24px] py-2 px-[60px] flex items-center">
-                                    <Image className="mx-auto min-[880px]:mx-0" src={"footer/insta.svg"} alt={"apple"}
+                                    <Image className="mx-auto min-[880px]:mx-0" src={"/footer/insta.svg"} alt={"apple"}
                                            width={26} height={32}/>
                                 </div>
                             </div>
@@ -114,7 +114,7 @@ export default function Footer() {
 
                         <div className="min-[880px]:hidden flex flex-col border-t border-[#333] pt-4">
                             <div className="flex flex-row items-center gap-2">
-                                <Image src={"language.svg"} alt={"language"} width={20} height={20}/>
+                                <Image src={"/language.svg"} alt={"language"} width={20} height={20}/>
 
                                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M6.66656 4L5.72656 4.94L8.7799 8L5.72656 11.06L6.66656 12L10.6666 8L6.66656 4Z" fill="#999999" />
@@ -126,7 +126,7 @@ export default function Footer() {
                 <div className="max-w-[1200px] mx-auto w-full">
                     <div className="flex flex-col gap-2 min-[880px]:gap-0 min-[880px]:flex-row min-[880px]:justify-between w-full pt-4">
                         <div className="flex flex-row gap-2 text-center">
-                            <Image src={"footer/otrium.svg"} alt={"otrium"} width={16} height={16}/>
+                            <Image src={"/footer/otrium.svg"} alt={"otrium"} width={16} height={16}/>
                             <span className="text-[#999] text-[13px]">© 2016-2026 Otrium, except certain content provided by third parties</span>
                         </div>
                         <div className="flex flex-col min-[880px]:flex-row items-center gap-1">
@@ -138,7 +138,7 @@ export default function Footer() {
                         </div>
 
                         <div className="hidden min-[880px]:flex flex-row gap-1 items-center">
-                            <Image src={"language.svg"} alt={"language"} width={20} height={20}/>
+                            <Image src={"/language.svg"} alt={"language"} width={20} height={20}/>
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
                                 <path d="M12 6.66656L11.06 5.72656L8 8.7799L4.94 5.72656L4 6.66656L8 10.6666L12 6.66656Z" fill="#999999"/>

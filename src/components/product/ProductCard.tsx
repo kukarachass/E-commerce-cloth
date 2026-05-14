@@ -3,7 +3,12 @@ import {formatPrice} from "@/lib/formatPrice";
 import {IProduct} from "@/components/product/IProduct";
 import Link from "next/link";
 
-export default function ProductCard({ product }: {product: IProduct }) {
+interface IProductCardProps {
+    product: IProduct;
+    variant?: "default" | "noButton"
+}
+
+export default function ProductCard({ product, variant = "default" }: IProductCardProps) {
     return(
         <Link href={`/product/${product.id}`} className="max-w-[180px] h-full w-full">
             <div className="flex flex-col gap-4">
@@ -17,9 +22,11 @@ export default function ProductCard({ product }: {product: IProduct }) {
                         <span className="text-[#666] text-[16px] font-bold leading-[150%]">{formatPrice(195)}</span>
                     </div>
                 </div>
-                <button className="px-[42px] py-[12px] rounded-[24px] bg-black/[0.04] texe-[var(--text)] text-[16px] font-medium cursor-pointer">
-                    Add to bag
-                </button>
+                {variant === "default" && (
+                    <button className="px-[42px] py-[12px] rounded-[24px] bg-black/[0.04] texe-[var(--text)] text-[16px] font-medium cursor-pointer">
+                        Add to bag
+                    </button>
+                )}
             </div>
         </Link>
     )

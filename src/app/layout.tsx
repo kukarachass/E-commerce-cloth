@@ -1,6 +1,7 @@
 import type {Metadata} from "next";
 import {Source_Sans_3} from "next/font/google";
 import "./globals.css";
+import ScrollToTop from "@/lib/ScrollToTop";
 
 const sourceSans = Source_Sans_3({
     variable: "--source-sans-3",
@@ -16,6 +17,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
     return (
         <html lang="en" className={`${sourceSans.variable} h-full antialiased`}>
         <body className={`${sourceSans.className} min-h-screen flex flex-col`}>
+        <ScrollToTop/>
         {children}
         </body>
         </html>

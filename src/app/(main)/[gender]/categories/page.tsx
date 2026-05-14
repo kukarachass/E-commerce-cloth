@@ -1,7 +1,12 @@
+"use client"
+
 import Image from "next/image";
 import Breadcrumb from "@/components/ui/Breadcrumb";
+import Link from "next/link";
+import {useGenderStore} from "@/store/useGenderStore";
 
 export default function () {
+    const gender = useGenderStore(s => s.gender)
     const data = [
         {name: "Bags", img: "/category/bags.png"},
         {name: "Dresses", img: "/category/dress.jpg"},
@@ -18,7 +23,8 @@ export default function () {
             <h1 className="text-[var(--text)] font-bold text-[28px]">ALL CATEGORIES</h1>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {data.map((category) => (
-                    <div key={category.name} className="flex flex-col gap-3 cursor-pointer bg-[#f9f9f9] p-4 max-w-[330px] max-h-[300px]">
+                    <Link href={`/${gender}/${category.name}`} key={category.name}
+                          className="flex flex-col gap-3 cursor-pointer bg-[#f9f9f9] p-4 max-w-[330px] max-h-[300px]">
                         <Image
                             src={category.img}
                             alt={category.name}
@@ -29,7 +35,7 @@ export default function () {
                         <span className="text-center font-bold text-[18px] text-[var(--text)]">
                         {category.name}
                     </span>
-                    </div>
+                    </Link>
                 ))}
             </div>
         </div>
