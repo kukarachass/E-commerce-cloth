@@ -1,6 +1,5 @@
 "use client"
 
-import FavoritesIconSvg from "@/components/ui/icons/FavoritesIconSvg";
 import {useFavoritesStore} from "@/store/useFavoritesStore";
 import FavAnimIcon from "@/components/ui/icons/FavIcon/FavAnimIcon";
 

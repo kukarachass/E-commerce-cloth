@@ -91,7 +91,7 @@ export const categoryItems = {
             { name: "Trousers", subcategories: [] },
             { name: "Sweaters and Cardigans", subcategories: [] },
             { name: "Jackets", subcategories: [] },
-            { name: "Jeans", subcategories: [] },
+            { name: "Jeans", subcategories: ["Straight Jeans", "Skinny Jeans", "Slim Jeans", "Flared"] },
             { name: "Suits", subcategories: [] },
             { name: "Swimwear", subcategories: [] },
             { name: "Underwear & Socks", subcategories: [] },
@@ -129,7 +129,7 @@ export const categoryItems = {
             { name: "Trousers", subcategories: [] },
             { name: "Sweaters and Cardigans", subcategories: [] },
             { name: "Jackets", subcategories: [] },
-            { name: "Jeans", subcategories: [] },
+            { name: "Jeans", subcategories: ["Straight Jeans", "Skinny Jeans", "Slim Jeans", "Flared"] },
             { name: "Skirts", subcategories: [] },
             { name: "Swimwear", subcategories: [] },
             { name: "Lingerie", subcategories: [] },
@@ -195,7 +195,33 @@ export const productsArray = [
     {
         id: "1",
         brand: "Gucci",
-        imgUrl: ["/product-image.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        name: "Dolce Kabana",
+        description: "Ahuenno super zaebis",
+        price: 120,
+        sizes: ["L", "M", "S", "XS", "XXS",],
+
+        descriptionFull: "Placing A Playful Twist On Classic Gingham, Tammy Features A Bold, Scaled Up Check On Tactile Linton Tweed And Is Finished With A Stylish Raw Edge. This A-Line Skirt With Front Patch Pockets Looks Effortless Styled With A Tucked In Tee Or Camisole And A Simple Pair Of Sandals.&Nbsp;",
+        material: "Cotton Mix",
+        careInstructions: "Please Follow The Care Instructions On The Care Label"
+    },
+    {
+        id: "14124",
+        brand: "Gucci",
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        name: "Dolce Kabana",
+        description: "Ahuenno super zaebis",
+        price: 120,
+        sizes: ["L", "M", "S", "XS", "XXS",],
+
+        descriptionFull: "Placing A Playful Twist On Classic Gingham, Tammy Features A Bold, Scaled Up Check On Tactile Linton Tweed And Is Finished With A Stylish Raw Edge. This A-Line Skirt With Front Patch Pockets Looks Effortless Styled With A Tucked In Tee Or Camisole And A Simple Pair Of Sandals.&Nbsp;",
+        material: "Cotton Mix",
+        careInstructions: "Please Follow The Care Instructions On The Care Label"
+    },
+    {
+        id: "175675676",
+        brand: "Gucci",
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
         name: "Dolce Kabana",
         description: "Ahuenno super zaebis",
         price: 120,
@@ -208,7 +234,7 @@ export const productsArray = [
     {
         id: "2",
         brand: "Gucci",
-        imgUrl: ["/product-image.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
         name: "Dolce Kabana",
         description: "Ahuenno super zaebis",
         price: 120,
@@ -221,7 +247,7 @@ export const productsArray = [
     {
         id: "4",
         brand: "Gucci",
-        imgUrl: ["/product-image.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
         name: "Dolce Kabana",
         description: "Ahuenno super zaebis",
         price: 120,
@@ -234,7 +260,7 @@ export const productsArray = [
     {
         id: "5",
         brand: "Gucci",
-        imgUrl: ["/product-image.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
         name: "Dolce Kabana",
         description: "Ahuenno super zaebis",
         price: 120,
@@ -247,7 +273,7 @@ export const productsArray = [
     {
         id: "6",
         brand: "Gucci",
-        imgUrl: ["/product-image.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
         name: "Dolce Kabana",
         description: "Ahuenno super zaebis",
         price: 120,
@@ -260,7 +286,7 @@ export const productsArray = [
     {
         id: "7",
         brand: "Gucci",
-        imgUrl: ["/product-image.webp", "/product2.webp", "/product3.webp", "product4.webp"],
+        imgUrl: ["/product/products-soccers.webp", "/product2.webp", "/product3.webp", "product4.webp"],
         name: "Dolce Kabana",
         description: "Ahuenno super zaebis",
         price: 120,

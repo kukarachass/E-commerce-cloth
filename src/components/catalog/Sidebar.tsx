@@ -2,8 +2,7 @@
 
 import { useState } from "react"
 import cn from "classnames"
-import { motion } from "framer-motion"
-import {categoryItems} from "@/mocks/catalogStore";
+import { motion, AnimatePresence } from "framer-motion"
 
 export interface CategoryItem {
     name: string
@@ -13,7 +12,8 @@ export interface CategoryItem {
 interface Props {
     title: string
     items: readonly CategoryItem[]
-    noTitle?: boolean;
+    noTitle?: boolean
+    activeItem?: string
 }
 
 function SidebarCheckbox({ checked }: { checked: boolean }) {
@@ -32,9 +32,11 @@ function SidebarCheckbox({ checked }: { checked: boolean }) {
     )
 }
 
-export default function Sidebar({ title, items, noTitle = false }: Props) {
+export default function Sidebar({ title, items, noTitle = false, activeItem }: Props) {
     const [selectedAll, setSelectedAll] = useState(false)
-    const [selected, setSelected] = useState<string[]>([])
+    const [selected, setSelected] = useState<string[]>(() =>
+        activeItem ? [activeItem] : []
+    )
 
     const toggle = (name: string) => {
         setSelected(prev =>
@@ -51,7 +53,6 @@ export default function Sidebar({ title, items, noTitle = false }: Props) {
                 </span>
             </div>
             <div className="flex flex-col gap-1 overflow-y-auto h-[calc(100vh-113px)]">
-                {/* заголовок категории */}
                 {!noTitle && (
                     <label
                         className="flex items-center gap-3 cursor-pointer"
@@ -62,8 +63,7 @@ export default function Sidebar({ title, items, noTitle = false }: Props) {
                     </label>
                 )}
 
-                {/* подкатегории */}
-                <div className="flex flex-col pl-5">
+                <div className={`flex flex-col ${noTitle ? "" : "pl-5"}`}>
                     {items.map((item) => (
                         <div key={item.name}>
                             <label
@@ -74,25 +74,33 @@ export default function Sidebar({ title, items, noTitle = false }: Props) {
                                 <span className="text-[16px] text-[var(--text)]">{item.name}</span>
                             </label>
 
-                            {item.subcategories.length > 0 && (
-                                <div className="flex flex-col pl-5">
-                                    {item.subcategories.map((sub) => (
-                                        <label
-                                            key={sub}
-                                            className="flex items-center gap-3 py-1 cursor-pointer hover:bg-gray-100 transition-all duration-300 pl-2 rounded-[4px]"
-                                            onClick={() => toggle(sub)}
-                                        >
-                                            <SidebarCheckbox checked={selected.includes(sub)} />
-                                            <span className="text-[16px] text-[var(--text)]">{sub}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            )}
+                            <AnimatePresence>
+                                {item.subcategories.length > 0 && selected.includes(item.name) && (
+                                    <motion.div
+                                        key={item.name + "-subs"}
+                                        initial={{ height: 0, opacity: 0 }}
+                                        animate={{ height: "auto", opacity: 1 }}
+                                        exit={{ height: 0, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="flex flex-col pl-5 overflow-hidden"
+                                    >
+                                        {item.subcategories.map((sub) => (
+                                            <label
+                                                key={sub}
+                                                className="flex items-center gap-3 py-1 cursor-pointer hover:bg-gray-100 transition-all duration-300 pl-2 rounded-[4px]"
+                                                onClick={() => toggle(sub)}
+                                            >
+                                                <SidebarCheckbox checked={selected.includes(sub)} />
+                                                <span className="text-[16px] text-[var(--text)]">{sub}</span>
+                                            </label>
+                                        ))}
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
                     ))}
                 </div>
             </div>
         </div>
-
     )
 }

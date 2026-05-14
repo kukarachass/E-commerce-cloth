@@ -1,15 +1,17 @@
 "use client"
 
-import styles from "./slider.module.css"
-import {type ReactNode, useEffect, useRef, useState} from "react";
-import {ChevronLeft, ChevronRight} from "lucide-react";
+import { type ReactNode, useEffect, useRef, useState, Children } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import cn from "classnames";
 
 interface Props {
     children: ReactNode;
+    className?: string;
+    itemsVisible?: number;
+    gap?: number;
 }
 
-export default function Slider({ children }: Props) {
+export default function Slider({ children, className, itemsVisible = 4, gap = 16 }: Props) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
@@ -17,7 +19,6 @@ export default function Slider({ children }: Props) {
     const updateScrollState = () => {
         const el = scrollRef.current;
         if (!el) return;
-
         const { scrollLeft, scrollWidth, clientWidth } = el;
         setCanScrollLeft(scrollLeft > 0);
         setCanScrollRight(scrollLeft + clientWidth < scrollWidth - 1);
@@ -26,46 +27,68 @@ export default function Slider({ children }: Props) {
     const scroll = (direction: "left" | "right") => {
         const el = scrollRef.current;
         if (!el) return;
-        const amount = el.clientWidth * 0.9;
-        el.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
+        el.scrollBy({ left: direction === "left" ? -el.clientWidth * 0.9 : el.clientWidth * 0.9, behavior: "smooth" });
     };
 
     useEffect(() => {
         const el = scrollRef.current;
         if (!el) return;
-
-        const ro = new ResizeObserver(() => updateScrollState());
+        const ro = new ResizeObserver(updateScrollState);
         ro.observe(el);
-
         el.addEventListener("scroll", updateScrollState);
         window.addEventListener("resize", updateScrollState);
-        updateScrollState();
-
+        requestAnimationFrame(updateScrollState);
         return () => {
             ro.disconnect();
             el.removeEventListener("scroll", updateScrollState);
             window.removeEventListener("resize", updateScrollState);
         };
-    }, []);
+    }, [children]);
+
+    const itemWidth = `calc((100% - ${gap * (itemsVisible - 1)}px) / ${itemsVisible})`;
 
     return (
-        <div className={styles.container}>
-            <div className={styles.btnsWrapper}>
-                {canScrollLeft && (
-                    <button className={`${styles.button} ${styles.left}`} onClick={() => scroll("left")}>
-                        <ChevronLeft size={20} />
-                    </button>
+        <div className="relative w-full">
+            <button
+                onClick={() => scroll("left")}
+                className={cn(
+                    "absolute left-[-25px] top-1/2 -translate-y-1/2 z-10",
+                    "size-8 rounded-full bg-white text-gray-700 shadow-md border-none",
+                    "flex items-center justify-center cursor-pointer",
+                    "transition-all duration-200 hover:bg-gray-100",
+                    !canScrollLeft && "invisible pointer-events-none"
                 )}
+            >
+                <ChevronLeft size={20} />
+            </button>
 
-                {canScrollRight && (
-                    <button className={`${styles.button} ${styles.right}`} onClick={() => scroll("right")}>
-                        <ChevronRight size={20} />
-                    </button>
+            <button
+                onClick={() => scroll("right")}
+                className={cn(
+                    "absolute right-[-20px] top-1/2 -translate-y-1/2 z-10",
+                    "size-8 rounded-full bg-white text-gray-700 shadow-md border-none",
+                    "flex items-center justify-center cursor-pointer",
+                    "transition-all duration-200 hover:bg-gray-100",
+                    !canScrollRight && "invisible pointer-events-none"
                 )}
-            </div>
+            >
+                <ChevronRight size={20} />
+            </button>
 
-            <div ref={scrollRef} className={cn(`${styles.track} ${styles || ""}`)}>
-                {children}
+            <div
+                ref={scrollRef}
+                style={{ gap }}
+                className={cn(
+                    "flex overflow-x-auto",
+                    "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
+                    className
+                )}
+            >
+                {Children.map(children, (child) => (
+                    <div style={{ width: itemWidth, minWidth: itemWidth, flexShrink: 0 }}>
+                        {child}
+                    </div>
+                ))}
             </div>
         </div>
     );

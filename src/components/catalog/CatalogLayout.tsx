@@ -6,12 +6,13 @@ interface CatalogLayoutProps {
     items: readonly CategoryItem[]
     title: string;
     noTitle?: boolean;
+    activeItem?: string;
 }
-export default function CatalogLayout({ children, items, title, noTitle }: CatalogLayoutProps) {
+export default function CatalogLayout({ children, items, title, noTitle, activeItem }: CatalogLayoutProps) {
     return(
         <div className="flex flex-row gap-6 w-full">
             <aside className="sticky top-[57px] self-start  w-[290px] shrink-0">
-                <Sidebar noTitle={noTitle} title={title} items={items}/>
+                <Sidebar activeItem={activeItem} noTitle={noTitle} title={title} items={items}/>
             </aside>
 
             <div className="flex flex-col gap-8 w-full">
