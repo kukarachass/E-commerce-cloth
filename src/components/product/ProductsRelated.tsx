@@ -16,7 +16,7 @@ export default function ProductsRelated({ products, currentId, type}: Props) {
             {type === "related" ? (
                 <div className="flex flex-col w-full">
                     <h2 className="text-[var(--text)] text-[24px] font-medium">You might also like</h2>
-                    <Slider>
+                    <Slider itemsVisible={6}>
                         {filteredProducts.map(product => (
                             <ProductCard key={product.id} product={product}/>
                         ))}
@@ -25,7 +25,7 @@ export default function ProductsRelated({ products, currentId, type}: Props) {
             ) : (
                 <div className="flex flex-col w-full">
                     <h2 className="text-[var(--text)] text-[24px] font-medium">Complete the look</h2>
-                    <Slider>
+                    <Slider itemsVisible={6}>
                         {filteredProducts.map(product => (
                             <ProductCard key={product.id} product={product}/>
                         ))}

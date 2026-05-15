@@ -3,6 +3,7 @@ import Slider from "@/components/Slider/Slider";
 import cn from "classnames";
 import Image from "next/image";
 import AddToFavBrandButton from "@/components/product/AddToFavBrandButton";
+import BrandCard from "@/components/ui/cards/BrandCard";
 
 const brands = [
     {
@@ -169,20 +170,7 @@ export default function BrandsSwitcher() {
             </div>
             <Slider>
                 {activeItems.map(i => (
-                    <div key={i.id} className="flex flex-col gap-3 border border-gray-200 rounded-md">
-                        <div className="relative h-[210px] w-full">
-                            <Image src={i.imgUrl} alt={i.id} fill className="object-cover rounded-md"/>
-                            <AddToFavBrandButton type={"single"} className="absolute right-[20px] top-[20px] z-10" brandId={i.id}/>
-                        </div>
-                        <div className="flex flex-col gap-1 px-4 pb-2">
-                            <div className="flex flex-row gap-1">
-                                {i.tags.map(t => (
-                                    <span key={t.id} className={`bg-white shadow px-1 rounded text-[12px] leading-[133%] font-[600] capitalize text-[${t.color}]`}>{t.name}</span>
-                                ))}
-                            </div>
-                            <span className="text-[var(--text)] text-[16px] leading-[150%] font-[600]">up to {i.discount}% off</span>
-                        </div>
-                    </div>
+                    <BrandCard brand={i}/>
                 ))}
             </Slider>
         </div>

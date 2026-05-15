@@ -24,7 +24,7 @@ export default function AddToFavBrandButton({
     return (
         <div className={`${className} flex flex-row gap-2 items-center select-none`}>
             <FavIcon
-                className={`${className} select-none rounded-full p-1.5 transition-colors duration-200 ${
+                className={`select-none rounded-full p-1.5 transition-colors duration-200 ${
                     color === "white"
                         ? "hover:bg-white/20"
                         : "hover:bg-black/10"
