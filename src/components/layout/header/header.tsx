@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import {useEffect, useRef, useState} from "react"
 import TopBar from "@/components/layout/header/TopBar"
 import MiddleBar from "@/components/layout/header/MiddleBar"
 import BottomBar from "@/components/layout/header/BottomBar/BottomBar"
@@ -20,31 +20,28 @@ export default function Header() {
             const height = topBarRef.current?.offsetHeight ?? 0
             setIsSticky(window.scrollY > height)
         }
-        window.addEventListener("scroll", handleScroll, { passive: true })
+        window.addEventListener("scroll", handleScroll, {passive: true})
         return () => window.removeEventListener("scroll", handleScroll)
     }, [])
 
     useEffect(() => {
-        if(searchOpen){
+        if (searchOpen) {
             document.body.style.overflow = 'hidden';
-            console.log("hidden");
         } else {
             document.body.style.overflow = 'unset';
-            console.log("unset");
-
         }
 
-        console.log("search opene value: ", searchOpen)
     }, [searchOpen]);
 
 
     return (
         <>
             {searchOpen && (
-                <div onClick={() => setSearchOpen(!searchOpen)} className="fixed inset-0 bg-black/40 z-40 pointer-events-auto" />
+                <div onClick={() => setSearchOpen(!searchOpen)}
+                     className="fixed inset-0 bg-black/40 z-40 pointer-events-auto"/>
             )}
             <div ref={topBarRef}>
-                <TopBar />
+                <TopBar/>
             </div>
             <MiddleBar/>
             <BottomBar/>

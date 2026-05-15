@@ -13,7 +13,7 @@ export default function HeaderNav(){
                 New items
             </Link>
             <Link href={`/${gender}/brands`}>
-            Brands
+                Brands
             </Link>
             <Link href={`/${gender}/collections/everything-summer`}>
                 Everything Summer

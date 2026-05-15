@@ -12,3 +12,7 @@
     --footer-bottom-bg: #000;
     --white-text: #fff;
 }
+
+.font-cormorant {
+    font-variant-numeric: lining-nums;
+}
