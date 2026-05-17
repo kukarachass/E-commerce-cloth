@@ -1,17 +1,17 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-import { useStickyStore } from "@/store/useStickyStore"
-import { useSearchStore } from "@/store/useSearchOpen"
-import { Player } from "@lordicon/react"
-import { useRef } from "react"
+import {useRouter} from "next/navigation"
+import {useStickyStore} from "@/store/useStickyStore"
+import {useSearchStore} from "@/store/useSearchOpen"
+import {Player} from "@lordicon/react"
+import {useRef, useState} from "react"
 
 import searchJson from "./search.json"
 import accountJson from "./account.json"
 import favJson from "./fav.json"
 import cartJson from "./cart.json"
 
-function LottieButton({ json, onClick }: { json: object; onClick?: () => void }) {
+function LottieButton({json, onClick}: { json: object; onClick?: () => void }) {
     const ref = useRef<Player>(null)
 
     return (
@@ -37,16 +37,18 @@ export default function ActionButtons() {
     const router = useRouter()
 
     return (
-        <div className="flex flex-row items-center gap-4">
+        <div className="flex flex-row items-center gap-4 relative">
             {isSticky && (
                 <LottieButton
                     json={searchJson}
                     onClick={() => setSearchOpen(!searchOpen)}
                 />
             )}
-            <LottieButton json={accountJson} onClick={() => router.push("/profile")} />
-            <LottieButton json={favJson} onClick={() => router.push("/fav")} />
-            <LottieButton json={cartJson} onClick={() => router.push("/cart")} />
+            <LottieButton json={accountJson} onClick={() => router.push("/account/my-profile")}/>
+            <LottieButton json={favJson} onClick={() => router.push("/fav")}/>
+            <LottieButton json={cartJson} onClick={() => router.push("/cart")}/>
         </div>
+
+
     )
 }

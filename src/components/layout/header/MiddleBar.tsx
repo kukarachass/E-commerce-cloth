@@ -1,3 +1,5 @@
+"use client"
+
 import GenderSwitcher from "@/components/layout/header/GenderSwitcher";
 import Image from "next/image";
 import cn from "classnames"

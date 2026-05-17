@@ -4,19 +4,25 @@ import cn from "classnames"
 import { useState } from "react"
 
 interface Props {
-    label: string;
-    placeholder?: string;
-    className?: string;
+    label: string
+    placeholder?: string
+    className?: string
+    value?: string                      // добавь
+    onChange?: (v: string) => void      // добавь
 }
 
-export default function FloatingLabelInput({ label, placeholder, className }: Props) {
-    const [value, setValue] = useState("")
+export default function FloatingLabelInput({ label, placeholder, className, value: externalValue, onChange }: Props) {
+    const [internalValue, setInternalValue] = useState("")
+    const value = externalValue !== undefined ? externalValue : internalValue
 
     return (
         <div className={`${className} relative`}>
             <input
                 value={value}
-                onChange={(e) => setValue(e.target.value)}
+                onChange={(e) => {
+                    setInternalValue(e.target.value)
+                    onChange?.(e.target.value)
+                }}
                 className={cn("py-3 px-4 w-full text-[14px] border border-[#ccc] rounded-[10px] text-[var(--text)]")}
                 placeholder={placeholder ?? label}
                 type="text"
