@@ -1,6 +1,6 @@
 "use client"
 
-import {useEffect, useRef, useState} from "react"
+import {useEffect, useRef } from "react"
 import TopBar from "@/components/layout/header/TopBar"
 import MiddleBar from "@/components/layout/header/MiddleBar"
 import BottomBar from "@/components/layout/header/BottomBar/BottomBar"
