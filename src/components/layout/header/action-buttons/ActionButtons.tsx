@@ -45,7 +45,7 @@ export default function ActionButtons() {
                 />
             )}
             <LottieButton json={accountJson} onClick={() => router.push("/account/my-profile")}/>
-            <LottieButton json={favJson} onClick={() => router.push("/fav")}/>
+            <LottieButton json={favJson} onClick={() => router.push("/favourites")}/>
             <LottieButton json={cartJson} onClick={() => router.push("/cart")}/>
         </div>
 
