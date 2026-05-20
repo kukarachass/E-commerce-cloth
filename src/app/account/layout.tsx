@@ -14,7 +14,7 @@ export default function AccountLayout({ children }: Props) {
         <div className="flex flex-col">
             <div className="pb-10">
                 <TopBar />
-                <MiddleBar />
+                <MiddleBar className="border-b border-gray-200"/>
             </div>
             <Container className="flex flex-col flex-1 min-h-screen">
                 <div className="flex flex-row justify-between w-full gap-10 flex-1">

@@ -10,9 +10,9 @@ export default function ButtonPrimary({ variant, className, children, ...rest }:
     return(
         <button
             {...rest}
-            className={cn(`${className} rounded-[32px] py-[8px] px-[32px] font-medium text-[16px] min-w-[260px] min-h-[50px] cursor-pointer`,{
-            ["bg-black text-white"]: variant === "primary",
-            ["bg-white text-[var(--text)] border"]: variant === "secondary",
+            className={cn(`${className} transition-all duration-300 font-[600] rounded-[10px] text-[16px] py-2 px-4 cursor-pointer max-h-[40px] h-full`,{
+            ["bg-black text-white hover:bg-black/85 "]: variant === "primary",
+            ["bg-white text-[var(--text)] border border-gray-200 hover:bg-gray-100"]: variant === "secondary",
         })}>
             {children}
         </button>
