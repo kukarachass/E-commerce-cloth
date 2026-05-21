@@ -35,7 +35,9 @@ export default function AccountActionsModal({ onChange }: Props) {
             <ReturnsButton />
             <MyProfileButton />
             <CustomerServiceButton />
-            <LogOutButton />
+            {session && (
+                <LogOutButton />
+            )}
             {!session && (
                 <div className="flex flex-col gap-2 p-4 pb-4">
                     <ButtonPrimary onClick={() => router.push("/auth?method=sign-in")} variant={'secondary'}>
