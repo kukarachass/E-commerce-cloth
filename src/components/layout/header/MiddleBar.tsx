@@ -13,7 +13,10 @@ import ActionButtons from "@/components/layout/header/action-buttons/ActionButto
 import Link from "next/link";
 import Container from "@/components/layout/Сontainer";
 
-export default function MiddleBar() {
+interface Props {
+    className?: string
+}
+export default function MiddleBar({ className }: Props) {
     const isSticky = useStickyStore(state => state.isSticky)
     const searchOpen = useSearchStore(state => state.searchOpen);
 
@@ -26,7 +29,7 @@ export default function MiddleBar() {
 
 
     return(
-        <div ref={ref} className={cn("bg-white z-50 sticky top-0",{
+        <div ref={ref} className={cn(`bg-white z-50 sticky top-0 ${className}`,{
             ["shadow-[0_2px_8px_rgba(0,0,0,0.08)]"]: isSticky
         })}>
             <Container className="flex items-center justify-between py-4">

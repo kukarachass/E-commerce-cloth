@@ -3,7 +3,7 @@ import CheckoutSummaryBlock from "@/components/checkout/SummaryBlock/CheckoutSum
 
 export default function CheckoutStep1() {
     return(
-        <div className="flex flex-row gap-8 py-10">
+        <div className="flex flex-row gap-8 py-10 justify-center">
             <ContactInformation/>
             <CheckoutSummaryBlock href={"/checkout?step=2"}/>
         </div>

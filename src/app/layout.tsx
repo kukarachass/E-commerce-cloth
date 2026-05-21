@@ -3,6 +3,7 @@ import {Source_Sans_3} from "next/font/google";
 import "./globals.css";
 import ScrollToTop from "@/lib/ScrollToTop";
 import { Cormorant_Garamond } from "next/font/google"
+import {Toaster} from "sonner";
 
 const cormorant = Cormorant_Garamond({
     variable: "--font-cormorant",
@@ -27,6 +28,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <html lang="en" className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}>
         <body className={`${sourceSans.className} min-h-screen flex flex-col`}>
         <ScrollToTop/>
+        <Toaster position="bottom-center" richColors/>
         {children}
         </body>
         </html>

@@ -10,6 +10,7 @@ import searchJson from "./search.json"
 import accountJson from "./account.json"
 import favJson from "./fav.json"
 import cartJson from "./cart.json"
+import AccountActionsModal from "@/components/account/AccountActionsModal";
 
 function LottieButton({json, onClick}: { json: object; onClick?: () => void }) {
     const ref = useRef<Player>(null)
@@ -35,6 +36,7 @@ export default function ActionButtons() {
     const setSearchOpen = useSearchStore(state => state.setSearchOpen)
     const searchOpen = useSearchStore(state => state.searchOpen)
     const router = useRouter()
+    const [open, setOpen] = useState(false);
 
     return (
         <div className="flex flex-row items-center gap-4 relative">
@@ -44,11 +46,15 @@ export default function ActionButtons() {
                     onClick={() => setSearchOpen(!searchOpen)}
                 />
             )}
-            <LottieButton json={accountJson} onClick={() => router.push("/account/my-profile")}/>
+            <LottieButton json={accountJson} onClick={() => setOpen(!open)}/>
             <LottieButton json={favJson} onClick={() => router.push("/favourites")}/>
             <LottieButton json={cartJson} onClick={() => router.push("/cart")}/>
+            {open && (
+                <div className="absolute top-[40px] right-0">
+                    <AccountActionsModal onChange={() => setOpen(false)}/>
+                </div>
+            )}
         </div>
-
 
     )
 }
