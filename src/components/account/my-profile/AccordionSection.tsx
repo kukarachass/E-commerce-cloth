@@ -10,7 +10,7 @@ interface AccordionSectionProps {
     defaultOpen?: boolean
 }
 
-export default function AccordionSection({ title, children, defaultOpen = false }: AccordionSectionProps) {
+export default function AccordionSection({ title, children, defaultOpen = true }: AccordionSectionProps) {
     const [open, setOpen] = useState(defaultOpen)
 
     return (
