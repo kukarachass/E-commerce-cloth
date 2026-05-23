@@ -1,9 +1,18 @@
 import { relations } from "drizzle-orm";
-import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, index, date} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
+    lastName: text("lastName"),
+    dateOfBirth: date("date_of_birth"),
+    gender: text("gender"),
+    street: text("street"),
+    houseNumber: text("houseNumber"),
+    houseAddition: text("houseAddition"),
+    postcode: text("postcode"),
+    city: text("city"),
+    phoneNumber: text("phoneNumber"),
     email: text("email").notNull().unique(),
     emailVerified: boolean("email_verified").default(false).notNull(),
     image: text("image"),
