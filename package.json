@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "seed": "tsx src/db/seed.ts",
+    "debug": "tsx src/db/debug.ts",
     "lint": "eslint"
   },
   "dependencies": {

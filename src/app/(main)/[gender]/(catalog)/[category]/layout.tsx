@@ -1,18 +1,28 @@
-import {categoryItems} from "@/mocks/catalogStore";
-import CatalogLayout from "@/components/catalog/CatalogLayout";
-import {ReactNode} from "react";
+import CatalogLayout from "@/components/catalog/CatalogLayout"
+import { ReactNode } from "react"
+import {getCategoryWithSubs} from "@/actions/category/categories";
+import {getBrands} from "@/actions/brands/brands";
 
-interface CategoryLayoutProps {
-    children: ReactNode;
+interface Props {
+    children: ReactNode
     params: Promise<{ gender: string; category: string }>
 }
 
-export default async function CategoryLayout({ children, params }: CategoryLayoutProps) {
-    const { gender, category } = await params;
+export default async function CategoryLayout({ children, params }: Props) {
+    const { gender, category } = await params
 
-    const items = categoryItems.women.clothing.filter(c => c.name === category)
+    // slug в БД построен как "women-clothing", "men-shoes" и тд
+    const slug = `${gender}-${category}`
+    const categoryData = await getCategoryWithSubs(gender, slug)
+    const brands = await getBrands({ gender, categorySlug: category })
+
+
     return (
-        <CatalogLayout activeItem={category} noTitle title={category} items={items}>
+        <CatalogLayout
+            title={categoryData?.name ?? category}
+            items={categoryData?.subcategories ?? []}
+            brands={brands}
+        >
             {children}
         </CatalogLayout>
     )

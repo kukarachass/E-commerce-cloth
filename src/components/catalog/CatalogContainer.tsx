@@ -1,10 +1,12 @@
 import {IProduct} from "@/components/product/IProduct";
 import CatalogProductCard from "@/components/catalog/CatalogProductCard";
 import cn from "classnames";
+import {UserDTO} from "@/types/user";
+import {ProductWithDetails} from "@/types/product-details";
 
 interface Props{
-    products: IProduct[];
-    variant: "catalog" | "collection"
+    products: ProductWithDetails[];
+    variant?: "catalog" | "collection"
 }
 
 export default function CatalogContainer({ products, variant = "catalog" }: Props){

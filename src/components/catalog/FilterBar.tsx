@@ -11,6 +11,7 @@ import PatternContent from "@/components/catalog/filters/filters-modal-content/P
 import StyleContent from "@/components/catalog/filters/filters-modal-content/StyleContent";
 import DiscountContent from "@/components/catalog/filters/filters-modal-content/DiscountContent";
 import Sort from "@/components/catalog/filters/Sort";
+import {Brand} from "@/types/brands";
 
 const filters = [
     { id: 1, name: "Brands"},
@@ -23,7 +24,11 @@ const filters = [
 ]
 type FiltersType = typeof filters[number]["name"]
 
-export default function FilterBar() {
+interface FilterBarProps{
+    brands: Brand[]
+}
+
+export default function FilterBar({ brands }: FilterBarProps) {
     const[openedFilter, setOpenedFilter] = useState<FiltersType | null>(null)
     const ref = useRef<HTMLDivElement>(null)
 
@@ -57,7 +62,7 @@ export default function FilterBar() {
 
                         {openedFilter === filter.name && (
                             <FilterDropdown>
-                                {filter.name === "Brands" && <BrandsContent/>}
+                                {filter.name === "Brands" && <BrandsContent brands={brands}/>}
                                 {filter.name === "Size" && <SizeContent/>}
                                 {filter.name === "Price" && <PriceContent/>}
                                 {filter.name === "Colours" && <ColoursContent/>}

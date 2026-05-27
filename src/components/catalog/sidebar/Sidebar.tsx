@@ -3,33 +3,14 @@
 import { useState } from "react"
 import cn from "classnames"
 import { motion, AnimatePresence } from "framer-motion"
-
-export interface CategoryItem {
-    name: string
-    subcategories: readonly string[]
-}
+import {Category} from "@/types/category";
+import SidebarCheckbox from "@/components/catalog/sidebar/SidebarCheckbox";
 
 interface Props {
     title: string
-    items: readonly CategoryItem[]
+    items: Category[]
     noTitle?: boolean
     activeItem?: string
-}
-
-function SidebarCheckbox({ checked }: { checked: boolean }) {
-    return (
-        <div className={cn(
-            "w-4 h-4 border rounded-sm flex items-center justify-center shrink-0 transition-colors",
-            { "border-black": checked, "border-gray-300": !checked }
-        )}>
-            <motion.div
-                initial={false}
-                animate={{ scale: checked ? 1 : 0 }}
-                transition={{ duration: 0.15 }}
-                className="w-2 h-2 bg-black rounded-[2px]"
-            />
-        </div>
-    )
 }
 
 export default function Sidebar({ title, items, noTitle = false, activeItem }: Props) {
@@ -75,26 +56,30 @@ export default function Sidebar({ title, items, noTitle = false, activeItem }: P
                             </label>
 
                             <AnimatePresence>
-                                {item.subcategories.length > 0 && selected.includes(item.name) && (
-                                    <motion.div
-                                        key={item.name + "-subs"}
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="flex flex-col pl-5 overflow-hidden"
-                                    >
-                                        {item.subcategories.map((sub) => (
-                                            <label
-                                                key={sub}
-                                                className="flex items-center gap-3 py-1 cursor-pointer hover:bg-gray-100 transition-all duration-300 pl-2 rounded-[4px]"
-                                                onClick={() => toggle(sub)}
+                                {item.subcategories && (
+                                    <>
+                                        {item.subcategories.length > 0 && selected.includes(item.name) && (
+                                            <motion.div
+                                                key={item.name + "-subs"}
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: "auto", opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                className="flex flex-col pl-5 overflow-hidden"
                                             >
-                                                <SidebarCheckbox checked={selected.includes(sub)} />
-                                                <span className="text-[16px] text-[var(--text)]">{sub}</span>
-                                            </label>
-                                        ))}
-                                    </motion.div>
+                                                {item.subcategories.map((sub) => (
+                                                    <label
+                                                        key={sub.id}
+                                                        className="flex items-center gap-3 py-1 cursor-pointer hover:bg-gray-100 transition-all duration-300 pl-2 rounded-[4px]"
+                                                        onClick={() => toggle(sub.name)}
+                                                    >
+                                                        <SidebarCheckbox checked={selected.includes(sub.name)} />
+                                                        <span className="text-[16px] text-[var(--text)]">{sub.name}</span>
+                                                    </label>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </>
                                 )}
                             </AnimatePresence>
                         </div>

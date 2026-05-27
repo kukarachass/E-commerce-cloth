@@ -1,21 +1,17 @@
 
-import {auth} from "@/lib/auth";
 import {UserDTO} from "@/types/user";
+import {InferSelectModel} from "drizzle-orm";
+import {user} from "@/db/schema";
 
-export function toUserDTO(user: typeof auth.$Infer.Session.user): UserDTO {
+export function toUserDTO(userData: InferSelectModel<typeof user>): UserDTO {
     return {
-        id: user.id,
-        name: user.name,
-        lastName: user.lastName,
-        dateOfBirth: user.dateOfBirth,
-        gender: user.gender,
-        street: user.street,
-        houseNumber: user.houseNumber,
-        houseAddition: user.houseAddition,
-        postcode: user.postcode,
-        city: user.city,
-        phoneNumber: user.phoneNumber,
-        email: user.email,
-        image: user.image,
+        id: userData.id,
+        name: userData.name,
+        lastName: userData.lastName,
+        dateOfBirth: userData.dateOfBirth,
+        gender: userData.gender,
+        phoneNumber: userData.phoneNumber,
+        email: userData.email,
+        image: userData.image,
     }
 }

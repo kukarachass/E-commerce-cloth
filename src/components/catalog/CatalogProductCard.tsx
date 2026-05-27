@@ -4,10 +4,12 @@ import Image from "next/image";
 import {formatPrice} from "@/lib/formatPrice";
 import {useFavoritesStore} from "@/store/useFavoritesStore";
 import Link from "next/link";
-import {IProduct} from "@/components/product/IProduct";
+import {ProductWithDetails} from "@/types/product-details";
 
-export default function CatalogProductCard({ product }: {product: IProduct }) {
-    const sizes = product.sizes.length > 5 ? `${product.sizes.length} available` : product.sizes.map(size => size);
+export default function CatalogProductCard({ product }: {product: ProductWithDetails }) {
+    const sizes = product.sizes.length > 5
+        ? `${product.sizes.length} available`
+        : product.sizes.map(s => s.size)
     const toggleFavorites = useFavoritesStore(s => s.toggle);
     const isFavorite = useFavoritesStore(s => s.items.includes(product.id));
 
@@ -20,7 +22,7 @@ export default function CatalogProductCard({ product }: {product: IProduct }) {
     return(
         <Link href={`/product/${product.id}`} className="flex flex-col gap-4 ">
             <div className="group relative w-[290px] h-[435px]">
-                <Image className="rounded" src={product.imgUrl[0]} alt={product.name} fill/>
+                <Image className="rounded" src={product.images[0]?.url ?? "/placeholder.jpg"} alt={product.name} fill/>
                 <button
                     onClick={(e) => handleFav(product.id, e)}
                     className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 bg-white/60 backdrop-blur-sm rounded-full p-2"
@@ -35,8 +37,9 @@ export default function CatalogProductCard({ product }: {product: IProduct }) {
             <div className="flex flex-col gap-1 text-[var(--text)] text-[16px]">
                 <span className="font-bold leading-[150%]">{product.name}</span>
                 <span className="leading-[143%]">{product.description}</span>
-                <span className="leading-[150%] font-[600]">{formatPrice(product.price)}</span>
+                <span className="leading-[150%] font-[600]">{formatPrice(Number(product.originalPrice))}</span>
                 <span className="leading-[143%] text-[#999]">{Array.isArray(sizes) ? sizes.join(" / ") : sizes}</span>
+                <span className="leading-[143%] text-[#999]">{product.brand.name}</span>
             </div>
         </Link>
     )

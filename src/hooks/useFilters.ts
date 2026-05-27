@@ -1,3 +1,4 @@
+// hooks/useFilters.ts
 "use client"
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
@@ -10,37 +11,35 @@ export function useFilters() {
 
     const setFilter = useCallback((key: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString())
-        params.set(key, value)
-        router.push(`${pathname}?${params.toString()}`)
-    }, [searchParams, pathname, router])
 
-    const toggleFilter = useCallback((key: string, value: string) => {
-        const params = new URLSearchParams(searchParams.toString())
         const current = params.getAll(key)
 
         if (current.includes(value)) {
-            // убираем значение
+            // Убираем если уже выбран
+            const updated = current.filter(v => v !== value)
             params.delete(key)
-            current.filter(v => v !== value).forEach(v => params.append(key, v))
+            updated.forEach(v => params.append(key, v))
         } else {
+            // Добавляем если не выбран
             params.append(key, value)
         }
 
         router.push(`${pathname}?${params.toString()}`)
-    }, [searchParams, pathname, router])
+    }, [router, pathname, searchParams])
 
     const clearFilter = useCallback((key: string) => {
         const params = new URLSearchParams(searchParams.toString())
         params.delete(key)
         router.push(`${pathname}?${params.toString()}`)
-    }, [searchParams, pathname, router])
+    }, [router, pathname, searchParams])
 
     const clearAll = useCallback(() => {
         router.push(pathname)
-    }, [pathname, router])
+    }, [router, pathname])
 
-    const getFilter = (key: string) => searchParams.getAll(key)
-    const isActive = (key: string, value: string) => searchParams.getAll(key).includes(value)
+    const isSelected = useCallback((key: string, value: string) => {
+        return searchParams.getAll(key).includes(value)
+    }, [searchParams])
 
-    return { setFilter, toggleFilter, clearFilter, clearAll, getFilter, isActive }
+    return { setFilter, clearFilter, clearAll, isSelected, searchParams }
 }
