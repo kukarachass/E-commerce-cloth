@@ -2,8 +2,8 @@ import {Search} from "lucide-react"
 import ResetButton from "@/components/catalog/filters/filters-modal-content/ResetButton";
 import FilterCheckbox from "@/components/catalog/filters/filters-modal-content/FilterCheckbox";
 import {useState} from "react";
-import {Brand} from "@/types/brands";
 import {useFilters} from "@/hooks/useFilters";
+import {Brand} from "@/types/filters/brands";
 
 interface BrandsContentProps {
     brands: Brand[];

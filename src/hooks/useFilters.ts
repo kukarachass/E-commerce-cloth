@@ -1,8 +1,8 @@
 // hooks/useFilters.ts
 "use client"
 
-import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import { useCallback } from "react"
+import {useRouter, useSearchParams, usePathname} from "next/navigation"
+import {useCallback} from "react"
 
 export function useFilters() {
     const router = useRouter()
@@ -27,6 +27,17 @@ export function useFilters() {
         router.push(`${pathname}?${params.toString()}`)
     }, [router, pathname, searchParams])
 
+    const setUniqueFilter = useCallback(
+        (filters: Record<string, string>) => {
+            const params = new URLSearchParams(searchParams.toString())
+            Object.entries(filters).forEach(([key, value]) => {
+                params.set(key, value)
+            })
+            router.push(`${pathname}?${params.toString()}`)
+        },
+        [router, pathname, searchParams]
+    )
+
     const clearFilter = useCallback((key: string) => {
         const params = new URLSearchParams(searchParams.toString())
         params.delete(key)
@@ -41,5 +52,5 @@ export function useFilters() {
         return searchParams.getAll(key).includes(value)
     }, [searchParams])
 
-    return { setFilter, clearFilter, clearAll, isSelected, searchParams }
+    return {setFilter, clearFilter, clearAll, isSelected, setUniqueFilter, searchParams}
 }

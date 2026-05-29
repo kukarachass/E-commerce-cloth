@@ -11,7 +11,14 @@ import PatternContent from "@/components/catalog/filters/filters-modal-content/P
 import StyleContent from "@/components/catalog/filters/filters-modal-content/StyleContent";
 import DiscountContent from "@/components/catalog/filters/filters-modal-content/DiscountContent";
 import Sort from "@/components/catalog/filters/Sort";
-import {Brand} from "@/types/brands";
+import {Size} from "@/types/filters/size";
+import {Brand} from "@/types/filters/brands";
+import {Price} from "@/types/filters/price";
+import {Color} from "@/types/filters/color";
+import {Pattern} from "@/types/filters/pattern";
+import {Style} from "@/types/filters/style";
+import {Discount} from "@/types/filters/discount";
+
 
 const filters = [
     { id: 1, name: "Brands"},
@@ -26,9 +33,16 @@ type FiltersType = typeof filters[number]["name"]
 
 interface FilterBarProps{
     brands: Brand[]
+    sizes: Size[]
+    colors: Color[];
+    price: Price[];
+    category: string;
+    patterns: Pattern[];
+    styles: Style[];
+    discounts: Discount[];
 }
 
-export default function FilterBar({ brands }: FilterBarProps) {
+export default function FilterBar({ brands, sizes, category, price, colors, patterns, styles, discounts }: FilterBarProps) {
     const[openedFilter, setOpenedFilter] = useState<FiltersType | null>(null)
     const ref = useRef<HTMLDivElement>(null)
 
@@ -63,12 +77,12 @@ export default function FilterBar({ brands }: FilterBarProps) {
                         {openedFilter === filter.name && (
                             <FilterDropdown>
                                 {filter.name === "Brands" && <BrandsContent brands={brands}/>}
-                                {filter.name === "Size" && <SizeContent/>}
-                                {filter.name === "Price" && <PriceContent/>}
-                                {filter.name === "Colours" && <ColoursContent/>}
-                                {filter.name === "Pattern" && <PatternContent/>}
-                                {filter.name === "Style" && <StyleContent/>}
-                                {filter.name === "Discount" && <DiscountContent/>}
+                                {filter.name === "Size" && <SizeContent availableSizes={sizes} category={category}/>}
+                                {filter.name === "Price" && <PriceContent price={price}/>}
+                                {filter.name === "Colours" && <ColoursContent colors={colors}/>}
+                                {filter.name === "Pattern" && <PatternContent patterns={patterns}/>}
+                                {filter.name === "Style" && <StyleContent styles={styles}/>}
+                                {filter.name === "Discount" && <DiscountContent discounts={discounts}/>}
                             </FilterDropdown>
                         )}
                     </div>
