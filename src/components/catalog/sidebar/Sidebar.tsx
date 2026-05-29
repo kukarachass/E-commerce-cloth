@@ -1,19 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import cn from "classnames"
 import { motion, AnimatePresence } from "framer-motion"
-import {Category} from "@/types/category";
 import SidebarCheckbox from "@/components/catalog/sidebar/SidebarCheckbox";
+import {Category} from "@/types/filters/category";
+import {IProduct} from "@/components/product/IProduct";
+import {product} from "@/db/schema";
+import {ProductWithDetails} from "@/types/product-details";
 
 interface Props {
     title: string
     items: Category[]
     noTitle?: boolean
     activeItem?: string
+    products: ProductWithDetails[];
 }
 
-export default function Sidebar({ title, items, noTitle = false, activeItem }: Props) {
+export default function Sidebar({ title, items, noTitle = false, activeItem, products }: Props) {
     const [selectedAll, setSelectedAll] = useState(false)
     const [selected, setSelected] = useState<string[]>(() =>
         activeItem ? [activeItem] : []
@@ -30,7 +33,7 @@ export default function Sidebar({ title, items, noTitle = false, activeItem }: P
             <div className="flex flex-row gap-4 pt-6 pb-3 max-h-[75px]">
                 <h1 className="text-[var(--text)] text-[24px] leading-[133%] font-bold">{title}</h1>
                 <span className="flex items-center text-[var(--text)] font-bold text-[12px] bg-[#f0f0f0] rounded-[16px] px-2">
-                    11,525 results
+                    {products.length} results
                 </span>
             </div>
             <div className="flex flex-col gap-1 overflow-y-auto h-[calc(100vh-113px)]">

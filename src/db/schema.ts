@@ -211,7 +211,7 @@ export const productImage = pgTable("product_image", {
 export const color = pgTable("color", {
     id:   uuid("id").defaultRandom().primaryKey(),
     name: text("name").notNull().unique(),
-    hex:  text("hex"), // "#000000" — для отображения кружка цвета в фильтре
+    hex:  text("hex").notNull().unique(), // "#000000" — для отображения кружка цвета в фильтре
 })
 
 export const pattern = pgTable("pattern", {

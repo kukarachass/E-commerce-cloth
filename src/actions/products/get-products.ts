@@ -2,7 +2,8 @@
 
 import { db } from "@/db"
 import { product, brand, category, productColor, color, productPattern, pattern, productStyle, style } from "@/db/schema"
-import { and, eq, gte, lte, inArray, desc, asc, SQL } from "drizzle-orm"
+import {and, eq, gte, lte, inArray, desc, asc, sql} from "drizzle-orm"
+import {getCategoryIds} from "@/lib/db-helpers";
 
 interface GetProductsProps {
     gender: string
@@ -32,18 +33,7 @@ export async function getProducts({
                                       sort,
                                   }: GetProductsProps) {
 
-    // Находим категорию
-    const categoryData = await db.query.category.findFirst({
-        where: eq(category.slug, `${gender}-${categorySlug}`)
-    })
-    if (!categoryData) return []
-
-    // Собираем categoryIds
-    const subcategories = await db.query.category.findMany({
-        where: eq(category.parentId, categoryData.id)
-    })
-
-    let categoryIds = [categoryData.id, ...subcategories.map(s => s.id)]
+    let categoryIds = await getCategoryIds(gender, categorySlug);
 
     if (subcategory) {
         const sub = await db.query.category.findFirst({
@@ -99,6 +89,8 @@ export async function getProducts({
         }
     })()
 
+    console.log("color filter:", colorName)
+
     // Финальный запрос
     return db.query.product.findMany({
         where: and(
@@ -106,8 +98,8 @@ export async function getProducts({
             eq(product.isActive, true),
             inArray(product.categoryId, categoryIds),
             brandIds && brandIds.length > 0 ? inArray(product.brandId, brandIds) : undefined,
-            minPrice ? gte(product.discountPrice, minPrice) : undefined,
-            maxPrice ? lte(product.discountPrice, maxPrice) : undefined,
+            maxPrice ? lte(sql`CAST(${product.originalPrice} AS numeric)`, maxPrice) : undefined,
+            minPrice ? gte(sql`CAST(${product.originalPrice} AS numeric)`, minPrice) : undefined,
             discount ? gte(product.discount, parseInt(discount)) : undefined,
             colorId ? inArray(product.id,
                 db.select({ id: productColor.productId })
