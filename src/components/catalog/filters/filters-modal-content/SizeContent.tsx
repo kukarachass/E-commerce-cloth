@@ -91,7 +91,7 @@ export default function SizeContent({ availableSizes, category }: SizeContentPro
                 })}
             </div>
 
-            <ResetButton/>
+            <ResetButton keyName={"size"}/>
         </div>
     )
 }

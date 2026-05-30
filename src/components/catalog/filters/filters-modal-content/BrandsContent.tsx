@@ -48,7 +48,7 @@ export default function BrandsContent({ brands }: BrandsContentProps) {
                     />
                 ))}
             </div>
-            <ResetButton/>
+            <ResetButton keyName={"brand"}/>
         </div>
     )
 }

@@ -23,7 +23,7 @@ export default function StyleContent({ styles }: StyleContentProps) {
                     />
                 ))}
             </div>
-            <ResetButton/>
+            <ResetButton keyName={"style"}/>
         </div>
     )
 }

@@ -4,7 +4,9 @@ import {product} from "@/db/schema";
 import {and, eq, inArray} from "drizzle-orm";
 
 export async function getDiscounts({gender, categorySlug}: { gender: string, categorySlug: string }) {
-    const categoryIds = await getCategoryIds(gender, categorySlug)
+    const categoryIds = categorySlug === "new-items"
+        ? undefined
+        : await getCategoryIds(gender, categorySlug)
 
     const result = db.selectDistinct({
         discount: product.discount
@@ -12,7 +14,7 @@ export async function getDiscounts({gender, categorySlug}: { gender: string, cat
         .from(product)
         .where(and(
             eq(product.gender, gender),
-            inArray(product.categoryId, categoryIds),
+            categoryIds ? inArray(product.categoryId, categoryIds) : undefined,
             eq(product.isActive, true),
         ))
         .orderBy(product.discount)

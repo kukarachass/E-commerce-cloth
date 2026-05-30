@@ -7,8 +7,12 @@ import { InferSelectModel } from "drizzle-orm"
 import { brand } from "@/db/schema"
 import FavIcon from "@/components/ui/icons/FavIcon"
 
-type Brand = InferSelectModel<typeof brand>
-
+// type Brand = InferSelectModel<typeof brand>
+type Brand = {
+    id: string
+    name: string
+    slug: string
+}
 interface Props {
     sections: Record<string, Brand[]>
 }

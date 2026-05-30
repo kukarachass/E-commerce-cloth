@@ -18,6 +18,9 @@ import {Color} from "@/types/filters/color";
 import {Pattern} from "@/types/filters/pattern";
 import {Style} from "@/types/filters/style";
 import {Discount} from "@/types/filters/discount";
+import ResetFiltersButton from "@/components/catalog/filters/ResetFiltersButton";
+import {useSearchParams} from "next/navigation";
+import FilterBadge from "@/components/catalog/filters/FilterBadge";
 
 
 const filters = [
@@ -44,7 +47,10 @@ interface FilterBarProps{
 
 export default function FilterBar({ brands, sizes, category, price, colors, patterns, styles, discounts }: FilterBarProps) {
     const[openedFilter, setOpenedFilter] = useState<FiltersType | null>(null)
+    const searchParams = useSearchParams()
     const ref = useRef<HTMLDivElement>(null)
+    const filtersKeys = ["brand", "size", "color", "pattern", "style", "minPrice", "maxPrice", "discount", "sort"]
+    const hasFilters = filtersKeys.some(key => searchParams.has(key))
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -70,8 +76,9 @@ export default function FilterBar({ brands, sizes, category, price, colors, patt
                     <div
                         onClick={() => handleSetFilter(filter.name)}
                         key={filter.id}
-                        className="relative select-none flex flex-row items-center gap-3 text-[var(--text)] text-[16px] font-[600] border cursor-pointer border-[#ddd] rounded-[4px] px-2 py-[2px]">
+                        className="relative select-none flex flex-row items-center gap-3 text-[var(--text)] text-[16px] font-[600] border cursor-pointer border-[#ddd] rounded-[4px] px-2 py-[2px] transition-transform duration-200">
                         <span>{filter.name}</span>
+                        <FilterBadge filterName={filter.name} />
                         <Arrow className={`transition-all duration-200 ${openedFilter && filter.name === openedFilter && "rotate-180"}`}/>
 
                         {openedFilter === filter.name && (
@@ -88,7 +95,12 @@ export default function FilterBar({ brands, sizes, category, price, colors, patt
                     </div>
                 ))}
             </div>
-            <Sort/>
+            <div className="flex flex-row gap-4 items-center">
+                {hasFilters && (
+                    <ResetFiltersButton/>
+                )}
+                <Sort/>
+            </div>
         </div>
     )
 }

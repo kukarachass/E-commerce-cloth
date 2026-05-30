@@ -62,7 +62,7 @@ export default function ColoursContent({ colors }: ColoursContentProps) {
                     )
                 })}
             </div>
-            <ResetButton />
+            <ResetButton keyName="color" />
         </div>
     )
 }

@@ -8,7 +8,7 @@ import {getCategoryIds} from "@/lib/db-helpers";
 interface GetProductsProps {
     gender: string
     category: string
-    subcategory?: string
+    subcategory?: string | string[]
     brand?: string[]
     color?: string
     pattern?: string
@@ -35,11 +35,44 @@ export async function getProducts({
 
     let categoryIds = await getCategoryIds(gender, categorySlug);
 
-    if (subcategory) {
-        const sub = await db.query.category.findFirst({
-            where: eq(category.slug, `${gender}-${categorySlug}-${subcategory}`)
+    if (categorySlug === "new-items") {
+        const allCategories = await db.query.category.findMany({
+            where: eq(category.gender, gender)
         })
-        if (sub) categoryIds = [sub.id]
+        categoryIds = allCategories.map(c => c.id)
+    }
+
+    if (subcategory) {
+        const subcategoryArray = Array.isArray(subcategory) ? subcategory : [subcategory]
+        const subs = await db.query.category.findMany({
+            where: inArray(category.slug, subcategoryArray)
+        })
+
+        if (subs.length > 0) {
+            const subIds = subs.map(s => s.id)
+            const parentIds = subs.map(s => s.parentId).filter(Boolean)
+
+            // Убираем родителей если их дети тоже выбраны
+            const filteredSubIds = subIds.filter(id => {
+                const sub = subs.find(s => s.id === id)
+                const hasSelectedChild = subs.some(s => s.parentId === id)
+                return !hasSelectedChild
+            })
+
+            // Для оставшихся — если есть дети, берём детей
+            const children = await db.query.category.findMany({
+                where: inArray(category.parentId, filteredSubIds)
+            })
+
+            const childrenParentIds = new Set(children.map(c => c.parentId))
+            const leafIds = filteredSubIds.filter(id => !childrenParentIds.has(id))
+            const relevantChildIds = children
+                .filter(c => filteredSubIds.includes(c.parentId!))
+                .map(c => c.id)
+
+            categoryIds = [...leafIds, ...relevantChildIds]
+        }
+
     }
 
     // Находим brandId если нужен
@@ -89,7 +122,6 @@ export async function getProducts({
         }
     })()
 
-    console.log("color filter:", colorName)
 
     // Финальный запрос
     return db.query.product.findMany({

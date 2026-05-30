@@ -1,10 +1,12 @@
 import {getCategoryIds} from "@/lib/db-helpers";
 import {db} from "@/db";
-import {color, product, productColor, productSize} from "@/db/schema";
+import {color, product, productColor} from "@/db/schema";
 import {and, eq, inArray} from "drizzle-orm";
 
 export async function getColors({gender, categorySlug}: { gender: string, categorySlug: string }) {
-    const categoryIds = await getCategoryIds(gender, categorySlug)
+    const categoryIds = categorySlug === "new-items"
+        ? undefined
+        : await getCategoryIds(gender, categorySlug);
 
     const result = await db.selectDistinct({
         id: color.id,
@@ -16,7 +18,7 @@ export async function getColors({gender, categorySlug}: { gender: string, catego
         .innerJoin(product, and(
             eq(productColor.productId, product.id),
             eq(product.gender, gender),
-            inArray(product.categoryId, categoryIds),
+            categoryIds ? inArray(product.categoryId, categoryIds) : undefined,
             eq(product.isActive, true),
         ))
         .orderBy(color.name)

@@ -9,10 +9,11 @@ import {getPatterns} from "@/actions/pattern/pattern";
 import {getStyles} from "@/actions/style/style";
 import {getDiscounts} from "@/actions/discount/dicount";
 import {getProducts} from "@/actions/products/get-products";
+import {Gender} from "@/store/useGenderStore";
 
 interface Props {
     children: ReactNode
-    params: Promise<{ gender: string; category: string }>
+    params: Promise<{ gender: Gender; category: string }>
 }
 
 export default async function CategoryLayout({ children, params }: Props) {

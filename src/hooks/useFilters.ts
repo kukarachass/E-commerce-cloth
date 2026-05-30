@@ -9,6 +9,14 @@ export function useFilters() {
     const pathname = usePathname()
     const searchParams = useSearchParams()
 
+    const removeFilters = useCallback((key: string, values: string[]) => {
+        const params = new URLSearchParams(searchParams.toString())
+        const current = params.getAll(key).filter(v => !values.includes(v))
+        params.delete(key)
+        current.forEach(v => params.append(key, v))
+        router.push(`${pathname}?${params.toString()}`)
+    }, [router, pathname, searchParams])
+
     const setFilter = useCallback((key: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString())
 
@@ -52,5 +60,5 @@ export function useFilters() {
         return searchParams.getAll(key).includes(value)
     }, [searchParams])
 
-    return {setFilter, clearFilter, clearAll, isSelected, setUniqueFilter, searchParams}
+    return {setFilter, clearFilter, clearAll, isSelected, setUniqueFilter, searchParams, removeFilters}
 }

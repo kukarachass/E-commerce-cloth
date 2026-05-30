@@ -24,7 +24,7 @@ export default function DiscountContent({ discounts }: DiscountContentProps) {
                     />
                 ))}
             </div>
-            <ResetButton/>
+            <ResetButton keyName={"discount"}/>
         </div>
     )
 }

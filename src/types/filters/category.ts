@@ -1,6 +1,10 @@
-import {InferSelectModel} from "drizzle-orm";
-import {category} from "@/db/schema";
+import { InferSelectModel } from "drizzle-orm"
+import { category } from "@/db/schema"
 
-export type Category = InferSelectModel<typeof category> & {
-    subcategories?: InferSelectModel<typeof category>[]
+type CategoryBase = InferSelectModel<typeof category>
+
+export type Category = CategoryBase & {
+    subcategories?: (CategoryBase & {
+        subcategories?: CategoryBase[]
+    })[]
 }

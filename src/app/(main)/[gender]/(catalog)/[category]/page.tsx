@@ -24,6 +24,9 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         gender,
         category,
         ...filters,
+        subcategory: filters.subcategory
+            ? Array.isArray(filters.subcategory) ? filters.subcategory : [filters.subcategory]
+            : undefined,
         brand: filters.brand
             ? Array.isArray(filters.brand) ? filters.brand : [filters.brand]
             : undefined,

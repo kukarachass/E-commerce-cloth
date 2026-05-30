@@ -24,7 +24,7 @@ export default function PatternContent({ patterns }: PatternContentProps) {
                     />
                 ))}
             </div>
-            <ResetButton/>
+            <ResetButton keyName={"pattern"}/>
         </div>
     )
 }
