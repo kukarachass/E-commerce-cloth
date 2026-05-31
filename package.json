@@ -8,6 +8,8 @@
     "start": "next start",
     "seed": "tsx src/db/seed.ts",
     "seed:jeans": "tsx src/db/seed-jeans.ts",
+    "seed:images": "tsx src/db/seed-images.ts",
+    "seed:brand-tags": "tsx src/db/seed-brand-tags.ts",
     "debug": "tsx src/db/debug.ts",
     "lint": "eslint"
   },

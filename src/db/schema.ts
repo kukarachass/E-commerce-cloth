@@ -118,10 +118,20 @@ export const brand = pgTable("brand", {
     slug:        text("slug").notNull().unique(),
     description: text("description"),
     logo:        text("logo"),
+    tags: text("tags").array().default([]).notNull(),
     isActive:    boolean("is_active").default(true).notNull(),
     createdAt:   timestamp("created_at").defaultNow().notNull(),
     updatedAt:   timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 })
+
+export const favoriteBrand = pgTable("favorite_brand", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+    brandId: uuid("brand_id").notNull().references(() => brand.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+    unique().on(t.userId, t.brandId)
+])
 
 // ============================================================
 //  ██████╗ █████╗ ████████╗███████╗ ██████╗  ██████╗ ██████╗ ██╗   ██╗
@@ -240,6 +250,15 @@ export const productStyle = pgTable("product_style", {
     productId: uuid("product_id").notNull().references(() => product.id, { onDelete: "cascade" }),
     styleId:   uuid("style_id").notNull().references(() => style.id,   { onDelete: "cascade" }),
 }, (t) => [unique().on(t.productId, t.styleId)])
+
+export const favoriteProduct = pgTable("favorite_product", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+    productId: uuid("product_id").notNull().references(() => product.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+    unique().on(t.userId, t.productId)
+])
 
 // ============================================================
 //  ██████╗ █████╗ ██████╗ ████████╗
@@ -425,4 +444,14 @@ export const orderRelations = relations(order, ({ one, many }) => ({
 export const orderItemRelations = relations(orderItem, ({ one }) => ({
     order:   one(order,   { fields: [orderItem.orderId],   references: [order.id] }),
     product: one(product, { fields: [orderItem.productId], references: [product.id] }),
+}))
+
+export const favoriteProductRelations = relations(favoriteProduct, ({ one }) => ({
+    product: one(product, { fields: [favoriteProduct.productId], references: [product.id] }),
+    user: one(user, { fields: [favoriteProduct.userId], references: [user.id] }),
+}))
+
+export const favoriteBrandRelations = relations(favoriteBrand, ({ one }) => ({
+    brand: one(brand, { fields: [favoriteBrand.brandId], references: [brand.id] }),
+    user: one(user, { fields: [favoriteBrand.userId], references: [user.id] }),
 }))

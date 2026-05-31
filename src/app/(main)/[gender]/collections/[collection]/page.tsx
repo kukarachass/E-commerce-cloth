@@ -34,7 +34,7 @@ export default async function CollectionPage({params}: { params: Promise<{ gende
                                           description={data?.description ?? "no desc"}/>
                     </div>
                     <div className="z-20">
-                        <FilterBar/>
+                        <FilterBar />
                     </div>
                 </div>
                 <CatalogContainer variant={"collection"} products={productsArray}/>
