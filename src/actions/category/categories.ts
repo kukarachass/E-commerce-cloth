@@ -4,22 +4,11 @@
 import {db} from "@/db"
 import {category} from "@/db/schema"
 import {eq, and, isNull} from "drizzle-orm"
+import {Gender} from "@/store/useGenderStore";
 
-export async function getCategoryWithSubs(gender: string, slug: string) {
+export async function getCategoryWithSubs(gender: Gender, slug: string) {
     if (slug === `${gender}-new-items`) {
-        const allCategories = await db.query.category.findMany({
-            where: and(
-                eq(category.gender, gender),
-                isNull(category.parentId)
-            ),
-            orderBy: (cat, { asc }) => [asc(cat.name)],
-            with: {
-                subcategories: {
-                    orderBy: (cat, { asc }) => [asc(cat.name)],
-                    with: { subcategories: true }
-                }
-            }
-        })
+        const allCategories = await getAllCategoriesWithSubs({gender})
 
         return {
             name: "New Items",
@@ -41,4 +30,20 @@ export async function getCategoryWithSubs(gender: string, slug: string) {
             }
         })
     }
+}
+
+export async function getAllCategoriesWithSubs({ gender }: { gender: Gender }){
+    return await db.query.category.findMany({
+        where: and(
+            eq(category.gender, gender),
+            isNull(category.parentId)
+        ),
+        orderBy: (cat, { asc }) => [asc(cat.name)],
+        with: {
+            subcategories: {
+                orderBy: (cat, { asc }) => [asc(cat.name)],
+                with: { subcategories: true }
+            }
+        }
+    })
 }

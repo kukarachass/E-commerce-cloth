@@ -43,6 +43,8 @@ export default function CatalogProductCard({ product }: {product: ProductWithDet
                 <span className="leading-[143%]">{product.description}</span>
                 <span className="leading-[150%] font-[600]">{formatPrice(Number(product.originalPrice))}</span>
                 <span className="leading-[143%] text-[#999]">{Array.isArray(sizes) ? sizes.join(" / ") : sizes}</span>
+                <span className="leading-[143%]">{product.brand.name}</span>
+
             </div>
         </Link>
     )
