@@ -2,11 +2,19 @@ import {getCategoryIds} from "@/lib/db-helpers";
 import {db} from "@/db";
 import {product, productStyle, style} from "@/db/schema";
 import {and, eq, inArray} from "drizzle-orm";
+import {FilterProps} from "@/types/filters/filters-props";
 
-export async function getStyles({gender, categorySlug}: { gender: string, categorySlug: string }) {
-    const categoryIds = categorySlug === "new-items"
+export async function getStyles({gender, categorySlug, productIds}: FilterProps) {
+    const categoryIds = !categorySlug || categorySlug === "new-items"
         ? undefined
         : await getCategoryIds(gender, categorySlug)
+
+    const filter =
+        productIds ?
+            inArray(productStyle.productId, productIds) :
+            categoryIds
+                ? inArray(product.categoryId, categoryIds)
+                : undefined;
 
     const result = await db.selectDistinct({
         id: style.id,
@@ -17,7 +25,7 @@ export async function getStyles({gender, categorySlug}: { gender: string, catego
         .innerJoin(product, and(
             eq(productStyle.productId, product.id),
             eq(product.gender, gender),
-            categoryIds ? inArray(product.categoryId, categoryIds) : undefined,
+            filter,
             eq(product.isActive, true),
         ))
         .orderBy(style.name)

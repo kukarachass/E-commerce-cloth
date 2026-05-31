@@ -2,12 +2,14 @@
 
 import { db } from "@/db"
 import { product, brand, category, productColor, color, productPattern, pattern, productStyle, style } from "@/db/schema"
-import {and, eq, gte, lte, inArray, desc, asc, sql} from "drizzle-orm"
-import {getCategoryIds} from "@/lib/db-helpers";
+import { and, eq, gte, lte, inArray, desc, asc, sql } from "drizzle-orm"
+import { getCategoryIds } from "@/lib/db-helpers"
+import { Gender } from "@/store/useGenderStore"
 
 interface GetProductsProps {
-    gender: string
+    gender: Gender
     category: string
+    productIds?: string[]  // ← добавили
     subcategory?: string | string[]
     brand?: string[]
     color?: string
@@ -22,6 +24,7 @@ interface GetProductsProps {
 export async function getProducts({
                                       gender,
                                       category: categorySlug,
+                                      productIds,
                                       subcategory,
                                       brand: brandSlug,
                                       color: colorName,
@@ -33,55 +36,13 @@ export async function getProducts({
                                       sort,
                                   }: GetProductsProps) {
 
-    let categoryIds = await getCategoryIds(gender, categorySlug);
-
-    if (categorySlug === "new-items") {
-        const allCategories = await db.query.category.findMany({
-            where: eq(category.gender, gender)
-        })
-        categoryIds = allCategories.map(c => c.id)
-    }
-
-    if (subcategory) {
-        const subcategoryArray = Array.isArray(subcategory) ? subcategory : [subcategory]
-        const subs = await db.query.category.findMany({
-            where: inArray(category.slug, subcategoryArray)
-        })
-
-        if (subs.length > 0) {
-            const subIds = subs.map(s => s.id)
-            const parentIds = subs.map(s => s.parentId).filter(Boolean)
-
-            // Убираем родителей если их дети тоже выбраны
-            const filteredSubIds = subIds.filter(id => {
-                const sub = subs.find(s => s.id === id)
-                const hasSelectedChild = subs.some(s => s.parentId === id)
-                return !hasSelectedChild
-            })
-
-            // Для оставшихся — если есть дети, берём детей
-            const children = await db.query.category.findMany({
-                where: inArray(category.parentId, filteredSubIds)
-            })
-
-            const childrenParentIds = new Set(children.map(c => c.parentId))
-            const leafIds = filteredSubIds.filter(id => !childrenParentIds.has(id))
-            const relevantChildIds = children
-                .filter(c => filteredSubIds.includes(c.parentId!))
-                .map(c => c.id)
-
-            categoryIds = [...leafIds, ...relevantChildIds]
-        }
-
-    }
-
     // Находим brandId если нужен
     let brandIds: string[] = []
     if (brandSlug) {
         const brandsData = await db.query.brand.findMany({
             where: inArray(brand.slug, brandSlug)
         })
-        brandIds = brandsData.map(b => b.id);
+        brandIds = brandsData.map(b => b.id)
     }
 
     // Находим colorId если нужен
@@ -122,38 +83,74 @@ export async function getProducts({
         }
     })()
 
+    // Общие фильтры для обоих запросов
+    const commonFilters = [
+        eq(product.isActive, true),
+        brandIds.length > 0 ? inArray(product.brandId, brandIds) : undefined,
+        maxPrice ? lte(sql`CAST(${product.originalPrice} AS numeric)`, maxPrice) : undefined,
+        minPrice ? gte(sql`CAST(${product.originalPrice} AS numeric)`, minPrice) : undefined,
+        discount ? gte(product.discount, parseInt(discount)) : undefined,
+        colorId ? inArray(product.id,
+            db.select({ id: productColor.productId }).from(productColor).where(eq(productColor.colorId, colorId))
+        ) : undefined,
+        patternId ? inArray(product.id,
+            db.select({ id: productPattern.productId }).from(productPattern).where(eq(productPattern.patternId, patternId))
+        ) : undefined,
+        styleId ? inArray(product.id,
+            db.select({ id: productStyle.productId }).from(productStyle).where(eq(productStyle.styleId, styleId))
+        ) : undefined,
+    ]
 
-    // Финальный запрос
+    // Если переданы конкретные productIds (для коллекций)
+    if (productIds && productIds.length > 0) {
+        return db.query.product.findMany({
+            where: and(
+                inArray(product.id, productIds),
+                ...commonFilters,
+            ),
+            orderBy,
+            with: { brand: true, images: true, sizes: true }
+        })
+    }
+
+    // Обычная логика по категориям
+    let categoryIds = await getCategoryIds(gender, categorySlug)
+
+    if (categorySlug === "new-items") {
+        const allCategories = await db.query.category.findMany({
+            where: eq(category.gender, gender)
+        })
+        categoryIds = allCategories.map(c => c.id)
+    }
+
+    if (subcategory) {
+        const subcategoryArray = Array.isArray(subcategory) ? subcategory : [subcategory]
+        const subs = await db.query.category.findMany({
+            where: inArray(category.slug, subcategoryArray)
+        })
+
+        if (subs.length > 0) {
+            const subIds = subs.map(s => s.id)
+            const filteredSubIds = subIds.filter(id => !subs.some(s => s.parentId === id))
+            const children = await db.query.category.findMany({
+                where: inArray(category.parentId, filteredSubIds)
+            })
+            const childrenParentIds = new Set(children.map(c => c.parentId))
+            const leafIds = filteredSubIds.filter(id => !childrenParentIds.has(id))
+            const relevantChildIds = children
+                .filter(c => filteredSubIds.includes(c.parentId!))
+                .map(c => c.id)
+            categoryIds = [...leafIds, ...relevantChildIds]
+        }
+    }
+
     return db.query.product.findMany({
         where: and(
             eq(product.gender, gender),
-            eq(product.isActive, true),
             inArray(product.categoryId, categoryIds),
-            brandIds && brandIds.length > 0 ? inArray(product.brandId, brandIds) : undefined,
-            maxPrice ? lte(sql`CAST(${product.originalPrice} AS numeric)`, maxPrice) : undefined,
-            minPrice ? gte(sql`CAST(${product.originalPrice} AS numeric)`, minPrice) : undefined,
-            discount ? gte(product.discount, parseInt(discount)) : undefined,
-            colorId ? inArray(product.id,
-                db.select({ id: productColor.productId })
-                    .from(productColor)
-                    .where(eq(productColor.colorId, colorId))
-            ) : undefined,
-            patternId ? inArray(product.id,
-                db.select({ id: productPattern.productId })
-                    .from(productPattern)
-                    .where(eq(productPattern.patternId, patternId))
-            ) : undefined,
-            styleId ? inArray(product.id,
-                db.select({ id: productStyle.productId })
-                    .from(productStyle)
-                    .where(eq(productStyle.styleId, styleId))
-            ) : undefined,
+            ...commonFilters,
         ),
         orderBy,
-        with: {
-            brand: true,
-            images: true,
-            sizes: true,
-        }
+        with: { brand: true, images: true, sizes: true }
     })
 }

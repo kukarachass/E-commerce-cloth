@@ -3,16 +3,19 @@ import {db} from "@/db";
 import {and, eq, inArray} from "drizzle-orm";
 import {product} from "@/db/schema";
 import {max, min} from "drizzle-orm";
-import {Gender} from "@/store/useGenderStore";
+import {FilterProps} from "@/types/filters/filters-props";
 
-interface GetPriceProps {
-    gender: string;
-    categorySlug: string;
-}
-export async function getPrice({ gender, categorySlug }: GetPriceProps) {
-    const categoryIds = categorySlug === "new-items"
+export async function getPrice({ gender, categorySlug, productIds}: FilterProps) {
+    const categoryIds = !categorySlug || categorySlug === "new-items"
         ? undefined
         : await getCategoryIds(gender, categorySlug)
+
+    const filter =
+        productIds ?
+            inArray(product.id, productIds) :
+            categoryIds
+                ? inArray(product.categoryId, categoryIds)
+                : undefined;
 
     const result = await db.select({
         minPrice: min(product.originalPrice),
@@ -21,7 +24,7 @@ export async function getPrice({ gender, categorySlug }: GetPriceProps) {
         .from(product)
         .where(and(
             eq(product.gender, gender),
-            categoryIds ? inArray(product.categoryId, categoryIds) : undefined,
+            filter,
             eq(product.isActive, true),
         ))
 

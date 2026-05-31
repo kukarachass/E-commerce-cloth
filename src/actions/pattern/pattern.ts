@@ -1,12 +1,20 @@
 import {getCategoryIds} from "@/lib/db-helpers";
 import {db} from "@/db";
-import {color, pattern, product, productPattern} from "@/db/schema";
+import {pattern, product, productPattern} from "@/db/schema";
 import {and, eq, inArray} from "drizzle-orm";
+import {FilterProps} from "@/types/filters/filters-props";
 
-export async function getPatterns({gender, categorySlug}: { gender: string, categorySlug: string }) {
-    const categoryIds = categorySlug === "new-items"
+export async function getPatterns({gender, categorySlug, productIds}: FilterProps) {
+    const categoryIds = !categorySlug || categorySlug === "new-items"
         ? undefined
         : await getCategoryIds(gender, categorySlug)
+
+    const filter =
+        productIds ?
+            inArray(productPattern.productId, productIds) :
+            categoryIds
+                ? inArray(product.categoryId, categoryIds)
+                : undefined;
 
     const result = await db.selectDistinct({
         id: pattern.id,
@@ -17,7 +25,7 @@ export async function getPatterns({gender, categorySlug}: { gender: string, cate
         .innerJoin(product, and(
             eq(productPattern.productId, product.id),
             eq(product.gender, gender),
-            categoryIds ? inArray(product.categoryId, categoryIds) : undefined,
+            filter,
             eq(product.isActive, true),
         ))
         .orderBy(pattern.name)

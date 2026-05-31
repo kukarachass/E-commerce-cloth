@@ -1,11 +1,13 @@
 "use client"
 
 import Link from "next/link";
-import {useParams, usePathname, useRouter} from "next/navigation";
 import {useGenderStore} from "@/store/useGenderStore";
+import {useCollections} from "@/hooks/useCollections";
+
 
 export default function HeaderNav(){
-    const gender = useGenderStore(s => s.gender);
+    const gender = useGenderStore(s => s.gender)
+    const { data: collections = [] } = useCollections()
 
     return(
         <div className="flex flex-row gap-8 items-center text-[var(--text)] text-[16px] capitalize">
@@ -15,9 +17,13 @@ export default function HeaderNav(){
             <Link href={`/${gender}/brands`}>
                 Brands
             </Link>
-            <Link href={`/${gender}/collections/everything-summer`}>
-                Everything Summer
-            </Link>
+            {collections.map((c) => (
+                <div key={c.id} className="flex flex-row gap-8">
+                    <Link href={`/${gender}/collections/${c.slug}`}>
+                        {c.title}
+                    </Link>
+                </div>
+            ))}
             <Link href={`/${gender}/clothing`}>
                 Clothing
             </Link>

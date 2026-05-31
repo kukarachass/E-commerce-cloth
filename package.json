@@ -10,6 +10,7 @@
     "seed:jeans": "tsx src/db/seed-jeans.ts",
     "seed:images": "tsx src/db/seed-images.ts",
     "seed:brand-tags": "tsx src/db/seed-brand-tags.ts",
+    "seed:collections": "tsx src/db/seed-collection.ts",
     "debug": "tsx src/db/debug.ts",
     "lint": "eslint"
   },

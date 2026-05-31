@@ -1,15 +1,23 @@
 "use server"
 
 import {db} from "@/db"
-import {brand, product} from "@/db/schema"
+import {brand, product, productSize} from "@/db/schema"
 import {and, eq, inArray, max} from "drizzle-orm"
 import {getCategoryIds} from "@/lib/db-helpers";
 import {Gender} from "@/store/useGenderStore";
+import {FilterProps} from "@/types/filters/filters-props";
 
-export async function getBrands({gender, categorySlug}: { gender: Gender, categorySlug: string }) {
-    const categoryIds = categorySlug === "new-items"
+export async function getBrands({ gender, categorySlug, productIds }: FilterProps) {
+    const categoryIds = !categorySlug || categorySlug === "new-items"
         ? undefined
         : await getCategoryIds(gender, categorySlug)
+
+    const filter =
+        productIds ?
+            inArray(product.id, productIds) :
+            categoryIds
+                ? inArray(product.categoryId, categoryIds)
+                : undefined;
 
     const result = await db.select({
         id: brand.id,
@@ -23,7 +31,7 @@ export async function getBrands({gender, categorySlug}: { gender: Gender, catego
         .innerJoin(product, and(
             eq(product.brandId, brand.id),
             eq(product.gender, gender),
-            categoryIds ? inArray(product.categoryId, categoryIds) : undefined,
+            filter,
             eq(product.isActive, true),
         ))
         .groupBy(brand.id, brand.name, brand.slug, brand.logo, brand.tags)

@@ -1,8 +1,9 @@
 import { getProducts } from "@/actions/products/get-products"
 import CatalogContainer from "@/components/catalog/CatalogContainer";
+import {Gender} from "@/store/useGenderStore";
 
 interface Props {
-    params: Promise<{ gender: string, category: string }>
+    params: Promise<{ gender: Gender, category: string }>
     searchParams: Promise<{
         subcategory?: string
         brand?: string[]

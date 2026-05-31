@@ -260,6 +260,26 @@ export const favoriteProduct = pgTable("favorite_product", {
     unique().on(t.userId, t.productId)
 ])
 
+export const collection = pgTable("collection", {
+    id:          uuid("id").defaultRandom().primaryKey(),
+    slug:        text("slug").notNull().unique(),
+    title:       text("title").notNull(),
+    description: text("description"),
+    banner:      text("banner"),
+    gender:      text("gender").notNull(),
+    isActive:    boolean("is_active").default(true).notNull(),
+    createdAt:   timestamp("created_at").defaultNow().notNull(),
+    updatedAt:   timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+})
+
+// Связующая таблица коллекция ↔ продукт (many-to-many)
+export const collectionProduct = pgTable("collection_product", {
+    collectionId: uuid("collection_id").notNull().references(() => collection.id, { onDelete: "cascade" }),
+    productId:    uuid("product_id").notNull().references(() => product.id, { onDelete: "cascade" }),
+}, (t) => [
+    unique().on(t.collectionId, t.productId)
+])
+
 // ============================================================
 //  ██████╗ █████╗ ██████╗ ████████╗
 // ██╔════╝██╔══██╗██╔══██╗╚══██╔══╝
@@ -454,4 +474,13 @@ export const favoriteProductRelations = relations(favoriteProduct, ({ one }) => 
 export const favoriteBrandRelations = relations(favoriteBrand, ({ one }) => ({
     brand: one(brand, { fields: [favoriteBrand.brandId], references: [brand.id] }),
     user: one(user, { fields: [favoriteBrand.userId], references: [user.id] }),
+}))
+
+export const collectionRelations = relations(collection, ({ many }) => ({
+    products: many(collectionProduct),
+}))
+
+export const collectionProductRelations = relations(collectionProduct, ({ one }) => ({
+    collection: one(collection, { fields: [collectionProduct.collectionId], references: [collection.id] }),
+    product: one(product, { fields: [collectionProduct.productId], references: [product.id] }),
 }))
