@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import cn from "classnames";
+import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 
 interface AddToBagButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> {
     variant?: "primary" | "secondary";
@@ -74,12 +75,13 @@ export default function AddToBagButton({
     };
 
     return (
-        <button
+        <ButtonPrimary
+            variant={"primary"}
             {...rest}
             disabled={disabled || isAnimating}
             onClick={handleClick}
             className={cn(
-                "relative rounded-[32px] py-[8px] px-[32px] font-medium text-[16px] min-w-[260px] min-h-[50px] cursor-pointer overflow-hidden transition-all duration-300",
+                "relative overflow-hidden", // ← добавь overflow-hidden
                 "disabled:cursor-not-allowed",
                 {
                     "bg-black text-white hover:bg-black/90": variant === "primary",
@@ -88,57 +90,38 @@ export default function AddToBagButton({
                 className
             )}
         >
-            {/* Default State - Add to Bag */}
-            <span
-                className={cn(
-                    "flex items-center justify-center gap-2 transition-all duration-500 ease-out",
-                    isAdded
-                        ? "opacity-0 translate-y-8 scale-90"
-                        : "opacity-100 translate-y-0 scale-100"
-                )}
-            >
+    <span
+        className={cn(
+            "flex items-center justify-center gap-2 transition-all duration-300 ease-out",
+            isAdded
+                ? "opacity-0 translate-y-4"
+                : "opacity-100 translate-y-0"
+        )}
+    >
         Add to Bag
-      </span>
+    </span>
 
-            {/* Added State - Added to Bag with icons */}
             <span
                 className={cn(
-                    "absolute inset-0 flex items-center justify-center gap-2 transition-all duration-500 ease-out",
+                    "absolute inset-0 flex items-center justify-center gap-2 transition-all duration-300 ease-out",
                     isAdded
-                        ? "opacity-100 translate-y-0 scale-100"
-                        : "opacity-0 -translate-y-8 scale-90"
+                        ? "opacity-100 translate-y-0"
+                        : "opacity-100 translate-y-full"  // ← снизу приходит, не сверху
                 )}
             >
-        {/* Bag Icon with wiggle animation */}
-                <span className={cn("relative", isAnimating && "animate-bag-wiggle")}>
-          <BagIcon className="w-5 h-5" />
-                    {/* Small check mark on bag */}
-                    <span
-                        className={cn(
-                            "absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5 transition-all duration-300 delay-200",
-                            isAdded ? "scale-100 opacity-100" : "scale-0 opacity-0"
-                        )}
-                    >
-            <CheckIcon className="w-2 h-2 text-white" />
-          </span>
+        <span className="relative">
+            <BagIcon className="w-5 h-5" />
+            <span
+                className={cn(
+                    "absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5 transition-all duration-300 delay-150",
+                    isAdded ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                )}
+            >
+                <CheckIcon className="w-2 h-2 text-white" />
+            </span>
         </span>
-
-        <span
-            className={cn(
-                "transition-all duration-300 delay-100",
-                isAdded ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4"
-            )}
-        >
-          Added to Bag
-        </span>
-      </span>
-
-            {/* Ripple effect on click */}
-            {isAnimating && (
-                <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="absolute w-0 h-0 bg-white/20 rounded-full animate-ripple" />
-        </span>
-            )}
-        </button>
+        <span>Added to Bag</span>
+    </span>
+        </ButtonPrimary>
     );
 }

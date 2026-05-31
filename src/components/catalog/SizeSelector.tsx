@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import useClickOutside from "@/hooks/useClickOutside";
+import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 
 interface SizeSelectorProps {
     sizes: string[]
@@ -23,22 +24,21 @@ export default function SizeSelector({ sizes, onChange }: SizeSelectorProps) {
     return (
         <div ref={ref} className="relative w-full">
             {/* Trigger */}
-            <button
+            <ButtonPrimary
+                variant={"secondary"}
                 onClick={() => setOpen(o => !o)}
-                className={`w-full flex items-center justify-between px-4 py-[14px] rounded-[10px] border transition-colors duration-150 text-[14px]
-                    ${open ? "border-[#1c1917]" : "border-[#ddd] hover:border-[#bbb]"}
-                `}
+                className="w-full"
             >
                 <span className={selected ? "text-[var(--text)] font-medium" : "text-[#999]"}>
                     {selected ?? "Choose size"}
                 </span>
                 <svg
                     width="16" height="16" viewBox="0 0 16 16" fill="none"
-                    className={`transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`}
+                    className={`absolute top-[13px] right-[10px] transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`}
                 >
                     <path d="M4 6L8 10L12 6" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-            </button>
+            </ButtonPrimary>
 
             {/* Dropdown */}
             <div

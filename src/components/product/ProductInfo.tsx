@@ -4,11 +4,10 @@ import {IProduct} from "@/components/product/IProduct";
 import {formatPrice} from "@/lib/formatPrice";
 import SizeGuideButton from "@/components/product/size-guide/SizeGuideButton";
 import SizeSelector from "@/components/catalog/SizeSelector";
-import AddToFavButton from "@/components/product/AddToFavButton";
 import AddToBagButton from "@/components/product/AddToBagButton";
 import ProductDescriptionSections from "@/components/product/ProductDescriptionSections";
 import {useMiddleBarHeight} from "@/store/useHeaderBarHeightStore";
-import AddToFavBrandButton from "@/components/product/AddToFavBrandButton";
+import AddToFavButton from "@/components/favourites/AddToFavButton";
 
 export default function ProductInfo({ product }: {product: IProduct }){
     const advantages = ["New deals weekly", "Shipping: 4-8 working days", "Easy returns within 30 days"]
@@ -24,7 +23,7 @@ export default function ProductInfo({ product }: {product: IProduct }){
                 <SizeGuideButton />
                 <SizeSelector sizes={product.sizes}/>
                 <div className="flex flex-row gap-2">
-                    <AddToFavButton productId={product.id}/>
+                    <AddToFavButton id={product.id} type={"product"}/>
                     <AddToBagButton className="w-full"/>
                 </div>
             </div>
@@ -39,7 +38,7 @@ export default function ProductInfo({ product }: {product: IProduct }){
                 ))}
             </div>
             <ProductDescriptionSections product={product}/>
-            <AddToFavBrandButton brandId={product.brand}/>
+            <AddToFavButton id={product.brand} type={"brand"}/>
         </div>
     )
 }
