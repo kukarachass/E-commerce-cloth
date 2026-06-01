@@ -14,7 +14,7 @@ export function useFilters() {
         const current = params.getAll(key).filter(v => !values.includes(v))
         params.delete(key)
         current.forEach(v => params.append(key, v))
-        router.push(`${pathname}?${params.toString()}`)
+        router.push(`${pathname}?${params.toString()}`, { scroll: false })
     }, [router, pathname, searchParams])
 
     const setFilter = useCallback((key: string, value: string) => {
@@ -32,7 +32,7 @@ export function useFilters() {
             params.append(key, value)
         }
 
-        router.push(`${pathname}?${params.toString()}`)
+        router.push(`${pathname}?${params.toString()}`, { scroll: false })
     }, [router, pathname, searchParams])
 
     const setUniqueFilter = useCallback(
@@ -41,7 +41,7 @@ export function useFilters() {
             Object.entries(filters).forEach(([key, value]) => {
                 params.set(key, value)
             })
-            router.push(`${pathname}?${params.toString()}`)
+            router.push(`${pathname}?${params.toString()}`, { scroll: false })
         },
         [router, pathname, searchParams]
     )
@@ -49,7 +49,7 @@ export function useFilters() {
     const clearFilter = useCallback((key: string) => {
         const params = new URLSearchParams(searchParams.toString())
         params.delete(key)
-        router.push(`${pathname}?${params.toString()}`)
+        router.push(`${pathname}?${params.toString()}`, { scroll: false })
     }, [router, pathname, searchParams])
 
     const clearAll = useCallback(() => {

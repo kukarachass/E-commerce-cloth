@@ -1,6 +1,9 @@
 import { getProducts } from "@/actions/products/get-products"
 import CatalogContainer from "@/components/catalog/CatalogContainer";
 import {Gender} from "@/store/useGenderStore";
+import {getCategoryWithSubs} from "@/actions/category/categories";
+import NotFoundPage from "@/app/not-found";
+import {notFound} from "next/navigation";
 
 interface Props {
     params: Promise<{ gender: Gender, category: string }>
@@ -20,7 +23,10 @@ interface Props {
 export default async function CategoryPage({ params, searchParams }: Props) {
     const { gender, category } = await params
     const filters = await searchParams
+    const slug = `${gender}-${category}`
+    const categoryData = await getCategoryWithSubs(gender, slug)
 
+    if (!categoryData) notFound()
     const products = await getProducts({
         gender,
         category,

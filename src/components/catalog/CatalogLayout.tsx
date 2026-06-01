@@ -8,7 +8,6 @@ import {Color} from "@/types/filters/color";
 import {Pattern} from "@/types/filters/pattern";
 import {Style} from "@/types/filters/style";
 import {Discount} from "@/types/filters/discount";
-import {IProduct} from "@/components/product/IProduct";
 import {ProductWithDetails} from "@/types/product-details";
 
 

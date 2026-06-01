@@ -16,7 +16,12 @@ export default function FavouritesPage(){
     const { favBrands } = useFavouriteBrands()
 
     const isEmpty = favProducts?.length === 0 && favBrands?.length === 0
-    const firstSelected = !isEmpty ? (favProducts?.length ? "products" : "brands") : "brands"
+    const firstSelected = (): "products" | "brands" => {
+        if (!favProducts?.length && !favBrands?.length) return "products"
+        if (!favProducts?.length) return "brands"
+        if (!favBrands?.length) return "products"
+        return favProducts.length >= favBrands.length ? "products" : "brands"
+    }
 
     const [selected, setSelected] = useState<"brands" | "products">(firstSelected);
     const router = useRouter()
@@ -37,7 +42,7 @@ export default function FavouritesPage(){
                                     ))}
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-4 gap-4">
+                                <div className="grid grid-cols-3 gap-4">
                                     {favBrands?.map((item) => (
                                         <BrandCard variant={"wide"} key={item.id} brand={item}/>
                                     ))}

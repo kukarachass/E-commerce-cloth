@@ -1,12 +1,12 @@
 // app/(main)/[gender]/brands/page.tsx
 
-import {getAllBrands, getBrands} from "@/actions/brands/brands";
+import {getBrands} from "@/actions/brands/brands";
 import BrandsPage from "@/components/brand-page/BrandsPage";
 import {Gender} from "@/store/useGenderStore";
 
 export default async function Page({ params }: { params: Promise<{ gender: Gender }> }) {
     const { gender } = await params;
-    const brands = await getAllBrands({ gender })
+    const brands = await getBrands({ gender })
 
     // Группируем по первой букве
     const sections = brands.reduce((acc, brand) => {

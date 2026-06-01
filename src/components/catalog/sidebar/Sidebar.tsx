@@ -3,13 +3,14 @@
 import { Category } from "@/types/filters/category"
 import { IProduct } from "@/components/product/IProduct"
 import SidebarItem from "@/components/catalog/sidebar/SidebarItem";
+import {ProductWithDetails} from "@/types/product-details";
 
 interface Props {
     title: string
     items: Category[]
     noTitle?: boolean
     activeItem?: string
-    products: IProduct[]
+    products: ProductWithDetails[]
 }
 
 export default function Sidebar({ title, items, products }: Props) {

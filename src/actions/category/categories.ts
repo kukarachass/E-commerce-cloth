@@ -2,8 +2,8 @@
 "use server"
 
 import {db} from "@/db"
-import {category} from "@/db/schema"
-import {eq, and, isNull} from "drizzle-orm"
+import {category, product} from "@/db/schema"
+import {eq, and, isNull, inArray} from "drizzle-orm"
 import {Gender} from "@/store/useGenderStore";
 
 export async function getCategoryWithSubs(gender: Gender, slug: string) {
@@ -46,4 +46,23 @@ export async function getAllCategoriesWithSubs({ gender }: { gender: Gender }){
             }
         }
     })
+}
+
+export async function getCategoriesByProductIds(productIds: string[]) {
+    const categories = await db
+        .selectDistinct({
+            id: category.id,
+            name: category.name,
+            slug: category.slug,
+            gender: category.gender,
+            parentId: category.parentId,
+            createdAt: category.createdAt,
+            image: category.image,
+        })
+        .from(category)
+        .innerJoin(product, eq(product.categoryId, category.id))
+        .where(inArray(product.id, productIds))
+        .orderBy(category.name)
+
+    return categories
 }
