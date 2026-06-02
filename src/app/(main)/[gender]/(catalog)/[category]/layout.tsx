@@ -1,15 +1,15 @@
 import CatalogLayout from "@/components/catalog/CatalogLayout"
 import { ReactNode } from "react"
 import {getCategoryWithSubs} from "@/actions/category/categories";
-import {getBrands} from "@/actions/brands/brands";
-import {getSizes} from "@/actions/sizes/sizes";
-import {getPrice} from "@/actions/price/price";
-import {getColors} from "@/actions/color/color";
-import {getPatterns} from "@/actions/pattern/pattern";
-import {getStyles} from "@/actions/style/style";
-import {getDiscounts} from "@/actions/discount/dicount";
 import {getProducts} from "@/actions/products/get-products";
 import {Gender} from "@/store/useGenderStore";
+import {getBrands} from "@/actions/filters/brands/brands";
+import {getSizes} from "@/actions/filters/sizes/sizes";
+import {getPrice} from "@/actions/filters/price/price";
+import {getColors} from "@/actions/filters/color/color";
+import {getPatterns} from "@/actions/filters/pattern/pattern";
+import {getStyles} from "@/actions/filters/style/style";
+import {getDiscounts} from "@/actions/filters/discount/dicount";
 
 interface Props {
     children: ReactNode

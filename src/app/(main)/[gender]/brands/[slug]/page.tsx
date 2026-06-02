@@ -1,6 +1,5 @@
 import Container from "@/components/layout/Сontainer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import {getBrand, getBrands} from "@/actions/brands/brands";
 import {Gender} from "@/store/useGenderStore";
 import Image from "next/image";
 import AddToFavButton from "@/components/favourites/AddToFavButton";
@@ -8,13 +7,14 @@ import InfoButton from "@/components/brand-page/InfoButton";
 import {getProducts} from "@/actions/products/get-products";
 import CatalogContainer from "@/components/catalog/CatalogContainer";
 import CatalogLayout from "@/components/catalog/CatalogLayout";
-import {getSizes} from "@/actions/sizes/sizes";
-import {getPrice} from "@/actions/price/price";
-import {getColors} from "@/actions/color/color";
-import {getPatterns} from "@/actions/pattern/pattern";
-import {getStyles} from "@/actions/style/style";
-import {getDiscounts} from "@/actions/discount/dicount";
-import {getAllCategoriesWithSubs, getCategoriesByProductIds, getCategoryWithSubs} from "@/actions/category/categories";
+import {getCategoriesByProductIds} from "@/actions/category/categories";
+import {getBrand, getBrands} from "@/actions/filters/brands/brands";
+import {getSizes} from "@/actions/filters/sizes/sizes";
+import {getPrice} from "@/actions/filters/price/price";
+import {getColors} from "@/actions/filters/color/color";
+import {getPatterns} from "@/actions/filters/pattern/pattern";
+import {getStyles} from "@/actions/filters/style/style";
+import {getDiscounts} from "@/actions/filters/discount/dicount";
 
 interface Props {
     params: Promise<{ gender: Gender; slug: string }>
