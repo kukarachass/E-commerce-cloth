@@ -8,6 +8,7 @@
     "start": "next start",
     "seed": "tsx src/db/seed.ts",
     "seed:jeans": "tsx src/db/seed-jeans.ts",
+    "seed:descs": "tsx src/db/update-descriptions.ts",
     "seed:images": "tsx src/db/seed-images.ts",
     "seed:brand-tags": "tsx src/db/seed-brand-tags.ts",
     "seed:collections": "tsx src/db/seed-collection.ts",

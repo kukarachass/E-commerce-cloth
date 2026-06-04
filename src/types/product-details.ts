@@ -7,3 +7,5 @@ export type ProductWithDetails = InferSelectModel<typeof product> & {
     images: InferSelectModel<typeof productImage>[]
     brand: InferSelectModel<typeof brand>
 }
+
+export type productImages = InferSelectModel<typeof productImage>

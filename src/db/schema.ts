@@ -295,7 +295,7 @@ export const collectionProduct = pgTable("collection_product", {
 export const cart = pgTable("cart", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").unique().references(() => user.id, {onDelete: "cascade"}),
-    token: text("token").notNull().unique(),
+    token: text("token").unique(),
     totalAmount: decimal("total_amount", {precision: 10, scale: 2}).notNull().default("0"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
@@ -307,10 +307,11 @@ export const cartItem = pgTable("cart_item", {
     id: uuid("id").defaultRandom().primaryKey(),
     cartId: uuid("cart_id").notNull().references(() => cart.id, {onDelete: "cascade"}),
     productId: uuid("product_id").notNull().references(() => product.id, {onDelete: "cascade"}),
+    priceAtAddition: decimal("price_at_addition", { precision: 10, scale: 2 }).notNull(), // ← добавляем
     quantity: integer("quantity").notNull().default(1),
-    size: uuid("product_size_id").notNull().references(() => productSize.id, {onDelete: "cascade"}),
+    productSizeId: uuid("product_size_id").notNull().references(() => productSize.id, {onDelete: "cascade"}),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-}, (t) => [unique().on(t.cartId, t.productId, t.size)])
+}, (t) => [unique().on(t.cartId, t.productId, t.productSizeId)])
 
 // ============================================================
 // ██████╗ ██████╗ ██████╗ ███████╗██████╗
@@ -363,12 +364,12 @@ export const orderItem = pgTable("order_item", {
 // ============================================================
 
 // --- USER ---
-export const userRelations = relations(user, ({many}) => ({
+export const userRelations = relations(user, ({one, many}) => ({
     sessions: many(session),
     accounts: many(account),
     addresses: many(address),
     orders: many(order),
-    cart: many(cart),
+    cart: one(cart, { fields: [user.id], references: [cart.userId] }), // ← one, не many
 }))
 
 export const sessionRelations = relations(session, ({one}) => ({
@@ -454,7 +455,7 @@ export const cartItemRelations = relations(cartItem, ({one}) => ({
     cart: one(cart, {fields: [cartItem.cartId], references: [cart.id]}),
     product: one(product, {fields: [cartItem.productId], references: [product.id]}),
     productSize: one(productSize, {
-        fields: [cartItem.size], references: [productSize.id],
+        fields: [cartItem.productSizeId], references: [productSize.id],
     }),
 }))
 

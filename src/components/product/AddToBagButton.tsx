@@ -8,6 +8,7 @@ interface AddToBagButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButton
     variant?: "primary" | "secondary";
     className?: string;
     onAddToBag?: () => void;
+    text?: string;
 }
 
 function BagIcon({ className }: { className?: string }) {
@@ -51,42 +52,43 @@ export default function AddToBagButton({
                                            className,
                                            onAddToBag,
                                            disabled,
+                                           text,
                                            ...rest
                                        }: AddToBagButtonProps) {
     const [isAdded, setIsAdded] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
 
     const handleClick = () => {
-        if (isAnimating || isAdded) return;
+        // Если disabled — вызываем колбэк (там сработает toast) без анимации
+        if (disabled) {
+            onAddToBag?.()
+            return
+        }
 
-        setIsAnimating(true);
-        setIsAdded(true);
-        onAddToBag?.();
+        if (isAnimating || isAdded) return
 
-        // Reset after animation
+        setIsAnimating(true)
+        setIsAdded(true)
+        onAddToBag?.()
+
         setTimeout(() => {
-            setIsAnimating(false);
-        }, 600);
+            setIsAnimating(false)
+        }, 600)
 
-        // Reset to default state after delay (optional - remove if you want it to stay "Added")
         setTimeout(() => {
-            setIsAdded(false);
-        }, 2500);
-    };
+            setIsAdded(false)
+        }, 2500)
+    }
 
     return (
         <ButtonPrimary
             variant={"primary"}
             {...rest}
-            disabled={disabled || isAnimating}
+            disabled={isAnimating}
             onClick={handleClick}
             className={cn(
                 "relative overflow-hidden", // ← добавь overflow-hidden
                 "disabled:cursor-not-allowed",
-                {
-                    "bg-black text-white hover:bg-black/90": variant === "primary",
-                    "bg-white text-[var(--text)] border hover:bg-gray-50": variant === "secondary",
-                },
                 className
             )}
         >
@@ -98,7 +100,7 @@ export default function AddToBagButton({
                 : "opacity-100 translate-y-0"
         )}
     >
-        Add to Bag
+        { text ? (<span>{text}</span>) : "Add to Bag" }
     </span>
 
             <span
