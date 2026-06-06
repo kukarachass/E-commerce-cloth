@@ -1,3 +1,5 @@
+"use server"
+
 import {GetOrCreateCart} from "@/actions/cart/get-or-create-cart";
 import {db} from "@/db";
 import {and, eq} from "drizzle-orm";

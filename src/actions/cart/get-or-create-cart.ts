@@ -1,7 +1,7 @@
 import MergeCart from "@/actions/cart/cart-merge"
 import { hashCartToken, makeCartToken } from "@/actions/cart/make-cart-token"
 import { cart } from "@/db/schema"
-import { CartItem, DbTransaction } from "@/types/cart"
+import { ICartItem, DbTransaction } from "@/types/cart"
 
 export type CartCookieAction =
     | { type: "set"; token: string }
@@ -21,7 +21,7 @@ async function createGuestCart(tx: DbTransaction, tokenHash: string) {
 
     return {
         ...createdCart,
-        items: [] as CartItem[],
+        items: [] as ICartItem[],
     }
 }
 
@@ -37,7 +37,7 @@ async function getOrCreateUserCart(tx: DbTransaction, userId: string) {
         .returning()
 
     if (inserted) {
-        return { ...inserted, items: [] as CartItem[] }
+        return { ...inserted, items: [] as ICartItem[] }
     }
 
     const existing = await tx.query.cart.findFirst({

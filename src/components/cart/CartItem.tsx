@@ -1,40 +1,56 @@
-import DeleteIcon from "@/components/ui/icons/DeleteIcon";
-import Image from "next/image";
-import QuantityButton from "@/components/cart/ui/QuantityButton";
-import {formatPrice} from "@/lib/formatPrice";
-import {IProduct} from "@/components/product/IProduct";
+import Image from "next/image"
+import DeleteIcon from "@/components/ui/icons/DeleteIcon"
+import QuantityButton from "@/components/cart/ui/QuantityButton"
+import { formatPrice } from "@/lib/formatPrice"
+import { CartItemWithDetails } from "@/types/cart"
+import DeleteFromCart from "@/components/cart/ui/DeleteFromCart";
 
-export default function CartItem({cartItem}: {cartItem: IProduct }) {
+export default function CartItem({ cartItem }: { cartItem: CartItemWithDetails }) {
+    const { product } = cartItem
+
+
     return (
-        <div className="max-w-[600px] w-full flex flex-col gap-4 p-4 border-y border-gray-200">
-            <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-4 items-center">
-                    <div className="w-[80px] h-[120px] relative">
-                        <Image src={cartItem.imgUrl[0]} alt={cartItem.name} fill/>
-                    </div>
-                    <div className="flex flex-col gap-4">
-                        <div className="flex flex-col">
-                            <span className="text-[var(--text)] font-bold text-[16px] leading-[150%]">{cartItem.name}</span>
-                            <span className="text-[var(--text)] text-[14px] leading-[143%]">{cartItem.description}</span>
-                        </div>
-                        <div className="flex flex-row gap-1 text-[14px]">
-                                <span className="text-[var(--text)]">Size</span>
-                                <span className="font-bold text-[var(--text)]">{cartItem.sizes}</span>
-                                <span className="font-bold text-[#999]">INT</span>
-                        </div>
-                    </div>
-                </div>
-                <div className="w-fit h-fit">
-                    <DeleteIcon/>
-                </div>
+        <div className="flex flex-row gap-3 py-4 border-b border-[#ebebeb]">
+            <div className="relative w-[72px] h-[96px] shrink-0 overflow-hidden rounded-[4px] bg-[#f5f5f5]">
+                <Image
+                    src={product.images[0]?.url ?? ""}
+                    alt={product.name}
+                    fill
+                    className="object-cover"
+                />
             </div>
-            <div className="flex flex-row justify-between">
-                <div className="flex flex-col gap-2">
-                    <span className="text-[#999] text-[14px]">Quantity</span>
-                    <QuantityButton/>
+
+            <div className="flex flex-1 flex-col justify-between min-w-0 py-0.5">
+                <div className="flex flex-row justify-between items-start gap-2">
+                    <div className="flex flex-col gap-0.5 min-w-0">
+                        <span className="text-[13px] font-semibold leading-[140%] truncate text-[var(--text)]">
+                            {product.name}
+                        </span>
+                        <span className="text-[12px] text-[#999]">
+                            Size {cartItem.productSize.size}
+                        </span>
+                    </div>
+                    <DeleteFromCart cartItemId={cartItem.id} />
                 </div>
-                <div className="flex flex-row gap-2 mt-auto">
-                    <span className="text-[var(--text)] font-bold text-[16px] leading-[150%]">{formatPrice(cartItem.price)}</span>
+
+                <div className="flex flex-row items-center justify-between">
+                    <QuantityButton cartItem={cartItem}/>
+                    <div className="flex flex-col items-end">
+                        <span className="text-[13px] font-bold text-[var(--text)]">
+                            {cartItem.product.discountPrice && (
+                                <div className="flex flex-row gap-2">
+                                    <span className={"text-[var(--muted)] line-through"}>{formatPrice(Number(product.originalPrice) * cartItem.quantity)}</span>
+                                    {formatPrice(Number(cartItem.priceAtAddition) * cartItem.quantity)}
+                                </div>
+
+                            )}
+                        </span>
+                        {cartItem.quantity > 1 && (
+                            <span className="text-[11px] text-[#bbb]">
+                                {formatPrice(Number(cartItem.priceAtAddition))} each
+                            </span>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

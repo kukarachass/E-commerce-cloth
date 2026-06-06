@@ -23,8 +23,8 @@ export default function ButtonPrimary({
                     "bg-black text-white hover:bg-black/85": variant === "primary" && !rest.disabled,
                     "bg-black/40 text-white cursor-not-allowed": variant === "primary" && rest.disabled,
 
-                    "bg-white text-[var(--text)] border border-gray-200 hover:bg-gray-100":
-                        variant === "secondary" && !rest.disabled,
+                    "bg-white text-[var(--text)] border border-gray-200 hover:bg-gray-100": variant === "secondary" && !rest.disabled,
+                    "bg-white text-[#bbb] border border-gray-200 cursor-not-allowed": variant === "secondary" && rest.disabled,
                 }
             )}
         >

@@ -7,11 +7,26 @@ import Image from "next/image";
 import Link from "next/link";
 import Trustpilot from "@/components/ui/icons/Trustpilot";
 import {useRouter, useSearchParams} from "next/navigation";
+import {formatPrice} from "@/lib/formatPrice";
+import {useGetCart} from "@/hooks/cart/useGetCart";
+import {toast} from "sonner";
+import Arrow from "@/components/ui/icons/Arrow";
+import {useState} from "react";
 
 export default function CheckoutSummaryBlock({ href }: { href: string }) {
+    const {data: cart, isPending, isError} = useGetCart()
+
     const searchParams = useSearchParams();
     const router = useRouter();
     const step = Number(searchParams.get("step")) || 1
+    const [showItems, setShowItems ] = useState(false);
+
+    if (isPending) return <>Loading...</>
+    if (isError) return <div className="text-center text-[#999] py-20">Something went wrong</div>
+    if (!cart) {
+        toast.error("Your cart is empty")
+        return;
+    }
 
     const buttonTitles: Record<number, string> = {
         1: "Continue to payment",
@@ -32,12 +47,25 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
                 <div className="flex flex-col gap-4">
                     <h3 className="text-[var(--text)] text-[20px] font-bold">Order summary</h3>
                     <div className="flex flex-col gap-2">
-                        <CheckoutItemsList/>
+                        <div className="flex flex-col">
+                            <div className="flex flex-row items-center justify-between">
+                                <span>{formatPrice(Number(cart.totalAmount))}</span>
+                                <div className="flex flex-row justify-between items-center">
+                                    <div className="flex flex-row items-center gap-2">
+                                        <span className="text-[var(--text)] text-[14px] leading-[143%]">Total items (6)</span>
+                                        <button onClick={() => setShowItems(!showItems)}>
+                                            <Arrow />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <CheckoutItemsList showItems={showItems} items={cart.items} />
+                        </div>
                         <div className="flex flex-row justify-between items-center text-[var(--text)] text-[14px] leading-[143%]">
                             <span>Shipping Fee</span>
-                            <span>€ 9,00</span>
+                            <span>{formatPrice(Number(cart.shippingFee))}</span>
                         </div>
-                        <CustomsFee customsFee={9.95}/>
+                        <CustomsFee customsFee={cart.customsFee}/>
                     </div>
                 </div>
 
@@ -46,11 +74,11 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
                 <div className="flex flex-col gap-2">
                     <div className="flex flex-row justify-between items-center text-[var(--text)] text-[16px] leading-[150%] font-bold">
                         <h3>Total Amount</h3>
-                        <span>€ 9,00</span>
+                        <span>{formatPrice(Number(cart.grandTotal))}</span>
                     </div>
                     <div className="flex flex-row justify-between items-center text-[var(--text)] text-[14px] leading-[114%]">
                         <span>Total saved</span>
-                        <span>€ 9,00</span>
+                        <span>{formatPrice(Number(cart.totalSaved))}</span>
                     </div>
                     <div className="text-[var(--text)] text-[12px] leading-[133%]">
                         This is compared to the recommended retail price. This is the

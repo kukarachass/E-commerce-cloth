@@ -2,9 +2,8 @@
 
 import { useGenderStore } from "@/store/useGenderStore"
 import Link from "next/link"
-import FavIcon from "@/components/ui/icons/FavIcon"
 import { IBrand } from "@/types/IBrand"
-import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands"
+import AddToFavButton from "@/components/favourites/AddToFavButton";
 
 interface Props {
     sections: Record<string, IBrand[]>
@@ -12,7 +11,6 @@ interface Props {
 
 export default function BrandsPage({ sections }: Props) {
     const gender = useGenderStore(s => s.gender)
-    const { isFavourite, toggleFav } = useFavouriteBrands()
 
     const brandsLetters = ["#", ...Object.keys(sections).sort()]
 
@@ -52,10 +50,7 @@ export default function BrandsPage({ sections }: Props) {
                                 <div className="flex flex-row gap-10 flex-wrap">
                                     {brands.map(brand => (
                                         <div key={brand.id} className="flex flex-row items-center gap-4">
-                                            <FavIcon
-                                                isFav={isFavourite(brand.id)}
-                                                onChange={() => toggleFav(brand.id)}
-                                            />
+                                            <AddToFavButton id={brand.id} type={"brand"}/>
                                             <Link href={`/${gender}/brands/${brand.slug}`}>
                                                 {brand.name}
                                             </Link>

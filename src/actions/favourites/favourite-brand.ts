@@ -4,7 +4,7 @@
 import {db} from "@/db";
 import {brand, favoriteBrand, product} from "@/db/schema";
 import {getServerSession} from "@/lib/get-session";
-import {and, eq, max} from "drizzle-orm";
+import {and, desc, eq, max} from "drizzle-orm";
 
 interface SetFavouriteBrandProps {
     brandId: string;
@@ -51,11 +51,12 @@ export async function getFavouriteBrands() {
         logo: brand.logo,
         tags: brand.tags,
         maxDiscount: max(product.discount),
+        addedAt: max(favoriteBrand.createdAt), // ← берём дату добавления
     })
         .from(favoriteBrand)
         .innerJoin(product, eq(product.brandId, favoriteBrand.brandId))
         .innerJoin(brand, eq(brand.id, favoriteBrand.brandId))
         .where(eq(favoriteBrand.userId, session.user.id))
         .groupBy(brand.id, brand.name, brand.slug, brand.logo, brand.tags)
-        .orderBy(brand.name)
+        .orderBy(({ addedAt }) => desc(addedAt)) // ← сортируем по дате
 }

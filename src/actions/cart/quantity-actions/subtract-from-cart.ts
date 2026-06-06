@@ -8,6 +8,7 @@ import {eq} from "drizzle-orm";
 import updateCartTotalAmount from "@/actions/cart/update-total-amount";
 import {ApplyCartCookieAction} from "@/actions/cart/apply-cart-cookies";
 import {cookies} from "next/headers";
+import {RemoveCartItem} from "@/actions/cart/quantity-actions/remove-from-cart";
 
 interface UpdateCartItemQuantityProps {
     userId: string | null
@@ -20,9 +21,9 @@ export async function SubtractFromCart({
                                                  cartItemId,
                                                  quantity,
                                              }: UpdateCartItemQuantityProps) {
-    if (quantity <= 0 || quantity > CART_MAX_QUANTITY_PER_ITEM) {
-        throw new Error(`Quantity must be between 1 and ${CART_MAX_QUANTITY_PER_ITEM}`)
-    }
+
+    if(quantity <= 0) return RemoveCartItem({userId, cartItemId});
+    if (quantity > CART_MAX_QUANTITY_PER_ITEM) throw new Error(`The product limit has been exceeded, maximum is ${CART_MAX_QUANTITY_PER_ITEM}`)
 
     const cookieStore = await cookies()
     const cookieToken = cookieStore.get(CART_COOKIE_NAME)?.value ?? null

@@ -297,6 +297,7 @@ export const cart = pgTable("cart", {
     userId: text("user_id").unique().references(() => user.id, {onDelete: "cascade"}),
     token: text("token").unique(),
     totalAmount: decimal("total_amount", {precision: 10, scale: 2}).notNull().default("0"),
+    grandTotal: decimal("grand_total", { precision: 10, scale: 2 }).notNull().default("0"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 })
@@ -362,6 +363,23 @@ export const orderItem = pgTable("order_item", {
 // Не создают таблицы в БД — только инструкции для Drizzle
 // чтобы работало with: {} в запросах.
 // ============================================================
+
+// ============================================================
+//  ██████╗ ██████╗ ███╗   ██╗███████╗██╗ ██████╗
+// ██╔════╝██╔═══██╗████╗  ██║██╔════╝██║██╔════╝
+// ██║     ██║   ██║██╔██╗ ██║█████╗  ██║██║  ███╗
+// ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║██║   ██║
+// ╚██████╗╚██████╔╝██║ ╚████║██║     ██║╚██████╔╝
+//  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚═╝     ╚═╝ ╚═════╝
+// ============================================================
+
+export const storeConfig = pgTable("store_config", {
+    shippingFee: decimal("shipping_fee", { precision: 10, scale: 2 }).notNull().default("6.99"),
+    freeShippingThreshold: decimal("free_shipping_threshold", { precision: 10, scale: 2 }).notNull().default("500"),
+    isFreeShippingEnabled: boolean("is_free_shipping_enabled").notNull().default(true),
+    customsFee: decimal("customs_fee", { precision: 10, scale: 2 }).notNull().default("9.99"),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+})
 
 // --- USER ---
 export const userRelations = relations(user, ({one, many}) => ({
