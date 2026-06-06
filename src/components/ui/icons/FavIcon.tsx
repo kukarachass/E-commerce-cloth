@@ -26,8 +26,15 @@ export default function FavIcon({
         : "rgba(0,0,0,0.12)";
 
     return (
-        <div onClick={() => onChange?.()}>
+        <div onClick={(e) => {
+            console.log("🔥 FavIcon clicked, calling onChange")
+            onChange?.()
+        }}>
             <motion.button
+                onClick={(e) => {
+                    console.log("🔥 FavIcon clicked, calling onChange")
+
+                }}
                 type="button"
                 whileTap={{ scale: 0.72 }}
                 className={className}
@@ -66,8 +73,8 @@ export default function FavIcon({
                     {/* Белый контур — самый нижний слой */}
                     <path
                         d="M12 21C12 21 3 15.5 3 9.5C3 7.01 5.01 5 7.5 5C9.24 5 10.91 6.01 12 7.5C13.09 6.01 14.76 5 16.5 5C18.99 5 21 7.01 21 9.5C21 15.5 12 21 12 21Z"
-                        stroke="rgba(255,255,255,0.8)"
-                        strokeWidth="3"
+                        stroke="none"
+                        strokeWidth="2.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         fill="none"
@@ -97,7 +104,7 @@ export default function FavIcon({
                     {/* Основной контур */}
                     <path
                         d="M12 21C12 21 3 15.5 3 9.5C3 7.01 5.01 5 7.5 5C9.24 5 10.91 6.01 12 7.5C13.09 6.01 14.76 5 16.5 5C18.99 5 21 7.01 21 9.5C21 15.5 12 21 12 21Z"
-                        stroke={borderColor}
+                        stroke="black"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         strokeLinejoin="round"

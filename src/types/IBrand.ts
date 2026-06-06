@@ -1,3 +1,3 @@
-import {getBrands} from "@/actions/brands/brands";
+import {getBrands} from "@/actions/filters/brands/brands";
 
 export type IBrand = Awaited<ReturnType<typeof getBrands>>[number]

@@ -3,30 +3,21 @@ import Breadcrumb from "@/components/ui/Breadcrumb";
 import ProductInfo from "@/components/product/ProductInfo";
 import ProductsRelated from "@/components/product/ProductsRelated";
 import {productsArray} from "@/mocks/catalogStore";
+import {getProduct} from "@/actions/products/get-product";
+import {notFound} from "next/navigation";
 
 interface Props {
     params: Promise<{
-        id: string;
+        slug: string;
     }>;
 }
 
 export default async function ProductPage({params}: Props) {
-    const {id} = await params;
-    // логика получения продукта
+    const { slug } = await params;
+    const product = await getProduct({ slug });
+    console.log(product);
+    if (!product) notFound() // ← редирект на 404 страницу Next.js
 
-    const product = {
-        id: "1",
-        brand: "Gucci",
-        imgUrl: ["/product.webp", "/product2.webp", "/product3.webp", "product4.webp"],
-        name: "Dolce Kabana",
-        description: "Ahuenno super zaebis",
-        price: 120,
-        sizes: ["L", "M", "S", "XS", "XXS",],
-
-        descriptionFull: "Placing A Playful Twist On Classic Gingham, Tammy Features A Bold, Scaled Up Check On Tactile Linton Tweed And Is Finished With A Stylish Raw Edge. This A-Line Skirt With Front Patch Pockets Looks Effortless Styled With A Tucked In Tee Or Camisole And A Simple Pair Of Sandals.&Nbsp;",
-        material: "Cotton Mix",
-        careInstructions: "Please Follow The Care Instructions On The Care Label"
-    }
     return (
         <div className="max-w-[1200px] mx-auto pb-10">
             <div className="flex flex-col">
@@ -35,8 +26,7 @@ export default async function ProductPage({params}: Props) {
                 </div>
                 <div className="flex flex-row gap-8 pb-10">
                     <div className="w-[800px]">
-                        <ProductImageGallery alt={"name"}
-                                             images={["/product/product1.webp", "/product/product2.webp", "/product/product3.webp", "/product/product4.webp", "/product/product5.webp"]}/>
+                        <ProductImageGallery alt={"name"} images={product.images}/>
                     </div>
                     <div className="flex-1">
                         <ProductInfo product={product}/>

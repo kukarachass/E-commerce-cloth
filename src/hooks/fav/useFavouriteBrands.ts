@@ -1,19 +1,22 @@
 "use client"
 
-
-import {useMutation, useQuery, useQueryClient} from "@tanstack/react-query";
-import {getFavouriteBrands, toggleFavouriteBrand} from "@/actions/favourites/favourite-brand";
-import {toast} from "sonner";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useCallback } from "react"
+import { getFavouriteBrands, toggleFavouriteBrand } from "@/actions/favourites/favourite-brand"
+import { toast } from "sonner"
 
 export default function useFavouriteBrands() {
-    const queryClient = useQueryClient();
+    const queryClient = useQueryClient()
 
     const { data: favBrands = [] } = useQuery({
         queryKey: ["favourite-brands"],
-        queryFn: () => getFavouriteBrands(),
+        queryFn: async () => {
+            const result = await getFavouriteBrands()
+            return result ?? []
+        },
     })
 
-    const { mutate: toggleFav } = useMutation({
+    const { mutate: toggleFavMutate } = useMutation({
         mutationFn: (brandId: string) => toggleFavouriteBrand({ brandId }),
         onSuccess: async (data) => {
             if (data?.action === "added") {
@@ -28,8 +31,13 @@ export default function useFavouriteBrands() {
         }
     })
 
-    const isFavourite = (brandId: string) =>
-        favBrands?.some(b => b.id === brandId) ?? false
+    const toggleFav = useCallback((brandId: string) => {
+        toggleFavMutate(brandId)
+    }, [toggleFavMutate])
+
+    const isFavourite = useCallback((brandId: string) =>
+            favBrands?.some(b => b.id === brandId) ?? false,
+        [favBrands])
 
     return { favBrands, toggleFav, isFavourite }
 }

@@ -15,7 +15,7 @@ export default function FavouritesPage(){
     const { favProducts } = useFavouriteProducts()
     const { favBrands } = useFavouriteBrands()
 
-    const isEmpty = favProducts?.length === 0 && favBrands?.length === 0
+    const isEmpty = (favProducts?.length ?? 0) === 0 && (favBrands?.length ?? 0) === 0
     const firstSelected = (): "products" | "brands" => {
         if (!favProducts?.length && !favBrands?.length) return "products"
         if (!favProducts?.length) return "brands"

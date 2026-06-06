@@ -1,8 +1,8 @@
 // app/(main)/[gender]/brands/page.tsx
 
-import {getBrands} from "@/actions/brands/brands";
 import BrandsPage from "@/components/brand-page/BrandsPage";
 import {Gender} from "@/store/useGenderStore";
+import {getBrands} from "@/actions/filters/brands/brands";
 
 export default async function Page({ params }: { params: Promise<{ gender: Gender }> }) {
     const { gender } = await params;

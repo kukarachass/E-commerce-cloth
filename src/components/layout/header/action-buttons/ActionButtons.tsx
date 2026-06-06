@@ -13,6 +13,7 @@ import cartJson from "./cart.json"
 import AccountActionsModal from "@/components/account/AccountActionsModal";
 import useFavouriteProducts from "@/hooks/fav/useFavouriteProducts";
 import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands";
+import {useGetCart} from "@/hooks/cart/useGetCart";
 
 function LottieButton({json, onClick}: { json: object; onClick?: () => void }) {
     const ref = useRef<Player>(null)
@@ -37,11 +38,15 @@ export default function ActionButtons() {
     const isSticky = useStickyStore(state => state.isSticky)
     const setSearchOpen = useSearchStore(state => state.setSearchOpen)
     const searchOpen = useSearchStore(state => state.searchOpen)
+    const {data: cart} = useGetCart()
     const router = useRouter()
     const { favProducts } = useFavouriteProducts()
     const { favBrands } = useFavouriteBrands()
     const isEmpty = favProducts?.length === 0 && favBrands?.length === 0
     const [open, setOpen] = useState(false);
+    console.log("products --->", favProducts)
+    console.log("brands --->", favBrands)
+
 
     return (
         <div className="flex flex-row items-center gap-3 relative">
@@ -60,8 +65,11 @@ export default function ActionButtons() {
                 )}
                 <LottieButton json={favJson} onClick={() => router.push("/favourites")}/>
             </div>
-            <div className="flex">
+            <div className="flex relative">
                 <LottieButton json={cartJson} onClick={() => router.push("/cart")}/>
+                {cart && cart.items.length > 0 && (
+                    <div className="absolute right-[-10px] top-[-5px] w-[16px] h-[16px] flex items-center justify-center rounded-full bg-red-700 text-white font-bold text-[12px]">{cart ? cart.items.length : ""}</div>
+                )}
             </div>
             {open && (
                 <div className="absolute top-[40px] right-0">

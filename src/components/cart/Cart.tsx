@@ -4,16 +4,19 @@ import CartTitle from "@/components/cart/ui/CartTitle";
 import InfoSvg from "@/components/ui/icons/InfoSvg";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import SummaryBlock from "@/components/cart/ui/SummaryBlock/SummaryBlock";
-import CartItem from "@/components/cart/CartItem";
 import FreeShippingProgress from "@/components/cart/ui/FreeShippingProgressBar";
 import {useRouter} from "next/navigation";
+import {CartWithConfig} from "@/types/cart";
+import CartItem from "@/components/cart/CartItem";
 
 interface Props {
-    cartItems: any[]
+    cart: CartWithConfig;
 }
 
-export default function Cart({ cartItems }: Props){
+export default function Cart({ cart }: Props){
     const router = useRouter();
+    const cartItems = cart.items;
+
     return(
         <div className="max-w-[1200px] py-4">
             <div className="flex flex-col gap-6">
@@ -23,7 +26,7 @@ export default function Cart({ cartItems }: Props){
                         <InfoSvg/>
                         <span className="text-[var(--text)] font-bold text-[14px] leading-[143%]">Products in your shopping cart are not reserved</span>
                     </div>
-                    <FreeShippingProgress currentAmount={200} threshold={500}/>
+                    <FreeShippingProgress cart={cart}/>
 
                     <div className="flex flex-row gap-6">
                         <ButtonPrimary variant={"secondary"}>
@@ -40,7 +43,7 @@ export default function Cart({ cartItems }: Props){
                             <CartItem key={item.id} cartItem={item} />
                         ))}
                     </div>
-                    <SummaryBlock/>
+                    <SummaryBlock cart={cart} />
                 </div>
             </div>
         </div>
