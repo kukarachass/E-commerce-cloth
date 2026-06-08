@@ -89,15 +89,13 @@ export const verification = pgTable("verification", {
 export const address = pgTable("address", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull().references(() => user.id, {onDelete: "cascade"}),
-    fullName: text("full_name").notNull(),
-    phoneNumber: text("phone_number").notNull(),
     street: text("street").notNull(),
     houseNumber: text("house_number").notNull(),
     houseAddition: text("house_addition"),
     postcode: text("postcode").notNull(),
     city: text("city").notNull(),
     country: text("country").notNull().default("Netherlands"),
-    isDefault: boolean("is_default").default(false).notNull(),
+    isDefault: boolean("is_default").default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 })
 

@@ -6,17 +6,14 @@ import PhoneInput from "@/components/ui/inputs/PhoneInput";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import DateInput from "@/components/account/my-profile/DateInput";
 import GenderSelect from "@/components/account/my-profile/GenderSelect";
-import {UserDTO} from "@/types/user";
+import {IUserWithDetails} from "@/types/user";
 import {useUpdateProfile} from "@/hooks/profile /useUpdateProfile";
 import {useForm} from "react-hook-form";
 import {updateProfileSchema, UpdateProfileValues} from "@/lib/validators/update-profile-schema";
 import {zodResolver} from "@hookform/resolvers/zod";
 
-interface PersonalInformationProps {
-    user: UserDTO;
-}
 
-export default function PersonalInformationForm({user}: PersonalInformationProps) {
+export default function PersonalInformationForm({ user }: { user: IUserWithDetails }) {
     const {mutate, isPending} = useUpdateProfile();
     const {register, handleSubmit, setValue, watch, formState: {errors}} = useForm<UpdateProfileValues>({
         resolver: zodResolver(updateProfileSchema),
@@ -27,11 +24,11 @@ export default function PersonalInformationForm({user}: PersonalInformationProps
             phoneNumber: user.phoneNumber ?? "",
             dateOfBirth: user.dateOfBirth ?? "",
             gender: (user.gender as "male" | "female" | "other") ?? undefined,
-            street: user.street ?? "",
-            houseNumber: user.houseNumber ?? "",
-            houseAddition: user.houseAddition ?? "",
-            postcode: user.postcode ?? "",
-            city: user.city ?? "",
+            street: user.address?.street ?? "",
+            houseNumber: user.address?.houseNumber ?? "",
+            houseAddition: user.address?.houseAddition ?? "",
+            postcode: user.address?.postcode ?? "",
+            city: user.address?.city ?? "",
         }
     });
 
@@ -112,7 +109,6 @@ export default function PersonalInformationForm({user}: PersonalInformationProps
                         className="col-span-2 md:col-span-1"
                     />
                     {errors.street && <p className="text-red-500 text-sm">{errors.street.message}</p>}
-
                 </div>
                 <div className="flex flex-col gap-3">
                     <FloatingLabelInput

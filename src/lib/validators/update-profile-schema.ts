@@ -17,26 +17,29 @@ export const updateProfileSchema = z.object({
         .string()
         .min(7, "Phone number is too short")
         .max(15, "Phone number is too long")
-        .regex(/^\+?[0-9\s\-\(\)]+$/, "Invalid phone number"),
+        .regex(/^\+?[0-9\s\-\(\)]+$/, "Invalid phone number")
+        .or(z.literal("")),
 
+    // update-profile-schema.ts — убираем transform
     dateOfBirth: z
         .string()
         .refine((val) => {
+            if (!val) return true // пустая строка — ок
             const date = new Date(val)
             const minDate = new Date("1900-01-01")
             return date >= minDate
         }, "Invalid date of birth")
         .refine((val) => {
+            if (!val) return true
             const date = new Date(val)
             const now = new Date()
             const minAge = new Date()
             minAge.setFullYear(now.getFullYear() - 18)
             return date <= minAge
-        }, "You must be at least 18 years old"),
+        }, "You must be at least 18 years old")
+        .optional(),
 
-    gender: z.enum(["male", "female", "other"], {
-        error: "Please select a gender"
-    }),
+    gender: z.enum(["male", "female", "other"]).nullable().optional(),
 
     street: z
         .string()
@@ -52,7 +55,7 @@ export const updateProfileSchema = z.object({
     houseAddition: z
         .string()
         .max(10, "House addition is too long")
-        .optional(),
+        .or(z.literal("")),
 
     postcode: z
         .string()
