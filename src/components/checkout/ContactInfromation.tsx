@@ -1,41 +1,41 @@
 "use client"
 
-import FloatingLabelInput from "@/components/ui/inputs/FloatingLabelInput";
-import PhoneInput from "@/components/ui/inputs/PhoneInput";
-import Checkbox from "@/components/ui/inputs/Checkbox";
-import BillingAddresForm from "@/components/checkout/BillingAddresForm";
-import BillingAddress from "@/components/checkout/BillingAddress";
 import {useState} from "react";
+import {useGetUser} from "@/hooks/user/useGetUser";
+import CheckoutSkeletonLoader from "@/components/ui/skeleton-loaders/CheckoutSkeletonLoader";
+import Checkbox from "@/components/ui/inputs/Checkbox";
+import UserInformation from "@/components/checkout/step-2/UserInformation";
+import CheckoutContactForm from "@/components/checkout/step-2/CheckoutContactForm";
+import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 
 export default function ContactInformation() {
     const [deliveryOption, setDeliveryOption] = useState(true)
+    const [isEditing, setIsEditing] = useState(false);
+    const { data: user, isPending } = useGetUser();
+    if(isPending) return <CheckoutSkeletonLoader/>
+    if(!user) return null;
+    
     return(
-        <div className="flex flex-col gap-8 max-w-[600px]">
-            <div className="flex flex-col gap-6">
-                <h1 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Contact information</h1>
+        <div className="flex flex-col gap-8 max-w-[600px] w-full">
+            {user && user.readyToCheckout && !isEditing ? (
                 <div className="flex flex-col gap-4">
-                    {/* row 1 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FloatingLabelInput label="First Name *" />
-                        <FloatingLabelInput label="Last name *" />
-                    </div>
-                    {/* row 2 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FloatingLabelInput label="Email *" />
-                        <div className="flex flex-row gap-2">
-                            <PhoneInput />
-                            <FloatingLabelInput label="Phone number" placeholder="Phone number" />
-                        </div>
-                    </div>
+                    <UserInformation user={user} />
+
+                    <ButtonPrimary
+                        variant="secondary"
+                        onClick={() => setIsEditing(true)}
+                        className="max-w-[200px]"
+                    >
+                        Edit details
+                    </ButtonPrimary>
                 </div>
-            </div>
-            <div className="flex flex-col gap-4">
-                <h1 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Shipping & billing address</h1>
-                <BillingAddresForm/>
-            </div>
-
-            <BillingAddress/>
-
+            ) : (
+                <CheckoutContactForm
+                    user={user}
+                    deliveryOption={deliveryOption}
+                    setDeliveryOption={() => setDeliveryOption(true)}
+                />
+            )}
             <div className="flex flex-col gap-4">
                 <h3 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Delivery option</h3>
                 <div className="p-4 flex flex-row gap-4 items-center bg-[#f9f9f9] rounded-[10px] border border-[#ccc]">

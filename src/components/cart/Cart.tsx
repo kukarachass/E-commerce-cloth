@@ -8,12 +8,14 @@ import FreeShippingProgress from "@/components/cart/ui/FreeShippingProgressBar";
 import {useRouter} from "next/navigation";
 import {CartWithConfig} from "@/types/cart";
 import CartItem from "@/components/cart/CartItem";
+import {useGenderStore} from "@/store/useGenderStore";
 
 interface Props {
     cart: CartWithConfig;
 }
 
 export default function Cart({ cart }: Props){
+    const gender = useGenderStore(s => s.gender);
     const router = useRouter();
     const cartItems = cart.items;
 
@@ -29,7 +31,7 @@ export default function Cart({ cart }: Props){
                     <FreeShippingProgress cart={cart}/>
 
                     <div className="flex flex-row gap-6">
-                        <ButtonPrimary variant={"secondary"}>
+                        <ButtonPrimary onClick={() => router.back() } variant={"secondary"}>
                             Continue shopping
                         </ButtonPrimary>
                         <ButtonPrimary onClick={() => router.push("/checkout?step=1")} variant={"primary"}>

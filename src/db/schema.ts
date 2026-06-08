@@ -89,15 +89,13 @@ export const verification = pgTable("verification", {
 export const address = pgTable("address", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").notNull().references(() => user.id, {onDelete: "cascade"}),
-    fullName: text("full_name").notNull(),
-    phoneNumber: text("phone_number").notNull(),
     street: text("street").notNull(),
     houseNumber: text("house_number").notNull(),
     houseAddition: text("house_addition"),
     postcode: text("postcode").notNull(),
     city: text("city").notNull(),
     country: text("country").notNull().default("Netherlands"),
-    isDefault: boolean("is_default").default(false).notNull(),
+    isDefault: boolean("is_default").default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 })
 
@@ -334,7 +332,6 @@ export const order = pgTable("order", {
     totalAmount: decimal("total_amount", {precision: 10, scale: 2}).notNull(),
     deliveryFee: decimal("delivery_fee", {precision: 10, scale: 2}).notNull().default("0"),
     deliveryType: text("delivery_type").notNull().default("standard"),
-    deliveryTime: text("delivery_time"),
     status: text("status").notNull().default("pending"),
     comment: text("comment"),
     stripePaymentIntentId: text("stripe_payment_intent_id").unique(),

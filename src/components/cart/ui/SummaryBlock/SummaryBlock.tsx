@@ -22,6 +22,7 @@ const providers = [
 
 export default function SummaryBlock({ cart }: SummaryBlockProps ) {
     const router = useRouter();
+    const canCheckout = cart.items.filter(i => i.productSize.stockAmount > 0);
 
     return (
         <div className="max-w-[400px] sticky bg-[#f9f9f9] h-fit rounded-[10px] top-[100px]">
@@ -61,7 +62,7 @@ export default function SummaryBlock({ cart }: SummaryBlockProps ) {
                 </span>
             </div>
             <div className="flex items-center justify-center p-6 w-full">
-                <ButtonPrimary onClick={() => router.push("/checkout?step=1")} className="w-full" variant={"primary"}>
+                <ButtonPrimary disabled={canCheckout.length <= 0} onClick={() => router.push("/checkout?step=1")} className="w-full" variant={"primary"}>
                     Continue to checkout
                 </ButtonPrimary>
             </div>

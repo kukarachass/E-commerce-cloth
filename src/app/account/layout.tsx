@@ -4,12 +4,17 @@ import AccountNavigation from "@/components/account/AccountNavigation";
 import TopBar from "@/components/layout/header/TopBar";
 import MiddleBar from "@/components/layout/header/MiddleBar";
 import Footer from "@/components/layout/footer/footer";
+import {getServerSession} from "@/lib/get-session";
+import {redirect} from "next/navigation";
 
 interface Props{
     children: ReactNode;
 }
 
-export default function AccountLayout({ children }: Props) {
+export default async function AccountLayout({ children }: Props) {
+    const session = await getServerSession();
+    if(!session) return redirect("/auth?method=sign-in");
+
     return (
         <div className="flex flex-col">
             <div className="pb-10">
