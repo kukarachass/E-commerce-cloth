@@ -332,7 +332,6 @@ export const order = pgTable("order", {
     totalAmount: decimal("total_amount", {precision: 10, scale: 2}).notNull(),
     deliveryFee: decimal("delivery_fee", {precision: 10, scale: 2}).notNull().default("0"),
     deliveryType: text("delivery_type").notNull().default("standard"),
-    deliveryTime: text("delivery_time"),
     status: text("status").notNull().default("pending"),
     comment: text("comment"),
     stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
