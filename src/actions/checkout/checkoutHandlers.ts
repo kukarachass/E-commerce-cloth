@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import {job, order, payment} from "@/db/schema";
+import {order, payment} from "@/db/schema";
 import {eq} from "drizzle-orm";
 import {releaseStockTx} from "@/actions/checkout/releaseStock";
 import {DbTx} from "@/types/IDb";
@@ -8,26 +8,16 @@ export async function handleCheckoutCompleted(tx: DbTx, session: Stripe.Checkout
     const orderId = session.metadata?.orderId
     if (!orderId) throw new Error("No orderId in metadata")
 
-    const [ord] = await tx.select().from(order)
-        .where(eq(order.id, orderId)).for("update")
+    const [ord] = await tx.select().from(order).where(eq(order.id, orderId)).for("update")
     if (!ord) throw new Error(`Order ${orderId} not found`)
+    if (ord.paymentStatus !== "pending") return
 
-    if (ord.paymentStatus !== "pending") return    // монотонность
-
-    await tx.update(order).set({paymentStatus: "paid"}).where(eq(order.id, orderId))
+    await tx.update(order).set({ paymentStatus: "paid" }).where(eq(order.id, orderId))
     await tx.update(payment)
-        .set({
-            status: "succeeded",
-            stripePaymentIntentId:
-                typeof session.payment_intent === "string" ? session.payment_intent : null,
-        })
+        .set({ status: "succeeded", stripePaymentIntentId:
+                typeof session.payment_intent === "string" ? session.payment_intent : null })
         .where(eq(payment.stripeCheckoutSessionId, session.id))
-
-    // СНАРУЖИ транзакции — медленное и некритичное (письмо) → в очередь
-    await tx.insert(job).values({
-        type: "order_confirmation_email",
-        payload: { orderId },
-    })}
+}
 
 export async function handleCheckoutExpired(tx: DbTx, session: Stripe.Checkout.Session) {
     const orderId = session.metadata?.orderId

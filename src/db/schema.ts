@@ -405,6 +405,8 @@ export const order = pgTable("order", {
     userId: text("user_id").references(() => user.id),
     email: text("email").notNull(),          // ← гость + денормализованная копия для писем
     addressSnapshot: json("address_snapshot").notNull(),
+    confirmationSentAt: timestamp("confirmation_sent_at"),  // когда отправили чек (null = ещё нет)
+
 
     totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
     deliveryFee: decimal("delivery_fee", { precision: 10, scale: 2 }).notNull().default("0"),

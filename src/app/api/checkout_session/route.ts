@@ -9,66 +9,85 @@ import {
     handleCheckoutCompleted,
     handleCheckoutExpired, handlePaymentFailed
 } from "@/actions/checkout/checkoutHandlers";
+import {enqueueOrderConfirmation} from "@/lib/qstash/qstash";
 
 export const runtime = "nodejs"
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
-export async function POST(req: Request){
+export async function POST(req: Request) {
     // ─── 1. RAW BODY (сырой текст, НЕ json!) ───
     const body = await req.text();
     const signature = req.headers.get("stripe-signature");
-    if(!signature) return NextResponse.json({ error: "No signature, слабовато братик" }, { status: 400 })
+    if (!signature) return NextResponse.json({error: "No signature, слабовато братик"}, {status: 400})
 
     // ─── 2. ПРОВЕРКА ПОДПИСИ — до любого доступа к БД ───
     let event: Stripe.Event
-    try{
+    try {
         event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
-    }catch(err){
-        return NextResponse.json({ error: "Invalid signature, хуйня какая то братанчик" }, { status: 400 })
+    } catch (err) {
+        return NextResponse.json({error: "Invalid signature, хуйня какая то братанчик"}, {status: 400})
     }
 
-    // ─── 3+4. Блокируем строку → проверяем → обрабатываем → помечаем — ВСЁ в одной транзакции ───
+    // ─── 3. Гарантируем, что строка события есть (ДО транзакции) ───
+    await db.insert(webhookEvent)
+        .values({id: event.id, type: event.type, status: "pending", payload: event})
+        .onConflictDoNothing()
 
-    try{
-        await db.transaction(async (tx) => {
-            // блокируем строку события. ВТОРАЯ копия запроса встанет здесь и будет ждать.
-            const [evt] = await db.select({ status: webhookEvent.status})
+// ─── 4. Блокируем → проверяем → обрабатываем → помечаем ───
+    try {
+        const result = await db.transaction(async (tx) => {
+            const [evt] = await tx.select({status: webhookEvent.status})
                 .from(webhookEvent).where(eq(webhookEvent.id, event.id))
                 .for("update")
 
-            // получив блокировку, ПЕРЕпроверяем: вдруг первая копия уже всё сделала
-            if (evt.status === "processed") return NextResponse.json({ received: true, duplicate: true }) // настоящий дубль → выходим
+            if (!evt) throw new Error(`webhookEvent ${event.id} not found`)
+
+            // дубль → возвращаем ФЛАГ-ОБЪЕКТ, а не NextResponse
+            if (evt.status === "processed") return {alreadyDone: true}
 
             switch (event.type) {
                 case "checkout.session.completed":
-                    await handleCheckoutCompleted(tx, event.data.object)
+                    await handleCheckoutCompleted(tx, event.data.object);
                     break
                 case "checkout.session.expired":
-                    await handleCheckoutExpired(tx, event.data.object)
+                    await handleCheckoutExpired(tx, event.data.object);
                     break
                 case "payment_intent.payment_failed":
-                    await handlePaymentFailed(tx, event.data.object)
+                    await handlePaymentFailed(tx, event.data.object);
                     break
                 case "charge.refunded":
-                    await handleChargeRefunded(tx, event.data.object)
+                    await handleChargeRefunded(tx, event.data.object);
                     break
                 default:
                     break
             }
 
-            // помечаем обработанным в ТОЙ ЖЕ транзакции
             await tx.update(webhookEvent)
-                .set({ status: "processed", processedAt: new Date() })
+                .set({status: "processed", processedAt: new Date()})
                 .where(eq(webhookEvent.id, event.id))
+
+            return {alreadyDone: false}   // ← обязательный второй return
         })
 
-    }catch(err){
+        // теперь result точно { alreadyDone: boolean } → поле есть, TS доволен
+        if (!result.alreadyDone && event.type === "checkout.session.completed") {
+            const orderId = (event.data.object as Stripe.Checkout.Session).metadata?.orderId
+            if (orderId) {
+                try {
+                    await enqueueOrderConfirmation(orderId)
+                } catch (e) {
+                    console.error("enqueue confirmation failed", e)
+                }
+            }
+        }
+
+    } catch (err) {
         await db.update(webhookEvent)
-            .set({ status: "failed", error: String(err) })
+            .set({status: "failed", error: String(err)})
             .where(eq(webhookEvent.id, event.id))
-        return NextResponse.json({ error: "Processing failed" }, { status: 500 })
+        return NextResponse.json({error: "Processing failed"}, {status: 500})
     }
 
-    // ─── 5. 200 OK ───
-    return NextResponse.json({ received: true })
+// ─── 5. 200 OK ───
+    return NextResponse.json({received: true})
 }
