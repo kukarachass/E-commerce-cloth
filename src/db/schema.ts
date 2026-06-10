@@ -472,7 +472,6 @@ export const storeConfig = pgTable("store_config", {
 
 // Ось 1: оплата (двигает её Stripe через вебхуки)
 
-
 // --- USER ---
 export const userRelations = relations(user, ({one, many}) => ({
     sessions: many(session),
