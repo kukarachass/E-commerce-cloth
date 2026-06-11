@@ -9,9 +9,9 @@ import {
     unique,
     index,
     json,
-    date,
+    date, check, pgEnum,
 } from "drizzle-orm/pg-core"
-import {relations} from "drizzle-orm"
+import {relations, sql} from "drizzle-orm"
 
 // ============================================================
 // ██╗   ██╗███████╗███████╗██████╗
@@ -33,6 +33,7 @@ export const user = pgTable("user", {
     phoneNumber: text("phone_number"),
     dateOfBirth: date("date_of_birth"),
     gender: text("gender"),
+    stripeCustomerId: text("stripe_customer_id").unique(), // cus_... ; nullable — создаём лениво при первой оплате
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 })
@@ -73,6 +74,80 @@ export const verification = pgTable("verification", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 }, (t) => [index("verification_identifier_idx").on(t.identifier)])
+
+export const orderPaymentStatusEnum = pgEnum("order_payment_status", [
+    "pending",            // заказ создан, оплата ещё не подтверждена
+    "paid",               // вебхук подтвердил успех
+    "failed",             // оплата провалилась
+    "expired",            // Checkout Session истёк (abandoned)
+    "refunded",
+    "partially_refunded",
+])
+
+// Ось 2: выполнение/доставка (двигаешь ты / склад)
+export const orderFulfillmentStatusEnum = pgEnum("order_fulfillment_status", [
+    "unfulfilled",        // оплачено, но ещё не собрано
+    "processing",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "returned",
+])
+
+// Статус отдельной попытки оплаты (зеркалит состояния Stripe)
+export const paymentStatusEnum = pgEnum("payment_status", [
+    "pending",
+    "processing",
+    "succeeded",
+    "failed",
+    "canceled",
+    "refunded",
+    "partially_refunded",
+])
+
+// Статус обработки вебхука
+export const webhookStatusEnum = pgEnum("webhook_status", [
+    "pending",
+    "processed",
+    "failed",
+])
+
+
+export const payment = pgTable("payment", {
+    id: uuid("id").defaultRandom().primaryKey(),
+    orderId: uuid("order_id").notNull().references(() => order.id), // БЕЗ cascade — платежи не удаляем вместе с заказом, это финансовый аудит
+
+    // Идентификаторы Stripe. Используем Checkout Sessions как primary,
+    // но PaymentIntent создаётся внутри сессии — храним оба.
+    stripeCheckoutSessionId: text("stripe_checkout_session_id").unique(), // cs_...
+    stripePaymentIntentId: text("stripe_payment_intent_id").unique(),     // pi_...
+    stripeChargeId: text("stripe_charge_id"),                             // ch_... (для рефандов)
+
+    // Сумма — В ЦЕНТАХ, ровно как у Stripe. integer, не decimal.
+    amount: integer("amount").notNull(),
+    currency: text("currency").notNull().default("eur"),
+
+    status: paymentStatusEnum("status").notNull().default("pending"),
+    paymentMethod: text("payment_method"),     // card, ideal, ... (iDEAL критичен для NL — см. ниже)
+    failureReason: text("failure_reason"),
+    refundedAmount: integer("refunded_amount").notNull().default(0), // тоже в центах
+
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+}, (t) => [
+    index("payment_order_idx").on(t.orderId),
+])
+
+export const webhookEvent = pgTable("webhook_event", {
+    // PK = сам id события Stripe (evt_...). Это и есть механизм дедупликации.
+    id: text("id").primaryKey(),
+    type: text("type").notNull(),               // "checkout.session.completed" и т.д.
+    status: webhookStatusEnum("status").notNull().default("pending"),
+    payload: json("payload"),                   // сырое событие — для дебага и реплея
+    error: text("error"),
+    receivedAt: timestamp("received_at").defaultNow().notNull(),
+    processedAt: timestamp("processed_at"),
+})
 
 // ============================================================
 // ██╗      ██████╗  ██████╗ █████╗ ████████╗██╗ ██████╗ ███╗   ██╗
@@ -328,18 +403,28 @@ export const cartItem = pgTable("cart_item", {
 export const order = pgTable("order", {
     id: uuid("id").defaultRandom().primaryKey(),
     userId: text("user_id").references(() => user.id),
+    email: text("email").notNull(),          // ← гость + денормализованная копия для писем
     addressSnapshot: json("address_snapshot").notNull(),
-    totalAmount: decimal("total_amount", {precision: 10, scale: 2}).notNull(),
-    deliveryFee: decimal("delivery_fee", {precision: 10, scale: 2}).notNull().default("0"),
+    confirmationSentAt: timestamp("confirmation_sent_at"),  // когда отправили чек (null = ещё нет)
+
+
+    totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
+    deliveryFee: decimal("delivery_fee", { precision: 10, scale: 2 }).notNull().default("0"),
     deliveryType: text("delivery_type").notNull().default("standard"),
-    status: text("status").notNull().default("pending"),
+
+    // БЫЛО: status (одна колонка-мешанина)
+    // СТАЛО: две независимые оси
+    paymentStatus: orderPaymentStatusEnum("payment_status").notNull().default("pending"),
+    fulfillmentStatus: orderFulfillmentStatusEnum("fulfillment_status").notNull().default("unfulfilled"),
+
     comment: text("comment"),
-    stripePaymentIntentId: text("stripe_payment_intent_id").unique(),
+    // stripePaymentIntentId УБРАЛИ отсюда → единственный источник правды теперь таблица payment
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 }, (t) => [
     index("order_user_idx").on(t.userId),
-    index("order_status_idx").on(t.status),
+    index("order_payment_status_idx").on(t.paymentStatus),
+    index("order_fulfillment_status_idx").on(t.fulfillmentStatus),
 ])
 
 // price — цена продукта на момент заказа.
@@ -371,12 +456,23 @@ export const orderItem = pgTable("order_item", {
 // ============================================================
 
 export const storeConfig = pgTable("store_config", {
+    id: integer("id").primaryKey().default(1),  // фиксированный PK
     shippingFee: decimal("shipping_fee", { precision: 10, scale: 2 }).notNull().default("6.99"),
     freeShippingThreshold: decimal("free_shipping_threshold", { precision: 10, scale: 2 }).notNull().default("500"),
     isFreeShippingEnabled: boolean("is_free_shipping_enabled").notNull().default(true),
     customsFee: decimal("customs_fee", { precision: 10, scale: 2 }).notNull().default("9.99"),
     updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
-})
+}, (t) => [
+    check("single_row", sql`${t.id} = 1`),  // БД физически не даст вставить вторую строку
+])
+
+
+// ПОЧЕМУ enum, а не text:
+// text("status") позволяет записать "shippde" (опечатку) — БД молча примет.
+// pgEnum создаёт тип на уровне PostgreSQL: невалидное значение = ошибка БД.
+// Это «fail loud» — баг ловится сразу, а не всплывает у клиента.
+
+// Ось 1: оплата (двигает её Stripe через вебхуки)
 
 // --- USER ---
 export const userRelations = relations(user, ({one, many}) => ({
@@ -475,9 +571,10 @@ export const cartItemRelations = relations(cartItem, ({one}) => ({
 }))
 
 // --- ORDER ---
-export const orderRelations = relations(order, ({one, many}) => ({
-    user: one(user, {fields: [order.userId], references: [user.id]}),
+export const orderRelations = relations(order, ({ one, many }) => ({
+    user: one(user, { fields: [order.userId], references: [user.id] }),
     items: many(orderItem),
+    payments: many(payment),          // ← добавили
 }))
 
 export const orderItemRelations = relations(orderItem, ({one}) => ({
@@ -502,4 +599,8 @@ export const collectionRelations = relations(collection, ({many}) => ({
 export const collectionProductRelations = relations(collectionProduct, ({one}) => ({
     collection: one(collection, {fields: [collectionProduct.collectionId], references: [collection.id]}),
     product: one(product, {fields: [collectionProduct.productId], references: [product.id]}),
+}))
+
+export const paymentRelations = relations(payment, ({ one }) => ({
+    order: one(order, { fields: [payment.orderId], references: [order.id] }),
 }))
