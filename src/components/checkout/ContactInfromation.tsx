@@ -5,21 +5,20 @@ import {useGetUser} from "@/hooks/user/useGetUser";
 import CheckoutSkeletonLoader from "@/components/ui/skeleton-loaders/CheckoutSkeletonLoader";
 import Checkbox from "@/components/ui/inputs/Checkbox";
 import UserInformation from "@/components/checkout/step-2/UserInformation";
-import CheckoutContactForm from "@/components/checkout/step-2/CheckoutContactForm";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
+import CheckoutUpdateProfileData from "@/components/checkout/CheckoutUpdateProfileData";
 
 export default function ContactInformation() {
     const [deliveryOption, setDeliveryOption] = useState(true)
     const [isEditing, setIsEditing] = useState(false);
-    const { data: user, isPending } = useGetUser();
-    if(isPending) return <CheckoutSkeletonLoader/>
-    if(!user) return null;
-    
-    return(
+    const {data: user, isPending} = useGetUser();
+    if (isPending) return <CheckoutSkeletonLoader/>
+
+    return (
         <div className="flex flex-col gap-8 max-w-[600px] w-full">
             {user && user.readyToCheckout && !isEditing ? (
                 <div className="flex flex-col gap-4">
-                    <UserInformation user={user} />
+                    <UserInformation user={user}/>
 
                     <ButtonPrimary
                         variant="secondary"
@@ -30,12 +29,9 @@ export default function ContactInformation() {
                     </ButtonPrimary>
                 </div>
             ) : (
-                <CheckoutContactForm
-                    user={user}
-                    deliveryOption={deliveryOption}
-                    setDeliveryOption={() => setDeliveryOption(true)}
-                />
+                <CheckoutUpdateProfileData user={user}/>
             )}
+
             <div className="flex flex-col gap-4">
                 <h3 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Delivery option</h3>
                 <div className="p-4 flex flex-row gap-4 items-center bg-[#f9f9f9] rounded-[10px] border border-[#ccc]">

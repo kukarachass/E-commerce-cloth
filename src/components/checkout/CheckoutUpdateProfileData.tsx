@@ -1,60 +1,77 @@
 "use client"
 
-import FloatingLabelInput from "@/components/ui/inputs/FloatingLabelInput";
-import PhoneInput from "@/components/ui/inputs/PhoneInput";
-import BillingAddresForm from "@/components/checkout/BillingAddresForm";
-import {IUserWithDetails} from "@/types/user";
+import {useCheckoutStore} from "@/store/useCheckoutAddressStore";
 import {useUpdateProfile} from "@/hooks/profile /useUpdateProfile";
 import {useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
-import {useState} from "react";
-import Checkbox from "@/components/ui/inputs/Checkbox";
-import {useCheckoutStore} from "@/store/useCheckoutAddressStore";
 import {
     updateProfileCheckoutSchema,
     UpdateProfileCheckoutValues
 } from "@/lib/validators/update-profile-checkout-schema";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {IUserWithDetails} from "@/types/user";
+import {useState} from "react";
+import Checkbox from "@/components/ui/inputs/Checkbox";
+import BillingAddresForm from "@/components/checkout/BillingAddresForm";
+import FloatingLabelInput from "@/components/ui/inputs/FloatingLabelInput";
+import PhoneInput from "@/components/ui/inputs/PhoneInput";
+import CreateAccountPanel from "@/components/checkout/CreateAccountPanel";
+import {authClient} from "@/lib/auth-client";
+import {updateProfile} from "@/actions/profile/update-profile";
 
-interface CheckoutContactFormProps {
-    deliveryOption: boolean;
-    setDeliveryOption: () => void;
-    user: IUserWithDetails;
+interface Props {
+    user: IUserWithDetails | null | undefined;
+
 }
 
-export default function CheckoutContactForm({deliveryOption, setDeliveryOption, user}: CheckoutContactFormProps) {
+export default function CheckoutUpdateProfileData({user}: Props) {
     const {mutate, isPending} = useUpdateProfile();
-    const [billingAddress, setBillingAddress] = useState(false)
-    const [updateShipping, setUpdateShipping] = useState(false)
     const setContactData = useCheckoutStore(s => s.setContactData);
+    const setAddressData = useCheckoutStore(s => s.setAddressData);
+    const [updateShipping, setUpdateShipping] = useState(false)
+    const [billingAddress, setBillingAddress] = useState(false)
 
+    const [wantsAccount, setWantsAccount] = useState(false);
+    const [password, setPassword] = useState<string | null>(null);
 
     const {register, handleSubmit, watch, formState: {errors}} = useForm<UpdateProfileCheckoutValues>({
         resolver: zodResolver(updateProfileCheckoutSchema),
         defaultValues: {
-            email: user.email,
-            name: user.name?.split(" ")[0] ?? "",
-            lastName: user.lastName ?? "",
-            phoneNumber: user.phoneNumber ?? "",
-            street: user.address?.street ?? "",
-            houseNumber: user.address?.houseNumber ?? "",
-            houseAddition: user.address?.houseAddition ?? "",
-            postcode: user.address?.postcode ?? "",
-            city: user.address?.city ?? "",
+            email: user?.email,
+            name: user?.name?.split(" ")[0] ?? "",
+            lastName: user?.lastName ?? "",
+            phoneNumber: user?.phoneNumber ?? "",
+            street: user?.address?.street ?? "",
+            houseNumber: user?.address?.houseNumber ?? "",
+            houseAddition: user?.address?.houseAddition ?? "",
+            postcode: user?.address?.postcode ?? "",
+            city: user?.address?.city ?? "",
         }
     });
 
-    function onSubmit(data: UpdateProfileCheckoutValues) {
-        setContactData(data) // всегда
+    async function onSubmit(data: UpdateProfileCheckoutValues) {
+        setContactData(data) // всегда — для заказа
 
-        if (updateShipping) {
-            mutate(data) // дополнительно обновляем профиль
+        if (user) {
+            // Кейс 1 и 2 — юзер есть
+            if (updateShipping) {
+                mutate(data) // опционально обновляем профиль
+            }
+        } else {
+            // Кейс 3 — юзера нет
+            if (wantsAccount && password) {
+                await authClient.signUp.email({
+                    email: data.email!,
+                    password,
+                    name: `${data.name} ${data.lastName}`,
+                })
+                await updateProfile(data) // сохраняем адрес после регистрации
+            }
         }
     }
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
+            <form id="checkout-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
                 <h1 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Contact information</h1>
                 <div className="flex flex-col gap-4">
                     {/* row 1 */}
@@ -78,13 +95,17 @@ export default function CheckoutContactForm({deliveryOption, setDeliveryOption, 
                     </div>
                     {/* row 2 */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <FloatingLabelInput
-                            value={watch("email")}
-                            {...register("email")}
-                            className={"focus:outline-none"}
-                            readOnly
-                            label="Email *"
-                        />
+                        <div className="flex flex-col gap-3">
+                            <FloatingLabelInput
+                                value={watch("email")}
+                                {...register("email")}
+                                className={"focus:outline-none"}
+                                readOnly={user != null}
+                                label="Email *"
+                            />
+                            {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+                        </div>
+
 
                         <div className="flex flex-col gap-2">
                             <div className="flex gap-3">
@@ -100,6 +121,13 @@ export default function CheckoutContactForm({deliveryOption, setDeliveryOption, 
                         </div>
                     </div>
                 </div>
+
+                {!user && (
+                    <CreateAccountPanel
+                        onPasswordChange={setPassword}
+                        wantsAccount={wantsAccount}
+                        setWantsAccount={setWantsAccount}/>
+                )}
 
                 <div className="flex flex-col gap-4">
                     <h1 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Shipping & billing
@@ -158,11 +186,6 @@ export default function CheckoutContactForm({deliveryOption, setDeliveryOption, 
                         {/* row 3 */}
                         <FloatingLabelInput label="Country *"/>
                     </div>
-                </div>
-                <div className="pt-2">
-                    <ButtonPrimary type={"submit"} variant="primary" disabled={isPending}>
-                        {isPending ? "Saving..." : "Save Changes"}
-                    </ButtonPrimary>
                 </div>
             </form>
 

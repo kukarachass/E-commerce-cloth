@@ -1,4 +1,4 @@
-
+"use server"
 // ─── ТИПЫ ───────────────────────────────────────────────────
 // Снапшот адреса — то, что ляжет в order.addressSnapshot (JSON).
 // Поля повторяют твою таблицу address.
@@ -10,15 +10,9 @@ import {stripe} from "@/lib/stripe/stripe";
 import {releaseStock} from "@/actions/checkout/releaseStock";
 import {getServerSession} from "@/lib/get-session";
 import {resolveCurrentCart} from "@/actions/checkout/resolveCurrentCart";
+import {AddressSnapshot} from "@/types/IOrder";
 
-type AddressSnapshot = {
-    street: string
-    houseNumber: string
-    houseAddition?: string   // ? = необязательное поле
-    postcode: string
-    city: string
-    country: string
-}
+
 
 // Вход Server Action. userId опционален — у гостя его нет.
 type CheckoutInput = {
