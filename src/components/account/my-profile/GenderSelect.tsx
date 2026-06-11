@@ -1,8 +1,8 @@
-export default function GenderSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export default function GenderSelect({ value, onChange }: { value: string | null | undefined; onChange: (v: string) => void }) {
     return (
         <div className="relative w-full">
             <select
-                value={value}
+                value={value ?? ""}
                 onChange={(e) => onChange(e.target.value)}
                 className="py-3 px-4 w-full text-[16px] border border-[#ccc] rounded-[10px] text-[var(--text)] appearance-none cursor-pointer bg-white"
             >
@@ -10,7 +10,6 @@ export default function GenderSelect({ value, onChange }: { value: string; onCha
                 <option value="male">Male</option>
                 <option value="female">Female</option>
                 <option value="other">Other</option>
-                <option value="prefer_not">Prefer not to say</option>
             </select>
             {value && (
                 <span className="absolute left-3 bottom-10 bg-white px-1 rounded text-[12px] text-[var(--text)] font-bold shadow-sm">

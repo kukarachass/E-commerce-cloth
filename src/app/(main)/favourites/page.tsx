@@ -1,30 +1,53 @@
 "use client"
 
-import {useFavoritesStore} from "@/store/useFavoritesStore";
 import FavouritesSwitcher from "@/components/favourites/FavouritesSwitcher";
 import { useState } from "react";
 import Container from "@/components/layout/Сontainer";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import {useRouter} from "next/navigation";
 import {useGenderStore} from "@/store/useGenderStore";
+import useFavouriteProducts from "@/hooks/fav/useFavouriteProducts";
+import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands";
+import CatalogProductCard from "@/components/catalog/CatalogProductCard";
+import BrandCard from "@/components/ui/cards/BrandCard";
 
 export default function FavouritesPage(){
-    const favourites = useFavoritesStore(s => s.items)
-    const [selected, setSelected] = useState<"brands" | "products">("brands");
+    const { favProducts } = useFavouriteProducts()
+    const { favBrands } = useFavouriteBrands()
+
+    const isEmpty = (favProducts?.length ?? 0) === 0 && (favBrands?.length ?? 0) === 0
+    const firstSelected = (): "products" | "brands" => {
+        if (!favProducts?.length && !favBrands?.length) return "products"
+        if (!favProducts?.length) return "brands"
+        if (!favBrands?.length) return "products"
+        return favProducts.length >= favBrands.length ? "products" : "brands"
+    }
+
+    const [selected, setSelected] = useState<"brands" | "products">(firstSelected);
     const router = useRouter()
     const gender = useGenderStore(s => s.gender)
     return(
-        <Container className="flex flex-col min-h-[80vh]">
-                {favourites.length < 0 ? (
+        <Container className="flex flex-col min-h-[80vh] pb-10">
+                {!isEmpty ? (
                     <div className="flex flex-col gap-6">
                         <div className="flex flex-col gap-4 items-center pt-10">
                             <h1 className="text-[var(--text)] font-bold text-[32px]">Favourites</h1>
                             <FavouritesSwitcher current={selected} onChange={setSelected}/>
                         </div>
                         <div>
-                            {favourites.map((item) => (
-                                <span>{item}</span>
-                            ))}
+                            {selected === "products" ? (
+                                <div className="grid grid-cols-4 gap-4">
+                                    {favProducts?.map((item) => (
+                                        <CatalogProductCard key={item.productId} product={item.product}/>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-3 gap-4">
+                                    {favBrands?.map((item) => (
+                                        <BrandCard variant={"wide"} key={item.id} brand={item}/>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ): (

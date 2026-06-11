@@ -2,9 +2,10 @@
 
 import Image from "next/image"
 import { useState, useCallback } from "react"
+import { productImages } from "@/types/product-details"
 
 interface ProductImageGalleryProps {
-    images: string[]
+    images: productImages[]
     alt: string
 }
 
@@ -31,30 +32,28 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
 
     if (images.length === 0) return null
 
-    // Layout: pair, full, pair, full, ...
-    const renderGrid = () => {
-        const imgCard = (src: string, index: number, key: string) => (
-            <div
-                key={key}
-                className="relative w-full aspect-[3/4] overflow-hidden rounded cursor-zoom-in group"
-                onClick={() => openLightbox(index)}
-            >
-                <Image
-                    src={src}
-                    alt={`${alt} ${index + 1}`}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                />
-            </div>
-        )
+    const imgCard = (image: productImages, index: number, key: string) => (
+        <div
+            key={key}
+            className="relative w-full aspect-[3/4] overflow-hidden rounded cursor-zoom-in group"
+            onClick={() => openLightbox(index)}
+        >
+            <Image
+                src={image.url}
+                alt={`${alt} ${index + 1}`}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            />
+        </div>
+    )
 
+    const renderGrid = () => {
         if (images.length === 1) return imgCard(images[0], 0, "0")
 
         const blocks: React.ReactNode[] = []
         let i = 0
 
         while (i < images.length) {
-            // pair
             if (i + 1 < images.length) {
                 blocks.push(
                     <div key={`pair-${i}`} className="grid grid-cols-2 gap-2">
@@ -64,7 +63,7 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
                 )
                 i += 2
             }
-            // full
+
             if (i < images.length) {
                 blocks.push(imgCard(images[i], i, `${i}`))
                 i += 1
@@ -78,13 +77,11 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
         <>
             {renderGrid()}
 
-            {/* Lightbox */}
             {lightboxOpen && (
                 <div
                     className="fixed inset-0 z-50 bg-white flex flex-col items-center justify-center"
                     onClick={closeLightbox}
                 >
-                    {/* Close */}
                     <button
                         onClick={closeLightbox}
                         className="absolute top-4 right-4 w-9 h-9 flex items-center justify-center rounded-full border border-gray-300 bg-white hover:bg-gray-100 transition-colors z-10"
@@ -94,7 +91,6 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
                         </svg>
                     </button>
 
-                    {/* Prev */}
                     {images.length > 1 && (
                         <button
                             onClick={prev}
@@ -106,20 +102,18 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
                         </button>
                     )}
 
-                    {/* Image */}
                     <div
                         className="relative w-full max-w-[500px] h-[80vh]"
                         onClick={e => e.stopPropagation()}
                     >
                         <Image
-                            src={images[lightboxIndex]}
+                            src={images[lightboxIndex].url}
                             alt={`${alt} ${lightboxIndex + 1}`}
                             fill
                             className="object-contain"
                         />
                     </div>
 
-                    {/* Next */}
                     {images.length > 1 && (
                         <button
                             onClick={next}
@@ -131,7 +125,6 @@ export default function ProductImageGallery({ images, alt }: ProductImageGallery
                         </button>
                     )}
 
-                    {/* Dots */}
                     {images.length > 1 && (
                         <div className="absolute bottom-6 flex items-center gap-2">
                             {images.map((_, i) => (

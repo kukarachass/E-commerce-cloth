@@ -4,12 +4,12 @@ import Arrow from "@/components/ui/icons/Arrow";
 import {useState, useRef} from "react";
 import {IProduct} from "@/components/product/IProduct";
 import {KlarnaSvg, MastercardSvg, PaypalSvg, VisaSvg} from "@/components/ui/icons/CardProvidersSvgs";
+import {ProductWithDetails} from "@/types/product-details";
 
-export default function ProductDescriptionSections({product}: {product: IProduct }) {
+export default function ProductDescriptionSections({product}: {product: ProductWithDetails }) {
     const [openSections, setOpenSections] = useState<Set<string>>(new Set([""]))
 
-    const toggle = (key: string) =>
-        setOpenSections(prev => {
+    const toggle = (key: string) => setOpenSections(prev => {
             const next = new Set(prev)
             next.has(key) ? next.delete(key) : next.add(key)
             return next
@@ -61,13 +61,13 @@ export default function ProductDescriptionSections({product}: {product: IProduct
     )
 }
 
-function ProductInformation({product}: {product: IProduct }) {
-    const {descriptionFull, material, careInstructions} = product;
+function ProductInformation({product}: {product: ProductWithDetails }) {
+    const {description, material, careInstructions} = product;
     return (
         <div className="flex flex-col gap-2 text-[var(--text)]">
             <div className="flex flex-col gap-1">
                 <span className="text-[14px] font-bold">Description</span>
-                <p className="text-[14px] leading-[171%]">{descriptionFull}</p>
+                <p className="text-[14px] leading-[171%]">{description}</p>
             </div>
             <div className="flex flex-col gap-1">
                 <span className="text-[14px] font-bold">Material</span>

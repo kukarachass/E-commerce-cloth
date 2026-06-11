@@ -3,16 +3,29 @@
 import cn from "classnames"
 import { useRef, useState } from "react"
 import ResetButton from "@/components/catalog/filters/filters-modal-content/ResetButton"
-import { useFiltersStore } from "@/store/useFiltersStore"
-import { sizes } from "@/mocks/catalogStore"
+import { useFilters } from "@/hooks/useFilters"
+import { sizes as sizesConfig } from "@/mocks/catalogStore"
+import { Size } from "@/types/filters/size"
 
-export default function SizeContent() {
-    const { clothes } = sizes
-    const tabs = clothes.tabs
+interface SizeContentProps {
+    availableSizes: Size[]
+    category: string
+}
 
+export default function SizeContent({ availableSizes, category }: SizeContentProps) {
+    const categoryKey = (
+        category === "clothing" ? "clothes"
+            : category === "sportswear" ? "sportswear"
+                : category === "shoes" ? "shoes"
+                    : "accessories"
+    ) as keyof typeof sizesConfig
+
+    const config = sizesConfig[categoryKey]
+    const tabs = config.tabs
     const [activeTab, setActiveTab] = useState<typeof tabs[number]>(tabs[0])
-    const toggleSize = useFiltersStore(s => s.toggleSize)
-    const selectedSizes = useFiltersStore(s => s.sizes)
+
+    const { setFilter, isSelected } = useFilters()
+
     const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({})
     const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -43,35 +56,42 @@ export default function SizeContent() {
             </div>
 
             <div ref={scrollContainerRef} className="overflow-y-auto max-h-[320px] p-4 flex flex-col gap-6">
-                {tabs.map((tab) => (
-                    <div
-                        key={tab}
-                        ref={(el) => { sectionRefs.current[tab] = el }}
-                        className="flex flex-col gap-2"
-                    >
-                        <span className="text-[13px] font-bold text-[var(--text)]">{tab}</span>
-                        <div className="grid grid-cols-4 gap-2">
-                            {(clothes[tab] as readonly string[]).map((size) => (
-                                <button
-                                    key={size}
-                                    onClick={() => toggleSize(size)}
-                                    className={cn(
-                                        "border rounded-lg py-2 text-[13px] transition-colors",
-                                        {
-                                            "border-black bg-black text-white": selectedSizes.includes(size),
-                                            "border-gray-200 text-[var(--text)] hover:border-black": !selectedSizes.includes(size),
-                                        }
-                                    )}
-                                >
-                                    {size}
-                                </button>
-                            ))}
+                {tabs.map((tab) => {
+                    const tabSizes = (config[tab as keyof typeof config] as readonly string[])
+                        .filter(size => availableSizes.some(s => s.size === size))
+
+                    if (tabSizes.length === 0) return null
+
+                    return (
+                        <div
+                            key={tab}
+                            ref={(el) => { sectionRefs.current[tab] = el }}
+                            className="flex flex-col gap-2"
+                        >
+                            <span className="text-[13px] font-bold text-[var(--text)]">{tab}</span>
+                            <div className="grid grid-cols-4 gap-2">
+                                {tabSizes.map((size) => (
+                                    <button
+                                        key={size}
+                                        onClick={() => setFilter("size", size)}
+                                        className={cn(
+                                            "border rounded-lg py-2 text-[13px] transition-colors",
+                                            {
+                                                "border-black bg-black text-white": isSelected("size", size),
+                                                "border-gray-200 text-[var(--text)] hover:border-black": !isSelected("size", size),
+                                            }
+                                        )}
+                                    >
+                                        {size}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    )
+                })}
             </div>
 
-            <ResetButton />
+            <ResetButton keyName={"size"}/>
         </div>
     )
 }

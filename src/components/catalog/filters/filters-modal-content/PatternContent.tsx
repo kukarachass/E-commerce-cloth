@@ -2,24 +2,29 @@ import FilterCheckbox from "@/components/catalog/filters/filters-modal-content/F
 import {useFiltersStore} from "@/store/useFiltersStore";
 import {patterns} from "@/mocks/catalogStore";
 import ResetButton from "@/components/catalog/filters/filters-modal-content/ResetButton";
+import {Pattern} from "@/types/filters/pattern";
+import {useFilters} from "@/hooks/useFilters";
 
-export default function PatternContent() {
-    const togglePattern = useFiltersStore(s => s.togglePattern)
-    const checkedPatterns = useFiltersStore(s => s.patterns);
+interface PatternContentProps {
+    patterns: Pattern[];
+}
+
+export default function PatternContent({ patterns }: PatternContentProps) {
+    const { setFilter, isSelected } = useFilters()
 
     return (
         <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2">
                 {patterns.map((pattern) => (
                     <FilterCheckbox
-                        key={pattern}
-                        label={pattern}
-                        checked={checkedPatterns.includes(pattern)}
-                        onChange={() => togglePattern(pattern)}
+                        key={pattern.pattern}
+                        label={pattern.pattern}
+                        checked={isSelected("pattern", pattern.pattern)}
+                        onChange={() => setFilter("pattern", pattern.pattern)}
                     />
                 ))}
             </div>
-            <ResetButton/>
+            <ResetButton keyName={"pattern"}/>
         </div>
     )
 }

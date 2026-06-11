@@ -14,22 +14,22 @@ export default function ProductsRelated({ products, currentId, type}: Props) {
     return (
         <div className="flex flex-col max-w-[1200px]">
             {type === "related" ? (
-                <div className="flex flex-col w-full">
-                    <h2 className="text-[var(--text)] text-[24px] font-medium">You might also like</h2>
-                    <Slider itemsVisible={6}>
-                        {filteredProducts.map(product => (
-                            <ProductCard key={product.id} product={product}/>
-                        ))}
-                    </Slider>
+                <div className="flex flex-col gap-3 w-full">
+                    <h2 className="text-[var(--text)] text-[24px] font-bold">You might also like</h2>
+                    {/*<Slider itemsVisible={6}>*/}
+                    {/*    {filteredProducts.map(product => (*/}
+                    {/*        <ProductCard key={product.id} product={product}/>*/}
+                    {/*    ))}*/}
+                    {/*</Slider>*/}
                 </div>
             ) : (
-                <div className="flex flex-col w-full">
-                    <h2 className="text-[var(--text)] text-[24px] font-medium">Complete the look</h2>
-                    <Slider itemsVisible={6}>
-                        {filteredProducts.map(product => (
-                            <ProductCard key={product.id} product={product}/>
-                        ))}
-                    </Slider>
+                <div className="flex flex-col gap-3 w-full">
+                    <h2 className="text-[var(--text)] text-[24px] font-bold">Complete the look</h2>
+                    {/*<Slider itemsVisible={6}>*/}
+                    {/*    {filteredProducts.map(product => (*/}
+                    {/*        <ProductCard key={product.id} product={product}/>*/}
+                    {/*    ))}*/}
+                    {/*</Slider>*/}
                 </div>
             )}
         </div>

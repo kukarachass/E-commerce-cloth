@@ -1,11 +1,14 @@
 import { formatPrice } from "@/lib/formatPrice";
+import {CartWithConfig} from "@/types/cart";
 
 interface FreeShippingProgressProps {
-    currentAmount: number;
-    threshold: number;
+    cart: CartWithConfig;
 }
 
-export default function FreeShippingProgress({ currentAmount, threshold }: FreeShippingProgressProps) {
+export default function FreeShippingProgress({ cart }: FreeShippingProgressProps) {
+    const { grandTotal, freeShippingThreshold } = cart;
+    const currentAmount = Number(grandTotal);
+    const threshold = Number(freeShippingThreshold);
     const remaining = Math.max(threshold - currentAmount, 0)
     const progress = Math.min((currentAmount / threshold) * 100, 100)
     const isFree = remaining === 0

@@ -11,6 +11,17 @@ import PatternContent from "@/components/catalog/filters/filters-modal-content/P
 import StyleContent from "@/components/catalog/filters/filters-modal-content/StyleContent";
 import DiscountContent from "@/components/catalog/filters/filters-modal-content/DiscountContent";
 import Sort from "@/components/catalog/filters/Sort";
+import {Size} from "@/types/filters/size";
+import {Brand} from "@/types/filters/brands";
+import {Price} from "@/types/filters/price";
+import {Color} from "@/types/filters/color";
+import {Pattern} from "@/types/filters/pattern";
+import {Style} from "@/types/filters/style";
+import {Discount} from "@/types/filters/discount";
+import ResetFiltersButton from "@/components/catalog/filters/ResetFiltersButton";
+import {useSearchParams} from "next/navigation";
+import FilterBadge from "@/components/catalog/filters/FilterBadge";
+
 
 const filters = [
     { id: 1, name: "Brands"},
@@ -23,9 +34,23 @@ const filters = [
 ]
 type FiltersType = typeof filters[number]["name"]
 
-export default function FilterBar() {
+interface FilterBarProps{
+    brands: Brand[]
+    sizes: Size[]
+    colors: Color[];
+    price: Price[];
+    category: string;
+    patterns: Pattern[];
+    styles: Style[];
+    discounts: Discount[];
+}
+
+export default function FilterBar({ brands, sizes, category, price, colors, patterns, styles, discounts }: FilterBarProps) {
     const[openedFilter, setOpenedFilter] = useState<FiltersType | null>(null)
+    const searchParams = useSearchParams()
     const ref = useRef<HTMLDivElement>(null)
+    const filtersKeys = ["brand", "size", "color", "pattern", "style", "minPrice", "maxPrice", "discount", "sort"]
+    const hasFilters = filtersKeys.some(key => searchParams.has(key))
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -51,25 +76,31 @@ export default function FilterBar() {
                     <div
                         onClick={() => handleSetFilter(filter.name)}
                         key={filter.id}
-                        className="relative select-none flex flex-row items-center gap-3 text-[var(--text)] text-[16px] font-[600] border cursor-pointer border-[#ddd] rounded-[4px] px-2 py-[2px]">
+                        className="relative select-none flex flex-row items-center gap-3 text-[var(--text)] text-[16px] font-[600] border cursor-pointer border-[#ddd] rounded-[4px] px-2 py-[2px] transition-transform duration-200">
                         <span>{filter.name}</span>
+                        <FilterBadge filterName={filter.name} />
                         <Arrow className={`transition-all duration-200 ${openedFilter && filter.name === openedFilter && "rotate-180"}`}/>
 
                         {openedFilter === filter.name && (
                             <FilterDropdown>
-                                {filter.name === "Brands" && <BrandsContent/>}
-                                {filter.name === "Size" && <SizeContent/>}
-                                {filter.name === "Price" && <PriceContent/>}
-                                {filter.name === "Colours" && <ColoursContent/>}
-                                {filter.name === "Pattern" && <PatternContent/>}
-                                {filter.name === "Style" && <StyleContent/>}
-                                {filter.name === "Discount" && <DiscountContent/>}
+                                {filter.name === "Brands" && <BrandsContent brands={brands}/>}
+                                {filter.name === "Size" && <SizeContent availableSizes={sizes} category={category}/>}
+                                {filter.name === "Price" && <PriceContent price={price}/>}
+                                {filter.name === "Colours" && <ColoursContent colors={colors}/>}
+                                {filter.name === "Pattern" && <PatternContent patterns={patterns}/>}
+                                {filter.name === "Style" && <StyleContent styles={styles}/>}
+                                {filter.name === "Discount" && <DiscountContent discounts={discounts}/>}
                             </FilterDropdown>
                         )}
                     </div>
                 ))}
             </div>
-            <Sort/>
+            <div className="flex flex-row gap-4 items-center">
+                {hasFilters && (
+                    <ResetFiltersButton/>
+                )}
+                <Sort/>
+            </div>
         </div>
     )
 }

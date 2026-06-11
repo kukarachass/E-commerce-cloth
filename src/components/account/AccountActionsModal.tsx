@@ -17,7 +17,7 @@ interface Props {
 export default function AccountActionsModal({ onChange }: Props) {
     const ref = useRef<HTMLDivElement>(null)
     const router = useRouter()
-    const { data: session } = authClient.useSession()
+    const { data: session, isPending } = authClient.useSession()
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -28,6 +28,14 @@ export default function AccountActionsModal({ onChange }: Props) {
         document.addEventListener("mousedown", handleClick)
         return () => document.removeEventListener("mousedown", handleClick)
     }, [onChange])
+
+    if (isPending) return (
+        <div ref={ref} className="bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] flex flex-col min-w-[256px] rounded-[10px] p-4">
+            <div className="h-8 bg-gray-100 rounded animate-pulse mb-2" />
+            <div className="h-8 bg-gray-100 rounded animate-pulse mb-2" />
+            <div className="h-8 bg-gray-100 rounded animate-pulse" />
+        </div>
+    )
 
     return (
         <div ref={ref} className="bg-white shadow-[0_4px_24px_rgba(0,0,0,0.08)] flex flex-col min-w-[256px] rounded-[10px]">

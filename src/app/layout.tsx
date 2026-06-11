@@ -4,6 +4,7 @@ import "./globals.css";
 import ScrollToTop from "@/lib/ScrollToTop";
 import { Cormorant_Garamond } from "next/font/google"
 import {Toaster} from "sonner";
+import {ReactQueryClientProvider} from "@/providers/ReactQueryClientProvider";
 
 const cormorant = Cormorant_Garamond({
     variable: "--font-cormorant",
@@ -27,9 +28,11 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
     return (
         <html lang="en" className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}>
         <body className={`${sourceSans.className} min-h-screen flex flex-col`}>
-        <ScrollToTop/>
-        <Toaster position="bottom-center" richColors/>
-        {children}
+        <ReactQueryClientProvider>
+            <ScrollToTop/>
+            <Toaster position="bottom-center" richColors/>
+            {children}
+        </ReactQueryClientProvider>
         </body>
         </html>
     )

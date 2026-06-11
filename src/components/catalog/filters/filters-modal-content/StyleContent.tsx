@@ -2,26 +2,28 @@ import ResetButton from "@/components/catalog/filters/filters-modal-content/Rese
 import {styles} from "@/mocks/catalogStore";
 import {useFiltersStore} from "@/store/useFiltersStore";
 import FilterCheckbox from "@/components/catalog/filters/filters-modal-content/FilterCheckbox";
+import {Style} from "@/types/filters/style";
+import {useFilters} from "@/hooks/useFilters";
 
-export default function StyleContent() {
+interface StyleContentProps {
+    styles: Style[];
+}
 
-    const checkedStyles = useFiltersStore(s => s.styles);
-    const toggleStyles = useFiltersStore(s => s.toggleStyle)
-
-    const { clothStyles } = styles;
+export default function StyleContent({ styles }: StyleContentProps) {
+    const { setFilter, isSelected } = useFilters()
     return(
         <div className="flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-1">
-                {clothStyles.map((style) => (
+                {styles.map((style) => (
                     <FilterCheckbox
-                        key={style}
-                        label={style}
-                        checked={checkedStyles.includes(style)}
-                        onChange={() => toggleStyles(style)}
+                        key={style.id}
+                        label={style.style}
+                        checked={isSelected("style", style.style)}
+                        onChange={() => setFilter("style", style.style)}
                     />
                 ))}
             </div>
-            <ResetButton/>
+            <ResetButton keyName={"style"}/>
         </div>
     )
 }

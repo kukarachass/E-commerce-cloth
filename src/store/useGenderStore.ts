@@ -2,7 +2,7 @@
 import { create } from "zustand/react"
 import { persist } from "zustand/middleware"
 
-type Gender = "women" | "men"
+export type Gender = "women" | "men"
 
 interface GenderState {
     gender: Gender

@@ -1,19 +1,22 @@
 import {Search} from "lucide-react"
 import ResetButton from "@/components/catalog/filters/filters-modal-content/ResetButton";
 import FilterCheckbox from "@/components/catalog/filters/filters-modal-content/FilterCheckbox";
-import {useFiltersStore} from "@/store/useFiltersStore";
-import {womenBrands} from "@/mocks/catalogStore";
 import {useState} from "react";
+import {useFilters} from "@/hooks/useFilters";
+import {Brand} from "@/types/filters/brands";
 
-export default function BrandsContent() {
-    const [value, setValue] = useState("");
+interface BrandsContentProps {
+    brands: Brand[];
+}
 
-    const toggleBrand = useFiltersStore(s => s.toggleBrand)
-    const checkedBrands = useFiltersStore(s => s.brands);
+export default function BrandsContent({ brands }: BrandsContentProps) {
+    const { setFilter, isSelected } = useFilters()
+    const [value, setValue] = useState("")
 
-    const filteredBrands = value
-        ? womenBrands.filter(b => b.toLowerCase().includes(value.toLowerCase().trim()))
-        : womenBrands
+    const filtered = value
+        ? brands.filter(b => b.name.toLowerCase().includes(value.toLowerCase()))
+        : brands
+
 
     return (
         <div className="flex flex-col cursor-pointer">
@@ -36,16 +39,16 @@ export default function BrandsContent() {
                 </label>
             </div>
             <div className="flex flex-col overflow-y-auto max-h-[280px] py-2">
-                {filteredBrands.map((brand) => (
+                {filtered.map((brand) => (
                     <FilterCheckbox
-                        key={brand}
-                        label={brand}
-                        checked={checkedBrands.includes(brand)}
-                        onChange={() => toggleBrand(brand)}
+                        key={brand.id}
+                        label={brand.name}
+                        checked={isSelected("brand", brand.slug)}
+                        onChange={() => setFilter("brand", brand.slug)}
                     />
                 ))}
             </div>
-            <ResetButton/>
+            <ResetButton keyName={"brand"}/>
         </div>
     )
 }
