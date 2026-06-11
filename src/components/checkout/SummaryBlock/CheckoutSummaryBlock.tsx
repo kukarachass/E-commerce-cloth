@@ -12,6 +12,8 @@ import {useGetCart} from "@/hooks/cart/useGetCart";
 import {toast} from "sonner";
 import Arrow from "@/components/ui/icons/Arrow";
 import {useState} from "react";
+import CheckoutButton from "@/components/checkout/CheckoutButton";
+import {useCheckoutStore} from "@/store/useCheckoutAddressStore";
 
 export default function CheckoutSummaryBlock({ href }: { href: string }) {
     const {data: cart, isPending, isError} = useGetCart()
@@ -20,6 +22,8 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
     const router = useRouter();
     const step = Number(searchParams.get("step")) || 1
     const [showItems, setShowItems ] = useState(false);
+    const address = useCheckoutStore(s => s.addressData);
+
 
     if (isPending) return <>Loading...</>
     if (isError) return <div className="text-center text-[#999] py-20">Something went wrong</div>
@@ -90,9 +94,10 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
                 <div className="h-[1px] w-full bg-[#f0f0f0]"/>
 
                 <div className="flex items-center justify-center w-full">
-                    <ButtonPrimary onClick={() => router.push(href)} className="w-full" variant={"primary"}>
-                        {buttonTitles[step]}
-                    </ButtonPrimary>
+                    {/*<ButtonPrimary form="checkout-form"  className="w-full" variant={"primary"}>*/}
+                    {/*    {buttonTitles[step]}*/}
+                    {/*</ButtonPrimary>*/}
+                    <CheckoutButton/>
                 </div>
                 <div className="flex flex-row items-center justify-center">
                     {providers.map(prov => (

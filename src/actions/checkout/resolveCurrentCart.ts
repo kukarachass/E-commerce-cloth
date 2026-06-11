@@ -1,3 +1,5 @@
+"use server"
+
 import { cookies } from "next/headers";
 import { CART_COOKIE_NAME } from "@/lib/cart-constants";
 import { hashCartToken } from "@/actions/cart/make-cart-token";
