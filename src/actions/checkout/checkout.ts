@@ -8,6 +8,8 @@ import {asc, eq, inArray} from "drizzle-orm";
 import Stripe from "stripe";
 import {stripe} from "@/lib/stripe/stripe";
 import {releaseStock} from "@/actions/checkout/releaseStock";
+import {getServerSession} from "@/lib/get-session";
+import {resolveCurrentCart} from "@/actions/checkout/resolveCurrentCart";
 
 type AddressSnapshot = {
     street: string
@@ -20,18 +22,24 @@ type AddressSnapshot = {
 
 // Вход Server Action. userId опционален — у гостя его нет.
 type CheckoutInput = {
-    cartId: string
-    email: string
+    email?: string   // нужен ТОЛЬКО гостю; у залогиненного берём из сессии
     address: AddressSnapshot
-    userId?: string
 }
 
 // Что возвращаем клиенту.
-type CheckoutResult = {
-    url: string
-}
+type CheckoutResult =
+    | { ok: true; url: string }
+    | { ok: false; error: "CART_EMPTY" | "OUT_OF_STOCK" | "EMAIL_REQUIRED" | "UNKNOWN" }
 
 export async function createCheckout(input: CheckoutInput): Promise<CheckoutResult> {
+    const session = await getServerSession();
+    const userId = session?.user.id ?? null;
+    const email = userId ? session!.user.email : input.email;
+    if (!email) return { ok: false, error: "EMAIL_REQUIRED" }
+
+    const cartId = await resolveCurrentCart(userId);
+    if (!cartId) return { ok: false, error: "CART_EMPTY" }
+
     // ═══ ШАГ 1: ТРАНЗАКЦИЯ ═══
     // Теперь возвращаем НЕ только order, а ещё lineItems и сумму в центах —
     // чтобы они были видны в блоке Stripe СНАРУЖИ. Это и был твой баг:
@@ -40,7 +48,7 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
     const { createdOrder, lineItems, amountInCents } = await db.transaction(async (tx) => {
         // 1.1 — позиции корзины со связями
         const items = await tx.query.cartItem.findMany({
-            where: eq(cartItem.cartId, input.cartId),
+            where: eq(cartItem.cartId, cartId),
             with: { product: true, productSize: true },
         })
         if (items.length === 0) throw new Error("CART_EMPTY")
@@ -83,8 +91,8 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
 
         // 1.4 — заказ. totalAmount выводим ИЗ amountInCents → совпадает со Stripe до цента
         const [createdOrder] = await tx.insert(order).values({
-            userId: input.userId ?? null,
-            email: input.email,
+            userId: userId ?? null,
+            email,
             addressSnapshot: input.address,
             totalAmount: (amountInCents / 100).toFixed(2),
             paymentStatus: "pending",
@@ -135,10 +143,10 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
             status: "pending",
         })
 
-        return { url: session.url }
+        return { ok: true, url: session.url }
     }catch(err){
         await releaseStock(createdOrder.id, "failed")
-        throw err
+        return { ok: false, error: "UNKNOWN" }
     }
 
 }
