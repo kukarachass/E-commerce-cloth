@@ -48,27 +48,27 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
         if (items.length === 0) throw new Error("CART_EMPTY")
 
         // 1.2 — блокируем строки стока В ДЕТЕРМИНИРОВАННОМ ПОРЯДКЕ
-        const sizeIds = items.map((item) => item.productSizeId)
-        const lockedSizes = await tx
-            .select()
-            .from(productSize)
-            .where(inArray(productSize.id, sizeIds))
-            .orderBy(asc(productSize.id))
-            .for("update")
-
-        const stockMap = new Map(lockedSizes.map((s) => [s.id, s]))
+        // const sizeIds = items.map((item) => item.productSizeId)
+        // const lockedSizes = await tx
+        //     .select()
+        //     .from(productSize)
+        //     .where(inArray(productSize.id, sizeIds))
+        //     .orderBy(asc(productSize.id))
+        //     .for("update")
+        //
+        // const stockMap = new Map(lockedSizes.map((s) => [s.id, s]))
 
         // 1.3 — проверка наличия + списание + ОДНОВРЕМЕННО готовим данные для Stripe
         let amountInCents = 0;
         const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = []
 
         for(const item of items){
-            const stock = stockMap.get(item.productSizeId);
-            if (!stock || stock.stockAmount < item.quantity) throw new Error(`OUT_OF_STOCK:${item.productId}`);
-
-            await tx.update(productSize)
-                .set({ stockAmount: stock.stockAmount - item.quantity })
-                .where(eq(productSize.id, item.productSizeId))
+            // const stock = stockMap.get(item.productSizeId);
+            // if (!stock || stock.stockAmount < item.quantity) throw new Error(`OUT_OF_STOCK:${item.productId}`);
+            //
+            // await tx.update(productSize)
+            //     .set({ stockAmount: stock.stockAmount - item.quantity })
+            //     .where(eq(productSize.id, item.productSizeId))
 
             const unitAmount = Math.round(Number(item.priceAtAddition) * 100)
             amountInCents += unitAmount * item.quantity
@@ -96,6 +96,7 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
         // 1.5 — позиции заказа со снапшотами
         await tx.insert(orderItem).values(
             items.map((i) => ({
+                productSizeId: i.productSizeId,
                 orderId: createdOrder.id,
                 productId: i.productId,
                 quantity: i.quantity,

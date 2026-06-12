@@ -3,6 +3,7 @@ import {order, payment} from "@/db/schema";
 import {eq} from "drizzle-orm";
 import {releaseStockTx} from "@/actions/checkout/releaseStock";
 import {DbTx} from "@/types/IDb";
+import {stockAmountUpdate} from "@/actions/checkout/stockAmountUpdate";
 
 export async function handleCheckoutCompleted(tx: DbTx, session: Stripe.Checkout.Session) {
     const orderId = session.metadata?.orderId
@@ -17,6 +18,8 @@ export async function handleCheckoutCompleted(tx: DbTx, session: Stripe.Checkout
         .set({ status: "succeeded", stripePaymentIntentId:
                 typeof session.payment_intent === "string" ? session.payment_intent : null })
         .where(eq(payment.stripeCheckoutSessionId, session.id))
+
+    await stockAmountUpdate({ tx, orderId })
 }
 
 export async function handleCheckoutExpired(tx: DbTx, session: Stripe.Checkout.Session) {

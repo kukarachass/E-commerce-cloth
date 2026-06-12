@@ -434,6 +434,7 @@ export const orderItem = pgTable("order_item", {
     id: uuid("id").defaultRandom().primaryKey(),
     orderId: uuid("order_id").notNull().references(() => order.id, {onDelete: "cascade"}),
     productId: uuid("product_id").notNull().references(() => product.id),
+    productSizeId: uuid("product_size_id").notNull().references(() => productSize.id),
     quantity: integer("quantity").notNull(),
     size: text("size").notNull(),
     price: decimal("price", {precision: 10, scale: 2}).notNull(),
@@ -580,6 +581,10 @@ export const orderRelations = relations(order, ({ one, many }) => ({
 export const orderItemRelations = relations(orderItem, ({one}) => ({
     order: one(order, {fields: [orderItem.orderId], references: [order.id]}),
     product: one(product, {fields: [orderItem.productId], references: [product.id]}),
+    productSize: one(productSize, {
+        fields: [orderItem.productSizeId],
+        references: [productSize.id],
+    }),
 }))
 
 export const favoriteProductRelations = relations(favoriteProduct, ({one}) => ({
