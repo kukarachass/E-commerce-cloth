@@ -2,40 +2,25 @@
 
 import CheckoutItemsList from "@/components/checkout/SummaryBlock/CheckoutItemsList";
 import CustomsFee from "@/components/cart/ui/SummaryBlock/CustomsFee";
-import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import Image from "next/image";
 import Link from "next/link";
 import Trustpilot from "@/components/ui/icons/Trustpilot";
-import {useRouter, useSearchParams} from "next/navigation";
 import {formatPrice} from "@/lib/formatPrice";
 import {useGetCart} from "@/hooks/cart/useGetCart";
-import {toast} from "sonner";
 import Arrow from "@/components/ui/icons/Arrow";
 import {useState} from "react";
 import CheckoutButton from "@/components/checkout/CheckoutButton";
-import {useCheckoutStore} from "@/store/useCheckoutAddressStore";
 
 export default function CheckoutSummaryBlock({ href }: { href: string }) {
     const {data: cart, isPending, isError} = useGetCart()
 
-    const searchParams = useSearchParams();
-    const router = useRouter();
-    const step = Number(searchParams.get("step")) || 1
     const [showItems, setShowItems ] = useState(false);
-    const address = useCheckoutStore(s => s.addressData);
 
 
     if (isPending) return <>Loading...</>
     if (isError) return <div className="text-center text-[#999] py-20">Something went wrong</div>
-    if (!cart) {
-        toast.error("Your cart is empty")
-        return;
-    }
+    if (!cart) return <div className="text-center text-[#999] py-20">Your cart is empty</div>
 
-    const buttonTitles: Record<number, string> = {
-        1: "Continue to payment",
-        2: "Order and Pay",
-    }
 
     const providers = [
         { path: "/card-prov/SVG.svg"},
@@ -56,7 +41,7 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
                                 <span>{formatPrice(Number(cart.totalAmount))}</span>
                                 <div className="flex flex-row justify-between items-center">
                                     <div className="flex flex-row items-center gap-2">
-                                        <span className="text-[var(--text)] text-[14px] leading-[143%]">Total items (6)</span>
+                                        <span className="text-[var(--text)] text-[14px] leading-[143%]">Total items ({cart.items.length})</span>
                                         <button onClick={() => setShowItems(!showItems)}>
                                             <Arrow />
                                         </button>
@@ -93,10 +78,7 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
 
                 <div className="h-[1px] w-full bg-[#f0f0f0]"/>
 
-                <div className="flex items-center justify-center w-full">
-                    {/*<ButtonPrimary form="checkout-form"  className="w-full" variant={"primary"}>*/}
-                    {/*    {buttonTitles[step]}*/}
-                    {/*</ButtonPrimary>*/}
+                <div className="flex items-center w-full">
                     <CheckoutButton/>
                 </div>
                 <div className="flex flex-row items-center justify-center">

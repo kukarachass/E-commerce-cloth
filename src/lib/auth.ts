@@ -4,6 +4,7 @@ import { db } from '@/db'
 import * as schema from '@/db/schema'
 import {createAuthMiddleware} from "@better-auth/core/api";
 import {GetOrCreateCart} from "@/actions/cart/get-or-create-cart";
+import {nextCookies} from "better-auth/next-js";
 
 export const auth = betterAuth({
     baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
@@ -89,5 +90,8 @@ export const auth = betterAuth({
                 })
             })
         })
-    }
+    },
+    plugins: [
+        nextCookies(),
+    ]
 })

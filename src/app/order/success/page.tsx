@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm"
 import { db } from "@/db"
 import { order } from "@/db/schema"
 import { auth } from "@/lib/auth"
+import SuccessPaidPage from "@/components/checkout/SuccessPaidPage";
 
 export default async function SuccessPage({
                                               searchParams,
@@ -21,7 +22,7 @@ export default async function SuccessPage({
 
     // НЕ подтверждаем оплату тут! Только ЧИТАЕМ статус, который выставил вебхук.
     if (ord.paymentStatus === "paid") {
-        return <h1>Спасибо! Заказ {ord.id} оплачен 🎉</h1>
+        return <SuccessPaidPage order={ord}/>
     }
 
     // вебхук мог ещё не дойти — это нормально, не паникуем
