@@ -44,10 +44,10 @@ export default function ContactForm() {
     return (
         <div className="flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FloatingLabelInput label="Your name *" value={name} onChange={setName} />
-                <FloatingLabelInput label="Email address *" value={email} onChange={setEmail} />
+                <FloatingLabelInput label="Your name *" value={name} onChange={(e) => setName(e.target.value)} />
+                <FloatingLabelInput label="Email address *" value={email} onChange={(e) => setEmail(e.target.value)} />
             </div>
-            <FloatingLabelInput label="Order number (optional)" value={orderNumber} onChange={setOrderNumber} />
+            <FloatingLabelInput label="Order number (optional)" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} />
             <div className="relative">
                 <textarea
                     value={message}

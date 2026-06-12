@@ -2,7 +2,16 @@
 import { create } from "zustand/react"
 import { persist } from "zustand/middleware"
 
-export type Gender = "women" | "men"
+// store/useGenderStore.ts  (или отдельный lib/gender.ts)
+
+// один массив — из него выводим и тип, и список для проверки
+export const GENDERS = ["women", "men"] as const   // ← подставь свои реальные значения
+export type Gender = (typeof GENDERS)[number]
+
+// type guard: возвращает "value is Gender" — после него TS САМ знает, что это Gender
+export function isGender(value: string): value is Gender {
+    return (GENDERS as readonly string[]).includes(value)
+}
 
 interface GenderState {
     gender: Gender

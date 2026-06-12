@@ -85,7 +85,7 @@ export default function PersonalInformationForm({ user }: { user: IUserWithDetai
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                     <DateInput
-                        value={watch("dateOfBirth")}
+                        value={watch("dateOfBirth") ?? null}
                         onChange={(val) => setValue("dateOfBirth", val)}
                     />
                     {errors.dateOfBirth && <p className="text-red-500 text-sm">{errors.dateOfBirth.message}</p>}

@@ -1,8 +1,6 @@
 import Slider from "@/components/Slider/Slider";
 import ProductCard from "@/components/product/ProductCard";
 import {productsArray} from "@/mocks/catalogStore";
-import Link from "next/link";
-import {useGenderStore} from "@/store/useGenderStore";
 import ViewAllLink from "@/components/ui/ViewAllLink";
 
 export default function NewIn(){
@@ -15,11 +13,12 @@ export default function NewIn(){
             </div>
 
             <div className="min-w-0 flex-1">
-                <Slider itemsVisible={5} gap={24}>
-                    {productsArray.map(p => (
-                        <ProductCard variant={"noButton"} key={p.id} product={p} />
-                    ))}
-                </Slider>
+                {/*<Slider itemsVisible={5} gap={24}>*/}
+                {/*    {productsArray.map(p => (*/}
+                {/*        <ProductCard variant={"noButton"} key={p.id} product={p} />*/}
+                {/*    ))}*/}
+                {/*</Slider>*/}
+                /components/collection/new-in/NewIn.tsx ---- доделать
             </div>
         </div>
     )
