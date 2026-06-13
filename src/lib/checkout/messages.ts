@@ -4,3 +4,8 @@ export const CHECKOUT_MESSAGES: Record<string, string> = {
     EMAIL_REQUIRED: "Enter your email address",
     UNKNOWN: "The payment could not be processed. Please try again",
 }
+
+export const SIGNUP_MESSAGES: Record<string, string> = {
+    EMAIL_EXISTS: "An account with this email already exists.",
+    UNKNOWN: "Could not create your account. Try again or continue without one.",
+}

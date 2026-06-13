@@ -12,6 +12,7 @@ interface CartCleanProps{
 }
 
 export async function cartClean({ tx, ord }: CartCleanProps) {
+    if(ord.paymentStatus !== "paid") throw new Error("Wrong status");
     const cookieStore = await cookies()
     const cookieToken = cookieStore.get(CART_COOKIE_NAME)?.value ?? null
     const cookieTokenHash = cookieToken ? hashCartToken(cookieToken) : null

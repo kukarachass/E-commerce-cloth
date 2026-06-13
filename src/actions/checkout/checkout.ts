@@ -141,6 +141,7 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
         return { ok: true, url: session.url }
     }catch(err){
         await releaseStock(createdOrder.id, "failed")
+        console.error(err);
         return { ok: false, error: "UNKNOWN" }
     }
 

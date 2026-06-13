@@ -11,7 +11,7 @@ import { IUserWithDetails } from "@/types/user"
 import { AddressSnapshot } from "@/types/IOrder"
 import { useCheckout } from "@/store/useCheckout"
 import { useRunCheckout } from "@/hooks/checkout/useRunCheckout"
-import { CHECKOUT_MESSAGES } from "@/lib/checkout/messages"
+import {CHECKOUT_MESSAGES, SIGNUP_MESSAGES} from "@/lib/checkout/messages"
 import { useCheckoutStore } from "@/store/useCheckoutAddressStore"
 import FloatingLabelInput from "@/components/ui/inputs/FloatingLabelInput"
 import PhoneInput from "@/components/ui/inputs/PhoneInput"
@@ -79,17 +79,17 @@ export default function CheckoutForm({ user }: Props) {
             try {
                 // 1) гость захотел аккаунт — best-effort, НЕ блокирует оплату
                 if (!user && wantsAccount && password) {
-                    try {
-                        await signUpAndSaveProfile({
-                            email: data.email,
-                            password,
-                            name: data.name,
-                            lastName: data.lastName,
-                            phoneNumber: data.phoneNumber,
-                            address,
-                        })
-                    } catch {
-                        /* не создали аккаунт — продолжаем как гость */
+                    const res = await signUpAndSaveProfile({
+                        email: data.email,
+                        password,
+                        name: data.name,
+                        lastName: data.lastName,
+                        phoneNumber: data.phoneNumber,
+                        address,
+                    })
+                    if (!res.ok) {
+                        fail(SIGNUP_MESSAGES[res.error])   // покажется у кнопки
+                        return                             // к оплате НЕ идём
                     }
                 }
 
@@ -104,7 +104,8 @@ export default function CheckoutForm({ user }: Props) {
 
                 // 3) ЕДИНСТВЕННЫЙ вызов оплаты
                 await run({ address, email: user ? undefined : data.email })
-            } catch {
+            } catch (err) {
+                console.error("checkout error:", err)
                 fail(CHECKOUT_MESSAGES.UNKNOWN)
             }
         },

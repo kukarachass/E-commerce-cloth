@@ -7,7 +7,7 @@ import {GetOrCreateCart} from "@/actions/cart/get-or-create-cart";
 import {nextCookies} from "better-auth/next-js";
 
 export const auth = betterAuth({
-    baseURL: process.env.BETTER_AUTH_URL || 'http://localhost:3000',
+    baseURL: process.env.BETTER_AUTH_URL || "https://e-commerce-cloth-kappa.vercel.app",
     database: drizzleAdapter(db, {
         provider: 'pg',
         schema,
