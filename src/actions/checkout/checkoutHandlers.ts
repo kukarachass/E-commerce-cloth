@@ -4,6 +4,7 @@ import {eq} from "drizzle-orm";
 import {releaseStockTx} from "@/actions/checkout/releaseStock";
 import {DbTx} from "@/types/IDb";
 import {stockAmountUpdate} from "@/actions/checkout/stockAmountUpdate";
+import {cartClean} from "@/actions/checkout/cartClean";
 
 export async function handleCheckoutCompleted(tx: DbTx, session: Stripe.Checkout.Session) {
     const orderId = session.metadata?.orderId
@@ -20,6 +21,7 @@ export async function handleCheckoutCompleted(tx: DbTx, session: Stripe.Checkout
         .where(eq(payment.stripeCheckoutSessionId, session.id))
 
     await stockAmountUpdate({ tx, orderId })
+    await cartClean({ tx, ord})
 }
 
 export async function handleCheckoutExpired(tx: DbTx, session: Stripe.Checkout.Session) {
