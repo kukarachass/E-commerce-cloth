@@ -4,6 +4,7 @@ import EmptyCart from "@/components/cart/EmptyCart"
 import Cart from "@/components/cart/Cart"
 import {useGetCart} from "@/hooks/cart/useGetCart"
 import CartSkeleton from "@/components/cart/ui/CartSkeletonLoader";
+import CancelCheckoutWatcher from "@/components/cart/CancelCheckoutWatcher";
 
 
 export default function CartPage() {
@@ -15,6 +16,7 @@ export default function CartPage() {
 
     return (
         <div className="w-full">
+        <CancelCheckoutWatcher/>
             <div className="max-w-[1200px] mx-auto py-10">
                 <div className="flex flex-col gap-4">
                     <Cart cart={cart}/>

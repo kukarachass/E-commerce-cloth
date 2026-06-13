@@ -1,148 +1,159 @@
 "use server"
-// ─── ТИПЫ ───────────────────────────────────────────────────
-// Снапшот адреса — то, что ляжет в order.addressSnapshot (JSON).
-// Поля повторяют твою таблицу address.
-import {db} from "@/db";
-import {cartItem, order, orderItem, payment, productSize} from "@/db/schema";
-import {asc, eq, inArray} from "drizzle-orm";
-import Stripe from "stripe";
-import {stripe} from "@/lib/stripe/stripe";
-import {releaseStock} from "@/actions/checkout/releaseStock";
-import {getServerSession} from "@/lib/get-session";
-import {resolveCurrentCart} from "@/actions/checkout/resolveCurrentCart";
-import {AddressSnapshot} from "@/types/IOrder";
 
+import { asc, eq, inArray } from "drizzle-orm"
+import Stripe from "stripe"
+import { db } from "@/db"
+import { cartItem, order, orderItem, payment, productSize } from "@/db/schema"
+import { stripe } from "@/lib/stripe/stripe"
+import { releaseStock } from "@/actions/checkout/releaseStock"
+import { getServerSession } from "@/lib/get-session"
+import { resolveCurrentCart } from "@/actions/checkout/resolveCurrentCart"
+import type { AddressSnapshot } from "@/types/IOrder"
 
-
-// Вход Server Action. userId опционален — у гостя его нет.
 type CheckoutInput = {
-    email?: string   // нужен ТОЛЬКО гостю; у залогиненного берём из сессии
+    email?: string // нужен ТОЛЬКО гостю; у залогиненного берём из сессии
     address: AddressSnapshot
 }
 
-// Что возвращаем клиенту.
 type CheckoutResult =
     | { ok: true; url: string }
     | { ok: false; error: "CART_EMPTY" | "OUT_OF_STOCK" | "EMAIL_REQUIRED" | "UNKNOWN" }
 
+// Stripe минимум для expires_at — 30 минут. Меньше нельзя.
+const CHECKOUT_SESSION_TTL_SECONDS = 30 * 60
+
 export async function createCheckout(input: CheckoutInput): Promise<CheckoutResult> {
-    const session = await getServerSession();
-    const userId = session?.user.id ?? null;
-    const email = userId ? session!.user.email : input.email;
+    // 1. личность — только с сервера, клиенту не верим
+    const session = await getServerSession()
+    const userId = session?.user.id ?? null
+    const email = userId ? session!.user.email : input.email
     if (!email) return { ok: false, error: "EMAIL_REQUIRED" }
 
-    const cartId = await resolveCurrentCart(userId);
+    // 2. корзина — резолвим на сервере (не принимаем cartId от клиента)
+    const cartId = await resolveCurrentCart(userId)
     if (!cartId) return { ok: false, error: "CART_EMPTY" }
 
-    // ═══ ШАГ 1: ТРАНЗАКЦИЯ ═══
-    // Теперь возвращаем НЕ только order, а ещё lineItems и сумму в центах —
-    // чтобы они были видны в блоке Stripe СНАРУЖИ. Это и был твой баг:
-    // items жил внутри callback'а и наружу не попадал.
+    // 3. ТРАНЗАКЦИЯ: резерв стока + создание заказа (всё или ничего)
+    let reserved: {
+        order: { id: string; email: string }
+        lineItems: Stripe.Checkout.SessionCreateParams.LineItem[]
+        amountInCents: number
+    }
 
-    const { createdOrder, lineItems, amountInCents } = await db.transaction(async (tx) => {
-        // 1.1 — позиции корзины со связями
-        const items = await tx.query.cartItem.findMany({
-            where: eq(cartItem.cartId, cartId),
-            with: { product: true, productSize: true },
-        })
-        if (items.length === 0) throw new Error("CART_EMPTY")
-
-        // 1.2 — блокируем строки стока В ДЕТЕРМИНИРОВАННОМ ПОРЯДКЕ
-        // const sizeIds = items.map((item) => item.productSizeId)
-        // const lockedSizes = await tx
-        //     .select()
-        //     .from(productSize)
-        //     .where(inArray(productSize.id, sizeIds))
-        //     .orderBy(asc(productSize.id))
-        //     .for("update")
-        //
-        // const stockMap = new Map(lockedSizes.map((s) => [s.id, s]))
-
-        // 1.3 — проверка наличия + списание + ОДНОВРЕМЕННО готовим данные для Stripe
-        let amountInCents = 0;
-        const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = []
-
-        for(const item of items){
-            // const stock = stockMap.get(item.productSizeId);
-            // if (!stock || stock.stockAmount < item.quantity) throw new Error(`OUT_OF_STOCK:${item.productId}`);
-            //
-            // await tx.update(productSize)
-            //     .set({ stockAmount: stock.stockAmount - item.quantity })
-            //     .where(eq(productSize.id, item.productSizeId))
-
-            const unitAmount = Math.round(Number(item.priceAtAddition) * 100)
-            amountInCents += unitAmount * item.quantity
-
-            lineItems.push({
-                quantity: item.quantity,
-                price_data: {
-                    currency: "eur",
-                    unit_amount: unitAmount,
-                    product_data: { name: item.product.name },
-                },
+    try {
+        reserved = await db.transaction(async (tx) => {
+            const items = await tx.query.cartItem.findMany({
+                where: eq(cartItem.cartId, cartId),
+                with: { product: true, productSize: true },
             })
-        }
+            if (items.length === 0) throw new Error("CART_EMPTY")
 
-        // 1.4 — заказ. totalAmount выводим ИЗ amountInCents → совпадает со Stripe до цента
-        const [createdOrder] = await tx.insert(order).values({
-            userId: userId ?? null,
-            email,
-            addressSnapshot: input.address,
-            totalAmount: (amountInCents / 100).toFixed(2),
-            paymentStatus: "pending",
-            fulfillmentStatus: "unfulfilled",
-        }).returning();
+            // РЕЗЕРВ: блокируем строки стока в детерминированном порядке (против дедлоков)
+            const sizeIds = items.map((i) => i.productSizeId)
+            const locked = await tx
+                .select()
+                .from(productSize)
+                .where(inArray(productSize.id, sizeIds))
+                .orderBy(asc(productSize.id))
+                .for("update")
+            const stockMap = new Map(locked.map((s) => [s.id, s]))
 
-        // 1.5 — позиции заказа со снапшотами
-        await tx.insert(orderItem).values(
-            items.map((i) => ({
-                productSizeId: i.productSizeId,
-                orderId: createdOrder.id,
-                productId: i.productId,
-                quantity: i.quantity,
-                size: i.productSize.size,
-                price: i.priceAtAddition,
-                productSnapshot: { name: i.product.name },
-            })),
-        )
-        return { createdOrder, lineItems, amountInCents }
-    })
+            let amountInCents = 0
+            const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = []
 
-    try{
-        const session = await stripe.checkout.sessions.create(
+            for (const item of items) {
+                const stock = stockMap.get(item.productSizeId)
+                if (!stock || stock.stockAmount < item.quantity) {
+                    throw new Error(`OUT_OF_STOCK:${item.productId}`) // → rollback всего
+                }
+                // списываем = резервируем на время чекаута
+                await tx.update(productSize)
+                    .set({ stockAmount: stock.stockAmount - item.quantity })
+                    .where(eq(productSize.id, item.productSizeId))
+
+                const unitAmount = Math.round(Number(item.priceAtAddition) * 100)
+                amountInCents += unitAmount * item.quantity
+
+                lineItems.push({
+                    quantity: item.quantity,
+                    price_data: {
+                        currency: "eur",
+                        unit_amount: unitAmount,
+                        product_data: { name: item.product.name },
+                    },
+                })
+            }
+
+            const [createdOrder] = await tx.insert(order).values({
+                userId,
+                email,
+                addressSnapshot: input.address,
+                totalAmount: (amountInCents / 100).toFixed(2),
+                paymentStatus: "pending",
+                fulfillmentStatus: "unfulfilled",
+                cartId, // чтобы вебхук почистил корзину без cookies
+            }).returning({ id: order.id, email: order.email })
+
+            await tx.insert(orderItem).values(
+                items.map((i) => ({
+                    orderId: createdOrder.id,
+                    productId: i.productId,
+                    productSizeId: i.productSizeId,
+                    quantity: i.quantity,
+                    size: i.productSize.size,
+                    price: i.priceAtAddition,
+                    productSnapshot: { name: i.product.name },
+                })),
+            )
+
+            return { order: createdOrder, lineItems, amountInCents }
+        })
+    } catch (e) {
+        // ВСЕ ветки возвращают результат — наружу сырой throw не уходит
+        console.error("createCheckout reservation failed", e)
+        const msg = String(e)
+        if (msg.includes("OUT_OF_STOCK")) return { ok: false, error: "OUT_OF_STOCK" }
+        if (msg.includes("CART_EMPTY")) return { ok: false, error: "CART_EMPTY" }
+        return { ok: false, error: "UNKNOWN" }
+    }
+
+    const { order: createdOrder, lineItems, amountInCents } = reserved
+
+    // 4. Stripe-сессия + журнал платежа (СНАРУЖИ транзакции — сеть не держим под блокировкой)
+    try {
+        const checkoutSession = await stripe.checkout.sessions.create(
             {
                 mode: "payment",
-                line_items: lineItems,                  // ← теперь в области видимости
+                line_items: lineItems,
                 metadata: { orderId: createdOrder.id },
-                payment_intent_data: {
-                    metadata: { orderId: createdOrder.id },     // ← бирка ещё и на PaymentIntent
-                },
+                payment_intent_data: { metadata: { orderId: createdOrder.id } },
                 customer_email: createdOrder.email,
+                expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
                 success_url: `${process.env.APP_URL}/order/success?id=${createdOrder.id}`,
-                cancel_url: `${process.env.APP_URL}/cart`,
+                cancel_url: `${process.env.APP_URL}/cart?canceled=${createdOrder.id}`,
             },
             { idempotencyKey: `checkout-${createdOrder.id}` },
         )
 
-        // session.url по типам Stripe = string | null. Сужаем до string.
-        if (!session.url) throw new Error("STRIPE_NO_CHECKOUT_URL")
+        if (!checkoutSession.url) throw new Error("STRIPE_NO_CHECKOUT_URL")
 
-        // ═══ ШАГ 3: журналим платёж ═══
         await db.insert(payment).values({
             orderId: createdOrder.id,
-            stripeCheckoutSessionId: session.id,
+            stripeCheckoutSessionId: checkoutSession.id,
             stripePaymentIntentId:
-                typeof session.payment_intent === "string" ? session.payment_intent : null,
+                typeof checkoutSession.payment_intent === "string"
+                    ? checkoutSession.payment_intent
+                    : null,
             amount: amountInCents,
             currency: "eur",
             status: "pending",
         })
 
-        return { ok: true, url: session.url }
-    }catch(err){
+        return { ok: true, url: checkoutSession.url }
+    } catch (err) {
+        // заказ и резерв уже закоммичены, а Stripe упал → компенсируем
         await releaseStock(createdOrder.id, "failed")
-        console.error(err);
+        console.error("createCheckout stripe step failed", err)
         return { ok: false, error: "UNKNOWN" }
     }
-
 }

@@ -3,7 +3,6 @@ import {order, payment} from "@/db/schema";
 import {eq} from "drizzle-orm";
 import {releaseStockTx} from "@/actions/checkout/releaseStock";
 import {DbTx} from "@/types/IDb";
-import {stockAmountUpdate} from "@/actions/checkout/stockAmountUpdate";
 import {cartClean} from "@/actions/checkout/cartClean";
 
 export async function handleCheckoutCompleted(tx: DbTx, session: Stripe.Checkout.Session) {
@@ -12,16 +11,18 @@ export async function handleCheckoutCompleted(tx: DbTx, session: Stripe.Checkout
 
     const [ord] = await tx.select().from(order).where(eq(order.id, orderId)).for("update")
     if (!ord) throw new Error(`Order ${orderId} not found`)
-    if (ord.paymentStatus !== "pending") return
+    if (ord.paymentStatus !== "pending") return // монотонность
 
     await tx.update(order).set({ paymentStatus: "paid" }).where(eq(order.id, orderId))
     await tx.update(payment)
-        .set({ status: "succeeded", stripePaymentIntentId:
-                typeof session.payment_intent === "string" ? session.payment_intent : null })
+        .set({
+            status: "succeeded",
+            stripePaymentIntentId:
+                typeof session.payment_intent === "string" ? session.payment_intent : null,
+        })
         .where(eq(payment.stripeCheckoutSessionId, session.id))
 
-    await stockAmountUpdate({ tx, orderId })
-    await cartClean({ tx, ord})
+    await cartClean(tx, ord.cartId) // сток уже списан при создании — не трогаем
 }
 
 export async function handleCheckoutExpired(tx: DbTx, session: Stripe.Checkout.Session) {
