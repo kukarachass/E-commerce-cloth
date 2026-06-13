@@ -10,6 +10,7 @@ import {useGetCart} from "@/hooks/cart/useGetCart";
 import Arrow from "@/components/ui/icons/Arrow";
 import {useState} from "react";
 import CheckoutButton from "@/components/checkout/CheckoutButton";
+import CheckoutSummarySkeletonLoader from "@/components/ui/skeleton-loaders/CheckoutSummaryLoader";
 
 export default function CheckoutSummaryBlock({ href }: { href: string }) {
     const {data: cart, isPending, isError} = useGetCart()
@@ -17,7 +18,7 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
     const [showItems, setShowItems ] = useState(false);
 
 
-    if (isPending) return <>Loading...</>
+    if (isPending) return <CheckoutSummarySkeletonLoader/>
     if (isError) return <div className="text-center text-[#999] py-20">Something went wrong</div>
     if (!cart) return <div className="text-center text-[#999] py-20">Your cart is empty</div>
 

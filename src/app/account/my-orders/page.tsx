@@ -1,18 +1,26 @@
 import EmptyPage from "@/components/account/EmptyPage"
-import { IOrder } from "@/types/IOrder"
+import {useGetOrders} from "@/hooks/order/useGetOrders";
+import OrdersSkeletonLoader from "@/components/ui/skeleton-loaders/OrdersSkeletonLoader";
+import {toast} from "sonner";
 
-const mockOrders: IOrder[] = [] // заменишь на реальные данные
 
 export default function MyOrdersPage() {
+
+    const { data: orders, isPending, isError} = useGetOrders();
+    if(isPending) return <OrdersSkeletonLoader/>
+    if(isError){
+        toast.error("Something went wrong")
+    }
+
     return (
         <div className="flex flex-col gap-6">
             <h1 className="text-[var(--text)] text-[24px] font-bold">My Orders</h1>
 
-            {mockOrders.length !== 0 ? (
+            {orders?.length === 0 ? (
                 <EmptyPage pageName={"orders"} />
             ) : (
                 <div className="flex flex-col gap-3">
-                    {mockOrders.map((order) => (
+                    {orders?.map((order) => (
                         <div key={order.id} className="flex flex-row items-center justify-between p-5 border border-[#ebebeb] rounded-[12px] hover:border-[#ccc] transition-colors duration-150">
                             <div className="flex flex-col gap-1">
                                 <span className="text-[13px] text-[#999]">Order #{order.id.slice(0, 8).toUpperCase()}</span>
