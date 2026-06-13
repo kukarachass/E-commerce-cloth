@@ -1,3 +1,5 @@
+"use client"
+
 import EmptyPage from "@/components/account/EmptyPage"
 import {useGetOrders} from "@/hooks/order/useGetOrders";
 import OrdersSkeletonLoader from "@/components/ui/skeleton-loaders/OrdersSkeletonLoader";
