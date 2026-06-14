@@ -40,8 +40,12 @@ export default function SummaryBlock({ cart }: SummaryBlockProps ) {
                     <span>{formatPrice(Number(cart.totalAmount))}</span>
                 </div>
                 <div className="flex flex-row justify-between text-[var(--text)] text-[14px] leading-[143%]">
-                    <h3>Shipping Fee</h3>
-                    <span>{formatPrice(cart.shippingFee)}</span>
+                    <span>Shipping Fee</span>
+                    {cart.isShippingFree ? (
+                        <span className="text-[var(--text)] text-[14px]">You've unlocked free shipping</span>
+                    ) : (
+                        <span>{formatPrice(Number(cart.shippingFee))}</span>
+                    )}
                 </div>
                 <CustomsFee customsFee={cart.customsFee}/>
             </div>

@@ -12,9 +12,8 @@ import {useState} from "react";
 import CheckoutButton from "@/components/checkout/CheckoutButton";
 import CheckoutSummarySkeletonLoader from "@/components/ui/skeleton-loaders/CheckoutSummaryLoader";
 
-export default function CheckoutSummaryBlock({ href }: { href: string }) {
+export default function CheckoutSummaryBlock() {
     const {data: cart, isPending, isError} = useGetCart()
-
     const [showItems, setShowItems ] = useState(false);
 
 
@@ -54,7 +53,7 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
                         <div className="flex flex-row justify-between items-center text-[var(--text)] text-[14px] leading-[143%]">
                             <span>Shipping Fee</span>
                             {cart.isShippingFree ? (
-                                <span className="text-[var(--muted)] text-[12px]">You've unlocked free shipping</span>
+                                <span className="text-[var(--text)] text-[14px]">You've unlocked free shipping</span>
                             ) : (
                                 <span>{formatPrice(Number(cart.shippingFee))}</span>
                             )}

@@ -53,6 +53,7 @@ export async function getCart({ userId }: GetCartProps) {
 
     }
 
+
     // total saved -> сколько пользователь съекономил с помощью скидок на продукты, то есть нужно пройтись по каждому айтему в коризне у которого priceDiscount > 0 и вычесть сумму originalPrice - priceDiscount и записать это в переменную totalSaved
 
     return {
