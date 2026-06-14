@@ -8,7 +8,7 @@ import SuccessPaidPage from "@/components/checkout/SuccessPaidPage";
 import LogoOnlyHeader from "@/components/layout/header/LogoOnlyHeader";
 import Footer from "@/components/layout/footer/footer";
 
-export default function CheckoutStep3({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
+export default async function CheckoutStep3({ searchParams }: { searchParams: Promise<{ id?: string }> }) {
     const { id } = await searchParams
     if (!id) notFound()
 
