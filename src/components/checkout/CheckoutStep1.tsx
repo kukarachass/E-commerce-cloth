@@ -5,7 +5,7 @@ export default function CheckoutStep1() {
     return(
         <div className="flex flex-row gap-8 py-10 justify-center">
             <ContactInformation/>
-            <CheckoutSummaryBlock href={"/checkout?step=2"}/>
+            <CheckoutSummaryBlock/>
         </div>
     )
 }
