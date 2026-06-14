@@ -29,15 +29,6 @@ export default function Cart({ cart }: Props){
                         <span className="text-[var(--text)] font-bold text-[14px] leading-[143%]">Products in your shopping cart are not reserved</span>
                     </div>
                     <FreeShippingProgress cart={cart}/>
-
-                    <div className="flex flex-row gap-6">
-                        <ButtonPrimary onClick={() => router.back() } variant={"secondary"}>
-                            Continue shopping
-                        </ButtonPrimary>
-                        <ButtonPrimary onClick={() => router.push("/checkout?step=1")} variant={"primary"}>
-                            Continue to checkout
-                        </ButtonPrimary>
-                    </div>
                 </div>
                 <div className="flex mx-auto flex-row gap-6 relative w-full justify-center">
                     <div className="flex flex-col gap-4 flex-1 max-w-[600px]">
