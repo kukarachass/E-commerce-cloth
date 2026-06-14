@@ -17,7 +17,7 @@ export default async function CheckoutPage({ searchParams }: Props) {
             <div>
                 {step === 1 && <CheckoutStep1 />}
                 {step === 2 && <CheckoutStep2 />}
-                {step === 3 && <CheckoutStep3 />}
+                {/*{step === 3 && <CheckoutStep3 />}*/}
             </div>
         </div>
     )
