@@ -1,8 +1,12 @@
-import Image from "next/image"
-import Link from "next/link"
 import LogoOnlyHeader from "@/components/layout/header/LogoOnlyHeader";
+import {ReactNode} from "react";
+import Footer from "@/components/layout/footer/footer";
 
-export default function CheckoutLayout({ children }: { children: React.ReactNode }) {
+interface CheckoutLayoutProps{
+    children: ReactNode;
+}
+export default function CheckoutLayout({ children }: CheckoutLayoutProps) {
+
     return (
         <>
             <LogoOnlyHeader/>
@@ -11,6 +15,7 @@ export default function CheckoutLayout({ children }: { children: React.ReactNode
                     {children}
                 </div>
             </main>
+            <Footer/>
         </>
     )
 }
