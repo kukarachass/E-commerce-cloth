@@ -65,11 +65,11 @@ export default function SummaryBlock({ cart }: SummaryBlockProps ) {
                                 applicable.
                 </span>
             </div>
-            <div className="flex items-center justify-center p-6 w-full">
+            <div className="flex flex-col gap-2 p-6 w-full">
                 <ButtonPrimary disabled={canCheckout.length <= 0} onClick={() => router.push("/checkout?step=1")} className="w-full" variant={"primary"}>
                     Continue to checkout
                 </ButtonPrimary>
-                <ButtonPrimary onClick={() => router.back() } variant={"secondary"}>
+                <ButtonPrimary className="" onClick={() => router.back() } variant={"secondary"}>
                     Continue shopping
                 </ButtonPrimary>
             </div>
