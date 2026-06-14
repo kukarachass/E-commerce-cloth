@@ -8,8 +8,8 @@ export function useCancelCheckout() {
     return useMutation({
         mutationFn: (orderId: string) => cancelPendingCheckout(orderId),
         onSuccess: async (res) => {
-            await qc.invalidateQueries({ queryKey: queryKeys.order })   // активный pending
-            await qc.invalidateQueries({ queryKey: queryKeys.order })  // ← ключ списка из useGetOrders
+            await qc.invalidateQueries({ queryKey: queryKeys.activePendingOrder })   // активный pending
+            await qc.invalidateQueries({ queryKey: queryKeys.orders })  // ← ключ списка из useGetOrders
             if (res.ok) toast.success("Order cancelled")
             else toast.message("This order is no longer pending")
         },

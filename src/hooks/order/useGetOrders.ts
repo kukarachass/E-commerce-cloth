@@ -4,7 +4,7 @@ import {getOrders} from "@/actions/order/getOrders";
 
 export function useGetOrders(){
     return useQuery({
-        queryKey: queryKeys.order,
+        queryKey: queryKeys.orders,
         queryFn: () => getOrders(),
     })
 }

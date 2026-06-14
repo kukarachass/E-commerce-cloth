@@ -15,7 +15,7 @@ export default function PendingOrderNotifier() {
 
     useEffect(() => {
         // на самой странице заказов тост не нужен — там уже есть баннер
-        const onOrdersPage = pathname?.startsWith("/account/orders")
+        const onOrdersPage = pathname?.startsWith("/account/my-orders")
 
         if (!order || onOrdersPage) {
             toast.dismiss(TOAST_ID)

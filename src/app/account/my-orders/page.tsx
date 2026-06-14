@@ -18,7 +18,8 @@ export default function MyOrdersPage() {
     }, [isError])
 
     // активный pending уже показан баннером — убираем его из ленты
-    const pastOrders = orders?.filter((o) => o.id !== activeOrder?.id) ?? []
+    const list = Array.isArray(orders) ? orders : []
+    const pastOrders = list.filter((o) => o.id !== activeOrder?.id)
     const isEmpty = !activeOrder && pastOrders.length === 0
 
     return (

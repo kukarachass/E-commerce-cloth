@@ -4,7 +4,7 @@ import {getActivePendingOrder} from "@/actions/checkout/getActivePendingOrder";
 
 export default function useGetActivePendingOrder(){
     return useQuery({
-        queryKey: queryKeys.order,
+        queryKey: queryKeys.activePendingOrder,
         queryFn: () => getActivePendingOrder(),
     })
 }

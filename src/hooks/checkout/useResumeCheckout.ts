@@ -13,7 +13,7 @@ export function useResumeCheckout() {
                 return
             }
             // сессия истекла / уже не pending — обновим состояние и подскажем
-            await qc.invalidateQueries({ queryKey: queryKeys.order })
+            await qc.invalidateQueries({ queryKey: queryKeys.activePendingOrder })
             toast.error("This checkout expired. Please start a new order.")
         },
         onError: () => toast.error("Something went wrong. Please try again."),
