@@ -2,7 +2,7 @@
 
 import {useFilters} from "@/hooks/useFilters";
 
-export default function ResetButton({ keyName }: { keyName: string }) {
+export default function ResetButton({ keyName }: { keyName: string | string[] }) {
     const { clearFilter } = useFilters()
     return(
         <div className="border-t border-gray-100 px-4 py-3">

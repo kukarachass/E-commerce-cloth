@@ -46,11 +46,24 @@ export function useFilters() {
         [router, pathname, searchParams]
     )
 
-    const clearFilter = useCallback((key: string) => {
-        const params = new URLSearchParams(searchParams.toString())
-        params.delete(key)
-        router.push(`${pathname}?${params.toString()}`, { scroll: false })
-    }, [router, pathname, searchParams])
+    const clearFilter = useCallback(
+
+        (keys: string | string[]) => {
+            const params = new URLSearchParams(searchParams.toString())
+            if (Array.isArray(keys)) {
+                keys.forEach((key) => params.delete(key))
+            } else {
+                params.delete(keys)
+            }
+
+            const query = params.toString()
+            router.push(
+                query ? `${pathname}?${query}` : pathname,
+                { scroll: false }
+            )
+        },
+        [router, pathname, searchParams]
+    )
 
     const clearAll = useCallback(() => {
         router.push(pathname)

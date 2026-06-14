@@ -11,6 +11,7 @@ export default function PendingOrderBanner() {
     const cancel = useCancelCheckout()
 
     if (!order) return null
+    console.log("order", order)
     const busy = resume.isPending || cancel.isPending
 
     return (

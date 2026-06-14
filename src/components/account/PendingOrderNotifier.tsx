@@ -33,7 +33,7 @@ export default function PendingOrderNotifier() {
             duration: Infinity,
             action: {
                 label: "Review",
-                onClick: () => router.push("/account/orders"),
+                onClick: () => router.push("/account/my-orders"),
             },
         })
     }, [order, pathname, router])

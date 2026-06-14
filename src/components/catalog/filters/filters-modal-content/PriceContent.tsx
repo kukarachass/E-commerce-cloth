@@ -140,7 +140,7 @@ export default function PriceContent({ price }: PriceContentProps) {
                 />
             </div>
 
-            <ResetButton keyName={"price"} />
+            <ResetButton keyName={["minPrice", "maxPrice"]} />
 
             <style>{`
                 .price-range-input {
