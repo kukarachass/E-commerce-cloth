@@ -24,8 +24,19 @@ export default async function updateCartTotalAmount(
 
     const config = await tx.query.storeConfig.findFirst();
     if (!config) throw new Error("Store config not found");
-    const { shippingFee, customsFee } = config;
-    const grandTotal = Number(totalAmount) + Number(shippingFee) + Number(customsFee)
+    const { shippingFee, customsFee, freeShippingThreshold } = config;
+    const subTotal = Number(totalAmount) + Number(customsFee);
+
+    let grandTotal: number;
+    let isShippingFree: boolean;
+
+    if(subTotal >= Number(freeShippingThreshold)) {
+        grandTotal = Number(totalAmount) + Number(customsFee)
+        isShippingFree = true;
+    } else{
+        grandTotal = Number(totalAmount) + Number(shippingFee) + Number(customsFee)
+        isShippingFree = false;
+    }
 
     const [updatedCart] = await tx
         .update(cart)
@@ -36,5 +47,5 @@ export default async function updateCartTotalAmount(
         .where(eq(cart.id, cartId))
         .returning()
 
-    return updatedCart;
+    return {...updatedCart, isShippingFree};
 }

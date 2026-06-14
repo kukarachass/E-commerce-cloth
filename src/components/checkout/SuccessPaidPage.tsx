@@ -81,7 +81,7 @@ export default function SuccessPaidPage({ order }: { order: IOrder }) {
 
                 {/* CTA */}
                 <div className="flex flex-col gap-3">
-                    <Link href="/account/orders">
+                    <Link href="/account/my-orders">
                         <ButtonPrimary className="w-full" variant="primary">
                             View order in My Account
                         </ButtonPrimary>

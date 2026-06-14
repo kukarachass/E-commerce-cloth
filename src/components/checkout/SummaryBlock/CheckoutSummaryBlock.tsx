@@ -53,7 +53,11 @@ export default function CheckoutSummaryBlock({ href }: { href: string }) {
                         </div>
                         <div className="flex flex-row justify-between items-center text-[var(--text)] text-[14px] leading-[143%]">
                             <span>Shipping Fee</span>
-                            <span>{formatPrice(Number(cart.shippingFee))}</span>
+                            {cart.isShippingFree ? (
+                                <span className="text-[var(--muted)] text-[12px]">You've unlocked free shipping</span>
+                            ) : (
+                                <span>{formatPrice(Number(cart.shippingFee))}</span>
+                            )}
                         </div>
                         <CustomsFee customsFee={cart.customsFee}/>
                     </div>
