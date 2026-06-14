@@ -129,7 +129,7 @@ export async function createCheckout(input: CheckoutInput): Promise<CheckoutResu
                 payment_intent_data: { metadata: { orderId: createdOrder.id } },
                 customer_email: createdOrder.email,
                 expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_SESSION_TTL_SECONDS,
-                success_url: `${process.env.APP_URL}/order/success?id=${createdOrder.id}`,
+                success_url: `${process.env.APP_URL}/checkout?step=3?id=${createdOrder.id}`,
                 cancel_url: `${process.env.APP_URL}/cart?canceled=${createdOrder.id}`,
             },
             { idempotencyKey: `checkout-${createdOrder.id}` },
