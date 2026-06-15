@@ -13,7 +13,7 @@ export default function MyProfilePage() {
 
     return (
         <div className="flex flex-col max-w-[900px] w-full">
-            <h1 className="text-[28px] font-bold text-[var(--text)] pb-6">My Profile</h1>
+            <h1 className="text-[20px] font-semibold text-neutral-900 tracking-tight pb-6">My Profile</h1>
 
             <AccordionSection title="Personal information">
                 <PersonalInformationForm user={user} />
