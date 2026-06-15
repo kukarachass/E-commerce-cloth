@@ -10,7 +10,12 @@ export async function getOrders() {
     if(!user) throw new Error("User not found");
 
     return await db.query.order.findMany({
-        where: (order, { eq }) => eq(order.userId, user.id)
+        where: (order, { eq }) => eq(order.userId, user.id),
+        with: {
+            items: {
+                with: { product: true }
+            }
+        }
     })
 
 }
