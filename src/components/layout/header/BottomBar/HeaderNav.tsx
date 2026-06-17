@@ -11,6 +11,9 @@ export default function HeaderNav(){
 
     return(
         <div className="flex flex-row gap-8 items-center text-[var(--text)] text-[16px] capitalize">
+            <Link href={`/${gender}/clothing/coats`}>
+                t-shirts
+            </Link>
             <Link href={`/${gender}/new-items`}>
                 New items
             </Link>
