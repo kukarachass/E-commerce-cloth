@@ -2,14 +2,23 @@
 "use server"
 
 import { db } from "@/db"
-import { brand, category, collection, collectionProduct, product, productImage } from "@/db/schema"
+import { brand, category, collection, collectionProduct, product } from "@/db/schema"
 import { and, desc, eq, sql } from "drizzle-orm"
+import { buildCategoryHref, type Category } from "@/lib/db-helpers"
 
 const MIN_QUERY_LENGTH = 2
 const TRGM_MIN_LENGTH = 3
 
 export type BrandSuggestion = { id: string; name: string; slug: string; sim: number }
-export type CategorySuggestion = { id: string; name: string; slug: string; sim: number }
+export type CategorySuggestion = {
+    id: string
+    name: string
+    slug: string
+    sim: number
+    level: number
+    parentId: string | null
+    href: string
+}
 export type CollectionSuggestion = { id: string; title: string; slug: string; sim: number }
 
 export type ProductResult = {
@@ -34,14 +43,12 @@ function escapeLike(input: string): string {
     return input.replace(/[\\%_]/g, (ch) => `\\${ch}`)
 }
 
-// корреляция по product.id работает только если product уже доступен в скоупе запроса —
-// здесь он есть, потому что это подзапрос внутри select от product
 const mainImage = sql<string>`(
-                                  select url from product_image
-                                  where product_id = ${product.id}
-                                  order by is_main desc, "order" asc
-                                      limit 1
-                              )`
+    select url from product_image
+    where product_id = ${product.id}
+    order by is_main desc, "order" asc
+    limit 1
+)`
 
 const productColumns = {
     id: product.id,
@@ -54,7 +61,6 @@ const productColumns = {
     originalPrice: product.originalPrice,
 }
 
-// общий хелпер predicate под trgm/ilike для text-колонки
 function buildPredicate(column: any, query: string, useTrgm: boolean) {
     return useTrgm
         ? sql`${column} % ${query}`
@@ -64,22 +70,17 @@ function buildPredicate(column: any, query: string, useTrgm: boolean) {
 export async function searchCatalog(rawQuery: string, gender: string): Promise<SearchResult> {
     const query = rawQuery.trim()
 
-
     if (query.length < MIN_QUERY_LENGTH) {
         return { brands: [], categories: [], collections: [], products: [] }
     }
 
     const useTrgm = query.length >= TRGM_MIN_LENGTH
 
-    // ИСПРАВЛЕНО: у category поле "name", у collection поле "title" — не "name"
     const brandPredicate = buildPredicate(brand.name, query, useTrgm)
     const categoryPredicate = buildPredicate(category.name, query, useTrgm)
     const collectionPredicate = buildPredicate(collection.title, query, useTrgm)
     const productNamePredicate = buildPredicate(product.name, query, useTrgm)
 
-    // matched_collection_ids — subquery, а не JOIN, чтобы не плодить
-    // дубли строк товара через many-to-many collectionProduct.
-    // "товар матчится, если он лежит хоть в одной коллекции с подходящим title"
     const productPredicate = sql`(
         ${productNamePredicate}
         or ${brandPredicate}
@@ -92,7 +93,11 @@ export async function searchCatalog(rawQuery: string, gender: string): Promise<S
         )
     )`
 
-    const [brands, categories, collections, products] = await Promise.all([
+    // ── ИЗМЕНЕНИЕ 1 ──────────────────────────────────────────────
+    // Добавили загрузку ВСЕХ категорий (allCats) в тот же Promise.all —
+    // она нужна как карта предков для построения href.
+    // Переменную матча категорий переименовали в matchedCategories.
+    const [brands, matchedCategories, collections, products, allCats] = await Promise.all([
         db
             .select({
                 id: brand.id,
@@ -110,9 +115,10 @@ export async function searchCatalog(rawQuery: string, gender: string): Promise<S
                 name: category.name,
                 slug: category.slug,
                 sim: sql<number>`similarity(${category.name}, ${query})`,
+                level: category.level,
             })
             .from(category)
-            .where(and(eq(category.gender, gender), categoryPredicate)) // у category нет isActive в схеме — убрал
+            .where(and(eq(category.gender, gender), categoryPredicate))
             .orderBy(desc(sql`similarity(${category.name}, ${query})`)),
 
         db
@@ -126,7 +132,6 @@ export async function searchCatalog(rawQuery: string, gender: string): Promise<S
             .where(and(eq(collection.isActive, true), collectionPredicate))
             .orderBy(desc(sql`similarity(${collection.title}, ${query})`)),
 
-        // category здесь innerJoin, не leftJoin — у product.categoryId notNull в схеме
         db
             .select(productColumns)
             .from(product)
@@ -137,7 +142,29 @@ export async function searchCatalog(rawQuery: string, gender: string): Promise<S
                 eq(product.gender, gender),
             ))
             .orderBy(desc(sql`similarity(${product.name}, ${query})`)),
+
+        // карта предков для href — все категории, их немного
+        db.select().from(category),
     ])
+
+    // ── ИЗМЕНЕНИЕ 2 ──────────────────────────────────────────────
+    // Обогащаем найденные категории: parentId + готовый href.
+    // href строим из ПОЛНОЙ категории (с gender/parentId), достаём её из byId по id —
+    // потому что matchedCategories содержит только id/name/slug/sim/level.
+    const byId = new Map<string, Category>(allCats.map(c => [c.id, c]))
+
+    const categories: CategorySuggestion[] = matchedCategories.map((c) => {
+        const full = byId.get(c.id)!
+        return {
+            id: c.id,
+            name: c.name,
+            slug: c.slug,
+            sim: c.sim,
+            level: c.level,
+            parentId: full.parentId,
+            href: buildCategoryHref(full, byId),
+        }
+    })
 
     return { brands, categories, collections, products }
 }

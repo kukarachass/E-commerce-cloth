@@ -4,6 +4,7 @@ import {SearchResult} from "@/actions/search/search";
 import Link from "next/link";
 import SearchProductCard from "@/components/product/SearchProductCard";
 import {useSearchStore} from "@/store/useSearchOpen";
+import {useGenderStore} from "@/store/useGenderStore";
 
 interface ActiveSearchDropwdownProps {
     data: SearchResult | undefined;
@@ -48,12 +49,12 @@ export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdo
                 </div>
             )}
             {hasCategories && (
-                <div className="">
+                <div>
                     {data!.categories.map((c) => (
                         <Link
                             onClick={() => setSearchOpen(false)}
                             key={c.id}
-                            href={`/brand/${c.slug}`}
+                            href={c.href}
                             className="block rounded px-2 py-1.5 text-sm hover:bg-gray-50"
                         >
                             <span className="font-semibold">{c.name}</span>

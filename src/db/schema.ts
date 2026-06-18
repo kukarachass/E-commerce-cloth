@@ -9,7 +9,7 @@ import {
     unique,
     index,
     json,
-    date, check, pgEnum,
+    date, check, pgEnum, AnyPgColumn,
 } from "drizzle-orm/pg-core"
 import {relations, sql} from "drizzle-orm"
 
@@ -220,13 +220,18 @@ export const favoriteBrand = pgTable("favorite_brand", {
 // slug строится как: women-clothing, women-clothing-jeans
 export const category = pgTable("category", {
     id: uuid("id").defaultRandom().primaryKey(),
-    name: text("name").notNull(),
-    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),                 // "Straight Jeans" — для отображения
+    slug: text("slug").notNull().unique(),        // "women-clothing-jeans-straight-jeans" — полный путь
     image: text("image"),
-    gender: text("gender"),
-    parentId: uuid("parent_id"),
+    gender: text("gender").notNull(),             // women | men | unisex — на каждом уровне
+    level: integer("level").notNull(),            // 1 = тип, 2 = подкатегория, 3 = под-подкатегория
+    parentId: uuid("parent_id")
+        .references((): AnyPgColumn => category.id, { onDelete: "cascade" }), // null = корень
     createdAt: timestamp("created_at").defaultNow().notNull(),
-})
+}, (t) => [
+    index("category_parent_idx").on(t.parentId),
+    index("category_gender_idx").on(t.gender),
+])
 
 // ============================================================
 // ██████╗ ██████╗  ██████╗ ██████╗ ██╗   ██╗ ██████╗████████╗
