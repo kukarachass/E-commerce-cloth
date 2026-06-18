@@ -4,6 +4,7 @@ import {SearchResult} from "@/actions/search/search";
 import Link from "next/link";
 import SearchProductCard from "@/components/product/SearchProductCard";
 import {useSearchStore} from "@/store/useSearchOpen";
+import {useGenderStore} from "@/store/useGenderStore";
 
 interface ActiveSearchDropwdownProps {
     data: SearchResult | undefined;
@@ -12,6 +13,7 @@ interface ActiveSearchDropwdownProps {
 
 export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdownProps) {
     const setSearchOpen = useSearchStore(state => state.setSearchOpen);
+    const gender = useGenderStore(s => s.gender);
 
     const hasBrands = (data?.brands?.length ?? 0) > 0
     const hasProducts = (data?.products?.length ?? 0) > 0
@@ -38,7 +40,7 @@ export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdo
                         <Link
                             onClick={() => setSearchOpen(false)}
                             key={b.id}
-                            href={`/brand/${b.slug}`}
+                            href={`/${gender}/brands/${b.slug}`}
                             className="block rounded px-2 py-1.5 text-sm hover:bg-gray-50"
                         >
                             <span className="font-semibold">{b.name}</span>
@@ -48,12 +50,12 @@ export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdo
                 </div>
             )}
             {hasCategories && (
-                <div className="">
+                <div>
                     {data!.categories.map((c) => (
                         <Link
                             onClick={() => setSearchOpen(false)}
                             key={c.id}
-                            href={`/brand/${c.slug}`}
+                            href={c.href}
                             className="block rounded px-2 py-1.5 text-sm hover:bg-gray-50"
                         >
                             <span className="font-semibold">{c.name}</span>
@@ -68,7 +70,7 @@ export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdo
                         <Link
                             onClick={() => setSearchOpen(false)}
                             key={c.id}
-                            href={`/brand/${c.slug}`}
+                            href={`/${gender}/collections/${c.slug}`}
                             className="block rounded px-2 py-1.5 text-sm hover:bg-gray-50"
                         >
                             <span className="font-semibold">{c.slug}</span>

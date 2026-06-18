@@ -1,9 +1,8 @@
 "use client"
 
 import { Category } from "@/types/filters/category"
-import { IProduct } from "@/components/product/IProduct"
-import SidebarItem from "@/components/catalog/sidebar/SidebarItem";
-import {ProductWithDetails} from "@/types/product-details";
+import SidebarItem from "@/components/catalog/sidebar/SidebarItem"
+import { ProductWithDetails } from "@/types/product-details"
 
 interface Props {
     title: string
@@ -24,7 +23,7 @@ export default function Sidebar({ title, items, products }: Props) {
             </div>
             <div className="flex flex-col overflow-y-auto h-[calc(100vh-113px)]">
                 {items.map(item => (
-                    <SidebarItem key={item.id} item={item}/>
+                    <SidebarItem key={item.id} item={item} />
                 ))}
             </div>
         </div>

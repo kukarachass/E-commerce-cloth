@@ -9,7 +9,7 @@ import {
     unique,
     index,
     json,
-    date, check, pgEnum,
+    date, check, pgEnum, AnyPgColumn,
 } from "drizzle-orm/pg-core"
 import {relations, sql} from "drizzle-orm"
 
@@ -220,13 +220,18 @@ export const favoriteBrand = pgTable("favorite_brand", {
 // slug строится как: women-clothing, women-clothing-jeans
 export const category = pgTable("category", {
     id: uuid("id").defaultRandom().primaryKey(),
-    name: text("name").notNull(),
-    slug: text("slug").notNull().unique(),
+    name: text("name").notNull(),                 // "Straight Jeans" — для отображения
+    slug: text("slug").notNull().unique(),        // "women-clothing-jeans-straight-jeans" — полный путь
     image: text("image"),
-    gender: text("gender"),
-    parentId: uuid("parent_id"),
+    gender: text("gender").notNull(),             // women | men | unisex — на каждом уровне
+    level: integer("level").notNull(),            // 1 = тип, 2 = подкатегория, 3 = под-подкатегория
+    parentId: uuid("parent_id")
+        .references((): AnyPgColumn => category.id, { onDelete: "cascade" }), // null = корень
     createdAt: timestamp("created_at").defaultNow().notNull(),
-})
+}, (t) => [
+    index("category_parent_idx").on(t.parentId),
+    index("category_gender_idx").on(t.gender),
+])
 
 // ============================================================
 // ██████╗ ██████╗  ██████╗ ██████╗ ██╗   ██╗ ██████╗████████╗
@@ -267,12 +272,19 @@ export const product = pgTable("product", {
 // Размеры — отдельная таблица потому что у каждого размера свой stockAmount.
 // При добавлении в корзину проверяем stockAmount конкретного размера.
 // unique(productId, size) — нельзя создать два одинаковых размера для продукта.
+export const sizeSystemEnum = pgEnum('size_system', [
+    'INT', 'UK', 'EU', 'US', 'FR', 'IT', 'DE', 'Waist', 'Waist/Length', 'Other', 'Years', 'Size (cm)'
+])
+
 export const productSize = pgTable("product_size", {
-    id: uuid("id").defaultRandom().primaryKey(),
-    productId: uuid("product_id").notNull().references(() => product.id, {onDelete: "cascade"}),
-    size: text("size").notNull(),
-    stockAmount: integer("stock_amount").notNull().default(0),
-}, (t) => [unique().on(t.productId, t.size)])
+    id: uuid('id').primaryKey().defaultRandom(),
+    productId: uuid('product_id').notNull().references(() => product.id, { onDelete: 'cascade' }),
+    size: text('size').notNull(),
+    sizeSystem: sizeSystemEnum('size_system').notNull(),
+    stockAmount: integer('stock_amount').notNull().default(0),
+}, (t) => [
+    unique().on(t.productId, t.size, t.sizeSystem) // массив вместо объекта
+])
 
 // Изображения — отдельная таблица потому что у одного продукта несколько фото.
 // isMain — главное фото для превью в каталоге.

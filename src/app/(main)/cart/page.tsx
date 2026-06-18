@@ -16,7 +16,7 @@ export default function CartPage() {
 
     return (
         <div className="w-full">
-        <CancelCheckoutWatcher/>
+        {/*<CancelCheckoutWatcher/>*/}
             <div className="max-w-[1200px] mx-auto py-10">
                 <div className="flex flex-col gap-4">
                     <Cart cart={cart}/>

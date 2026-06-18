@@ -16,7 +16,7 @@ export default async function ProductPage({params}: Props) {
     const { slug } = await params;
     const product = await getProduct({ slug });
     console.log(product);
-    if (!product) notFound() // ← редирект на 404 страницу Next.js
+    if (!product) notFound()
 
     return (
         <div className="max-w-[1200px] mx-auto pb-10">
