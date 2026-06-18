@@ -31,7 +31,7 @@ export default function SearchDropDownContent() {
     const isSticky = useStickyStore(state => state.isSticky)
     const setSearchOpen = useSearchStore(state => state.setSearchOpen);
     const query = useSearchQueryStore(state => state.query)
-    const { data, isLoading, isError } = useSearch(query)
+    const {data, isLoading, isError} = useSearch(query)
     const gender = useGenderStore(s => s.gender)
 
 
@@ -46,36 +46,26 @@ export default function SearchDropDownContent() {
     }
 
     // LOADING (первый запрос, без placeholder-данных)
-    if (isLoading) {
-        return (
-            <div>
-                <div className="space-y-2">
-                    <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
-                    <div className="h-16 w-full animate-pulse rounded bg-gray-100" />
-                </div>
-            </div>
-        )
-    }
 
     const handleClose = () => {
         setSearchOpen(false);
     }
 
 
-
     return (
         <div className="bg-white w-full ">
             <Container>
+                <div className={isSticky ? "py-5" : ""}>
+                    {isSticky && <Search/>}
+                </div>
                 {query.length > 0 ? (
                     <ActiveSearchDropwdown data={data} query={query}/>
-                ): (
+                ) : (
                     <div className="flex flex-col gap-6 py-4">
-                        {isSticky && (
-                            <Search/>
-                        )}
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-row items-center justify-between">
-                                <h1 className="mb-2 text-[13px] font-semibold uppercase text-gray-400">Popular Brands</h1>
+                                <h1 className="mb-2 text-[13px] font-semibold uppercase text-gray-400">Popular
+                                    Brands</h1>
                                 <Link
                                     className="mb-2 text-[13px] font-semibold uppercase text-gray-400 border-b"
                                     href={`/${gender}/brands`}
@@ -88,7 +78,8 @@ export default function SearchDropDownContent() {
                             <div className="flex flex-row gap-4 overflow-x-auto lg:overflow-x-visible">
                                 {brands.map((brand) => (
                                     <div key={brand.href} className="cursor-pointer shrink-0">
-                                        <Image className="w-[185px] h-[100px]" src={brand.href} alt={brand.href} width={185}
+                                        <Image className="w-[185px] h-[100px]" src={brand.href} alt={brand.href}
+                                               width={185}
                                                height={60}/>
                                     </div>
                                 ))}
@@ -99,7 +90,8 @@ export default function SearchDropDownContent() {
 
                             <div className="flex flex-row gap-4 pb-2 lg:pb-0 overflow-x-auto lg:overflow-x-visible">
                                 {edits.map((edit) => (
-                                    <div key={edit.href} className="flex flex-col gap-2 cursor-pointer shrink-0 w-[185px]">
+                                    <div key={edit.href}
+                                         className="flex flex-col gap-2 cursor-pointer shrink-0 w-[185px]">
                                         <Image src={edit.href} alt={edit.name} width={185} height={50}/>
                                         <span
                                             className="text-center text-[14px] text-[var(--text)] font-bold">{edit.name}</span>
