@@ -1,4 +1,4 @@
-// src/app/[gender]/[...category]/page.tsx
+
 import { getProducts } from "@/actions/products/get-products"
 import CatalogContainer from "@/components/catalog/CatalogContainer"
 import { isGender } from "@/store/useGenderStore"
@@ -9,12 +9,12 @@ export default async function CategoryPage({
                                                params,
                                                searchParams,
                                            }: PageProps<"/[gender]/[...category]">) {
-    const { gender, category } = await params // category: string[]
+    const { gender, category } = await params
     if (!isGender(gender)) notFound()
     const filters = await searchParams
 
-    const categorySlug = category.join("-")        // "clothing-coats-parkas"
-    const slug = `${gender}-${categorySlug}`         // "women-clothing-coats-parkas"
+    const categorySlug = category.join("-")
+    const slug = `${gender}-${categorySlug}`
 
     const categoryData = await getCategoryWithSubs(gender, slug)
     if (!categoryData) notFound()

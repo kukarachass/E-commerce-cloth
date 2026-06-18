@@ -272,12 +272,19 @@ export const product = pgTable("product", {
 // Размеры — отдельная таблица потому что у каждого размера свой stockAmount.
 // При добавлении в корзину проверяем stockAmount конкретного размера.
 // unique(productId, size) — нельзя создать два одинаковых размера для продукта.
+export const sizeSystemEnum = pgEnum('size_system', [
+    'INT', 'UK', 'EU', 'US', 'FR', 'IT', 'DE', 'Waist', 'Waist/Length', 'Other', 'Years', 'Size (cm)'
+])
+
 export const productSize = pgTable("product_size", {
-    id: uuid("id").defaultRandom().primaryKey(),
-    productId: uuid("product_id").notNull().references(() => product.id, {onDelete: "cascade"}),
-    size: text("size").notNull(),
-    stockAmount: integer("stock_amount").notNull().default(0),
-}, (t) => [unique().on(t.productId, t.size)])
+    id: uuid('id').primaryKey().defaultRandom(),
+    productId: uuid('product_id').notNull().references(() => product.id, { onDelete: 'cascade' }),
+    size: text('size').notNull(),
+    sizeSystem: sizeSystemEnum('size_system').notNull(),
+    stockAmount: integer('stock_amount').notNull().default(0),
+}, (t) => [
+    unique().on(t.productId, t.size, t.sizeSystem) // массив вместо объекта
+])
 
 // Изображения — отдельная таблица потому что у одного продукта несколько фото.
 // isMain — главное фото для превью в каталоге.

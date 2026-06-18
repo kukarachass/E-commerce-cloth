@@ -1,4 +1,4 @@
-// src/app/[gender]/[...category]/layout.tsx
+
 import CatalogLayout from "@/components/catalog/CatalogLayout"
 import { getCategoryWithSubs } from "@/actions/category/categories"
 import { getProducts } from "@/actions/products/get-products"
@@ -12,17 +12,15 @@ import { getStyles } from "@/actions/filters/style/style"
 import { getDiscounts } from "@/actions/filters/discount/dicount"
 import { notFound } from "next/navigation"
 
-// ВАЖНО: тип теперь [...category], потому что папка стала catch-all.
-// Из-за этого category приходит как string[], а не string — это и чинит TS2344.
 export default async function CategoryLayout({
                                                  children,
                                                  params,
                                              }: LayoutProps<"/[gender]/[...category]">) {
-    const { gender, category } = await params // category: string[]
+    const { gender, category } = await params
     if (!isGender(gender)) notFound()
 
-    const categorySlug = category.join("-")       // ["clothing","coats"] → "clothing-coats"
-    const slug = `${gender}-${categorySlug}`        // "women-clothing-coats"
+    const categorySlug = category.join("-")
+    const slug = `${gender}-${categorySlug}`
 
     const categoryData = await getCategoryWithSubs(gender, slug)
 

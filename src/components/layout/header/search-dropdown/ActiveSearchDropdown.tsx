@@ -13,6 +13,7 @@ interface ActiveSearchDropwdownProps {
 
 export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdownProps) {
     const setSearchOpen = useSearchStore(state => state.setSearchOpen);
+    const gender = useGenderStore(s => s.gender);
 
     const hasBrands = (data?.brands?.length ?? 0) > 0
     const hasProducts = (data?.products?.length ?? 0) > 0
@@ -39,7 +40,7 @@ export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdo
                         <Link
                             onClick={() => setSearchOpen(false)}
                             key={b.id}
-                            href={`/brand/${b.slug}`}
+                            href={`/${gender}/brands/${b.slug}`}
                             className="block rounded px-2 py-1.5 text-sm hover:bg-gray-50"
                         >
                             <span className="font-semibold">{b.name}</span>
@@ -69,7 +70,7 @@ export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdo
                         <Link
                             onClick={() => setSearchOpen(false)}
                             key={c.id}
-                            href={`/brand/${c.slug}`}
+                            href={`/${gender}/collections/${c.slug}`}
                             className="block rounded px-2 py-1.5 text-sm hover:bg-gray-50"
                         >
                             <span className="font-semibold">{c.slug}</span>
