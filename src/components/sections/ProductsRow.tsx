@@ -1,9 +1,9 @@
 import Slider from "@/components/Slider/Slider";
-import {IProduct} from "@/components/product/IProduct";
 import ProductCard from "@/components/product/ProductCard";
+import {ProductWithDetails} from "@/types/product-details";
 
 interface IProps {
-    products: IProduct[];
+    products: ProductWithDetails[];
     title: string;
     description: string;
 }
@@ -17,12 +17,11 @@ export default function ProductsRow({ products, title, description }: IProps) {
                     <span className="text-[18px]">{description}</span>
                 </div>
             </div>
-            {/*<Slider itemsVisible={6} gap={24}>*/}
-            {/*    {products.map((product) => (*/}
-            {/*        <ProductCard variant={"noButton"} product={product}/>*/}
-            {/*    ))}*/}
-            {/*</Slider>*/}
-            /components/sections/ProductRow.tsx --- доделать
+            <Slider itemsVisible={6} gap={24}>
+                {products.map((product) => (
+                    <ProductCard key={product.id} product={product}/>
+                ))}
+            </Slider>
         </div>
     )
 }

@@ -1,17 +1,17 @@
 import Container from "@/components/layout/Сontainer";
 import Image from "next/image";
 import Link from "next/link";
-import {useGenderStore} from "@/store/useGenderStore";
+import {Gender} from "@/store/useGenderStore";
 
 interface Props {
     bannerUrl: string;
     title: string;
     description: string;
     collectionLink: string;
+    gender: Gender;
 }
 
-export default function CollectionSection({bannerUrl, collectionLink, description, title}: Props){
-    const gender = useGenderStore(s => s.gender);
+export default function CollectionSection({bannerUrl, collectionLink, description, title, gender}: Props){
     return(
         <Container>
             <div className="flex flex-row justify-between items-center w-full gap-8 py-10">

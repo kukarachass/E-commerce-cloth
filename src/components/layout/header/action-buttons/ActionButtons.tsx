@@ -44,8 +44,6 @@ export default function ActionButtons() {
     const { favBrands } = useFavouriteBrands()
     const isEmpty = favProducts?.length === 0 && favBrands?.length === 0
     const [open, setOpen] = useState(false);
-    console.log("products --->", favProducts)
-    console.log("brands --->", favBrands)
 
 
     return (

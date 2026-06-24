@@ -7,7 +7,6 @@ import {db} from "@/db";
 export async function toggleFavouriteProduct({ productId }: { productId: string }) {
     const session = await getServerSession()
     if (!session) return { success: false, error: "Unauthorized" }
-    console.log("session -------------->", session?.user?.id) // ← что здесь?
 
     const existing = await db.query.favoriteProduct.findFirst({
         where: and(

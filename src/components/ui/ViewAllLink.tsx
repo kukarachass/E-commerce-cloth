@@ -1,9 +1,10 @@
-import Link from "next/link";
-import {useGenderStore} from "@/store/useGenderStore";
+"use client"
+import {useRouter} from "next/navigation";
 
 export default function ViewAllLink({path}: { path: string }) {
-    const gender = useGenderStore(s => s.gender)
+    const router = useRouter();
+
     return (
-        <Link className="text-[var(--text)] font-[600] leading-[150%] underline" href={`/${gender}/${path}`}>View all</Link>
+        <span className="text-[var(--text)] font-[600] leading-[150%] underline cursor-pointer" onClick={() => router.replace(path)}>View all</span>
     )
 }

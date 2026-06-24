@@ -7,6 +7,7 @@ import {Toaster} from "sonner";
 import {ReactQueryClientProvider} from "@/providers/ReactQueryClientProvider";
 import PendingOrderNotifier from "@/components/account/PendingOrderNotifier";
 
+
 const cormorant = Cormorant_Garamond({
     variable: "--font-cormorant",
     subsets: ["latin"],
@@ -17,6 +18,7 @@ const sourceSans = Source_Sans_3({
     variable: "--source-sans-3",
     subsets: ["latin"]
 })
+
 
 export const metadata: Metadata = {
     title: "Create Next App",

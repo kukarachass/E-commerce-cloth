@@ -3,8 +3,11 @@
 import {useRouter} from "next/navigation";
 import CartTitle from "@/components/cart/ui/CartTitle";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
+import {ProductWithDetails} from "@/types/product-details";
+import ProductsRelated from "@/components/product/ProductsRelated";
 
-export default function EmptyCart() {
+export default function EmptyCart({ products }: { products?: ProductWithDetails[]}) {
+    if(!products) return <>No products</>
     const router = useRouter();
     return (
         <div className="max-w-[1200px] mx-auto py-10 min-h-screen">
@@ -17,7 +20,7 @@ export default function EmptyCart() {
                     Start shopping
                 </ButtonPrimary>
 
-                {/*<ProductsRelated products={products} />*/}
+                <ProductsRelated type={"related"} products={products} />
             </div>
         </div>
     )

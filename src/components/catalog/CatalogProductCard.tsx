@@ -15,7 +15,6 @@ export default function CatalogProductCard({ product }: {product: ProductWithDet
         e.preventDefault()
         e.stopPropagation()
     }
-    console.log(product.images)
 
     return(
         <Link href={`/product/${product.slug}`} className="flex flex-col gap-4 ">

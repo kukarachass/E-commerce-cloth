@@ -1,26 +1,55 @@
 import Image from "next/image";
+import cn from "classnames";
 import AddToFavButton from "@/components/favourites/AddToFavButton";
-import {IBrand} from "@/types/IBrand";
+import {ExploreBrandsData} from "@/types/homepage";
 
-interface Props{
-    brand: IBrand;
-    variant: "wide" | "default"
+interface Props {
+    brand: ExploreBrandsData;
+    variant: "wide" | "default";
 }
 
-export default function BrandCard({ brand, variant }: Props){
-    return(
-        <div className={`flex flex-col gap-3 border border-gray-200 rounded-md ${variant === "wide" ? "" : "w-full"}`}>
-            <div className={`relative h-[210px]  ${variant === "wide" ? "w-full" : "w-full"}`}>
-                <Image src={brand.logo ?? "/placeholder.jpg"} alt={brand.id} fill className="object-cover rounded-t-md w-full"/>
-                <AddToFavButton className={"absolute right-[10px] top-[10px]"} id={brand.id} type={"brand"}/>
+export default function BrandCard({ brand, variant }: Props) {
+    return (
+        <div className="group flex w-full flex-col gap-3 rounded-lg border border-transparent p-2 transition-colors duration-200 hover:border-gray-100 cursor-pointer">
+            <div className={cn(
+                "relative w-full overflow-hidden rounded-md bg-gray-50",
+                variant === "wide" ? "aspect-[21/9]" : "aspect-[3/2]"
+            )}>
+                <Image
+                    src={brand.bannerUrl}
+                    alt={brand.text}
+                    fill
+                    className="object-cover transition-transform rounded-[4px] duration-500 ease-out group-hover:scale-[1.04]"
+                />
+                <AddToFavButton
+                    className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm transition-transform duration-200 hover:scale-105"
+                    id={brand.id}
+                    type="brand"
+                />
             </div>
-            <div className="flex flex-col gap-1 px-4 pb-2">
-                <div className="flex flex-row gap-1">
-                    {brand.tags.map((t, index) => (
-                        <span key={index} className={`bg-white shadow px-1 rounded text-[12px] leading-[133%] font-[600] capitalize text-[]`}>{t}</span>
-                    ))}
+
+            <div className="flex flex-col gap-2">
+                <div className="flex flex-row flex-wrap gap-1.5">
+                    {brand.badges.map((b, index) => {
+                        const isSale = b.toLowerCase() === "sale";
+                        return (
+                            <span
+                                key={index}
+                                className={cn(
+                                    "rounded-[10px] border px-2 py-0.5 text-[11px] font-semibold uppercase tracking-[0.04em]",
+                                    isSale
+                                        ? "border-black bg-black text-white"
+                                        : "border-black/15 text-[var(--text)]"
+                                )}
+                            >
+                                {b}
+                            </span>
+                        );
+                    })}
                 </div>
-                <span className="text-[var(--text)] text-[16px] leading-[150%] font-[600]">up to {brand.maxDiscount}% off</span>
+                <span className="text-[17px] font-semibold leading-[140%] text-[var(--text)]">
+                    {brand.text}
+                </span>
             </div>
         </div>
     )

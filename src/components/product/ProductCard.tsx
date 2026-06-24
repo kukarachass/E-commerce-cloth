@@ -12,7 +12,7 @@ export default function ProductCard({ product }: IProductCardProps) {
         <Link href={`/product/${product.slug}`} className="max-w-[180px] h-full w-full">
             <div className="flex flex-col gap-4">
                 <div className="w-[180px] h-[270px] relative">
-                    <Image src={"/placeholder.jpg"} alt={"product"} fill className="object-cover rounded-[8px]"/>
+                    <Image src={product.images[0].url} alt={"product"} fill className="object-cover rounded-[4px]"/>
                 </div>
                 <div className="flex flex-col">
                     <span className="text-[var(--text)] text-[16px] leading-[150%] font-bold">{product.name}</span>
