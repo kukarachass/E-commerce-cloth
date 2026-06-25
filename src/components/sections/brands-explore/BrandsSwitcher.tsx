@@ -4,9 +4,9 @@ import {useState} from "react";
 import Slider from "@/components/Slider/Slider";
 import cn from "classnames";
 import BrandCard from "@/components/ui/cards/BrandCard";
-import {brandTypes, ExploreBrandsData} from "@/types/homepage";
+import {brandTypes, BrandWithType} from "@/types/homepage";
 
-export default function BrandsSwitcher({ brands }: { brands: ExploreBrandsData[] }) {
+export default function BrandsSwitcher({ brands }: { brands: BrandWithType[] }) {
     const [selected, setSelected] = useState<brandTypes>("popular");
     const types = Array.from(new Set(brands.map(b => b.brandType)));
     const activeItems = brands.filter(b => b.brandType === selected);
@@ -32,7 +32,7 @@ export default function BrandsSwitcher({ brands }: { brands: ExploreBrandsData[]
 
             <Slider>
                 {activeItems.map(brand => (
-                    <BrandCard key={brand.id} variant="default" brand={brand}/>
+                    <BrandCard key={brand.brand.id} variant="default" brand={brand.brand}/>
                 ))}
             </Slider>
         </div>

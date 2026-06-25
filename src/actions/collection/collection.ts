@@ -1,9 +1,9 @@
 "use server"
 
-import {Gender} from "@/store/useGenderStore";
 import {db} from "@/db";
 import {and, eq} from "drizzle-orm";
 import {collection} from "@/db/schema";
+import {Gender} from "@/hooks/useGender";
 
 interface CollectionProps {
     slug: string;

@@ -1,6 +1,5 @@
 import Container from "@/components/layout/Сontainer";
 import Breadcrumb from "@/components/ui/Breadcrumb";
-import {Gender} from "@/store/useGenderStore";
 import Image from "next/image";
 import AddToFavButton from "@/components/favourites/AddToFavButton";
 import InfoButton from "@/components/brand-page/InfoButton";
@@ -15,6 +14,7 @@ import {getColors} from "@/actions/filters/color/color";
 import {getPatterns} from "@/actions/filters/pattern/pattern";
 import {getStyles} from "@/actions/filters/style/style";
 import {getDiscounts} from "@/actions/filters/discount/dicount";
+import {Gender} from "@/hooks/useGender";
 
 interface Props {
     params: Promise<{ gender: Gender; slug: string }>

@@ -1,8 +1,8 @@
 import ViewAllLink from "@/components/ui/ViewAllLink";
 import Image from "next/image";
 import Link from "next/link";
-import {Gender} from "@/store/useGenderStore";
 import {BrandsSectionData} from "@/types/homepage";
+import {Gender} from "@/hooks/useGender";
 
 interface BrandSectionProps{
     gender: Gender;

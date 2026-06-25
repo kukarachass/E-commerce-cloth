@@ -1,9 +1,9 @@
 "use client"
 
-import { useGenderStore } from "@/store/useGenderStore"
 import Link from "next/link"
 import { IBrand } from "@/types/IBrand"
 import AddToFavButton from "@/components/favourites/AddToFavButton"
+import {useGender} from "@/hooks/useGender";
 
 interface Props {
     sections: Record<string, IBrand[]>
@@ -12,7 +12,7 @@ interface Props {
 const ALL_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
 
 export default function BrandsPage({ sections }: Props) {
-    const gender = useGenderStore(s => s.gender)
+    const gender = useGender();
 
     const sortedEntries = Object.entries(sections).sort(([a], [b]) => a.localeCompare(b))
 

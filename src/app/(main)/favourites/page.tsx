@@ -5,11 +5,11 @@ import { useState } from "react";
 import Container from "@/components/layout/Сontainer";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import {useRouter} from "next/navigation";
-import {useGenderStore} from "@/store/useGenderStore";
 import useFavouriteProducts from "@/hooks/fav/useFavouriteProducts";
 import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands";
 import CatalogProductCard from "@/components/catalog/CatalogProductCard";
 import BrandCard from "@/components/ui/cards/BrandCard";
+import {useGender} from "@/hooks/useGender";
 
 export default function FavouritesPage(){
     const { favProducts } = useFavouriteProducts()
@@ -25,7 +25,7 @@ export default function FavouritesPage(){
 
     const [selected, setSelected] = useState<"brands" | "products">(firstSelected);
     const router = useRouter()
-    const gender = useGenderStore(s => s.gender)
+    const gender = useGender();
     return(
         <Container className="flex flex-col min-h-[80vh] pb-10">
                 {!isEmpty ? (

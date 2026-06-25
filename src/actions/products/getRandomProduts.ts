@@ -1,5 +1,5 @@
-import {Gender} from "@/store/useGenderStore";
 import {db} from "@/db";
+import {Gender} from "@/hooks/useGender";
 
 interface GetRandomProductsProps{
     ids?: string[];

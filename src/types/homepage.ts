@@ -1,5 +1,6 @@
 import {productsArray} from "@/mocks/catalogStore";
 import {ProductWithDetails} from "@/types/product-details";
+import {IBrand} from "@/types/IBrand";
 
 // если у тебя уже есть отдельный тип Product (например, для size-системы) —
 // замени эту строку на импорт из него
@@ -27,16 +28,13 @@ export type BrandsSectionData = {
     badges: string[];
 };
 
-export type brandTypes = "new" | "popular" | "sport"
+export type brandTypes = "new" | "popular" | "sport";
 
-export type ExploreBrandsData = {
-    id: string;
-    bannerUrl: string;
-    badges: string[];
-    text: string;
-    slug: string;
+// не отдельный тип — просто IBrand + одно UI-поле
+export type BrandWithType = {
+    brand: IBrand;
     brandType: brandTypes;
-}
+};
 
 export type CollectionSectionData = {
     bannerUrl: string;
@@ -59,5 +57,5 @@ export type HomePageData = {
     collectionSection: CollectionSectionData;
     productsRows: ProductsRowData[];
     newInProducts: ProductWithDetails[];
-    exploreBrands: ExploreBrandsData[];
+    exploreBrands: BrandWithType[];
 };

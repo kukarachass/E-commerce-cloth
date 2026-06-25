@@ -1,14 +1,16 @@
 import Image from "next/image";
 import cn from "classnames";
 import AddToFavButton from "@/components/favourites/AddToFavButton";
-import {ExploreBrandsData} from "@/types/homepage";
+import {IBrand} from "@/types/IBrand";
 
 interface Props {
-    brand: ExploreBrandsData;
+    brand: IBrand;
     variant: "wide" | "default";
 }
 
 export default function BrandCard({ brand, variant }: Props) {
+    console.log("brand пришедший", brand);
+    console.log("tags --->", brand.tags)
     return (
         <div className="group flex w-full flex-col gap-3 rounded-lg border border-transparent p-2 transition-colors duration-200 hover:border-gray-100 cursor-pointer">
             <div className={cn(
@@ -16,8 +18,8 @@ export default function BrandCard({ brand, variant }: Props) {
                 variant === "wide" ? "aspect-[21/9]" : "aspect-[3/2]"
             )}>
                 <Image
-                    src={brand.bannerUrl}
-                    alt={brand.text}
+                    src={brand.imageUrl}
+                    alt={brand.name}
                     fill
                     className="object-cover transition-transform rounded-[4px] duration-500 ease-out group-hover:scale-[1.04]"
                 />
@@ -30,8 +32,8 @@ export default function BrandCard({ brand, variant }: Props) {
 
             <div className="flex flex-col gap-2">
                 <div className="flex flex-row flex-wrap gap-1.5">
-                    {brand.badges.map((b, index) => {
-                        const isSale = b.toLowerCase() === "sale";
+                    {brand.tags.map((t, index) => {
+                        const isSale = t.toLowerCase() === "sale";
                         return (
                             <span
                                 key={index}
@@ -42,13 +44,13 @@ export default function BrandCard({ brand, variant }: Props) {
                                         : "border-black/15 text-[var(--text)]"
                                 )}
                             >
-                                {b}
+                                {t}
                             </span>
                         );
                     })}
                 </div>
                 <span className="text-[17px] font-semibold leading-[140%] text-[var(--text)]">
-                    {brand.text}
+                    {brand.promoDetailsText}
                 </span>
             </div>
         </div>

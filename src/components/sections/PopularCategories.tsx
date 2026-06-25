@@ -1,9 +1,9 @@
 "use client"
 
-import {Gender, useGenderStore} from "@/store/useGenderStore";
 import Link from "next/link";
 import Image from "next/image";
 import ViewAllLink from "@/components/ui/ViewAllLink";
+import {Gender} from "@/hooks/useGender";
 
 
 

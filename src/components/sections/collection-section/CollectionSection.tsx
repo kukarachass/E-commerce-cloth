@@ -1,7 +1,7 @@
 import Container from "@/components/layout/Сontainer";
 import Image from "next/image";
 import Link from "next/link";
-import {Gender} from "@/store/useGenderStore";
+import {Gender} from "@/hooks/useGender";
 
 interface Props {
     bannerUrl: string;

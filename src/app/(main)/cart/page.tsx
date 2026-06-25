@@ -6,12 +6,12 @@ import {useGetCart} from "@/hooks/cart/useGetCart"
 import CartSkeleton from "@/components/cart/ui/CartSkeletonLoader";
 import ProductsRelated from "@/components/product/ProductsRelated";
 import {useGetProductsRecommendations} from "@/hooks/product/useGetProductsRecommendations";
-import {useGenderStore} from "@/store/useGenderStore";
+import {useGender} from "@/hooks/useGender";
 
 
 export default function CartPage() {
     const {data: cart, isPending, isError} = useGetCart()
-    const gender = useGenderStore(s => s.gender);
+    const gender = useGender()
     const products = cart?.items;
     const { data: recommendations, isLoading: isProductsLoading, isError: isProductsError } = useGetProductsRecommendations({gender, products});
     if (isPending) return <CartSkeleton/>

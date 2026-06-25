@@ -6,8 +6,8 @@ import { db } from "@/db"
 import { product, brand, category, productColor, color, productPattern, pattern, productStyle, style, productSize } from "@/db/schema"
 import { and, eq, gte, lte, inArray, desc, asc, sql, gt } from "drizzle-orm"
 import { getCategoryIds, collectDescendantIds, type Category } from "@/lib/db-helpers"
-import { Gender } from "@/store/useGenderStore"
 import { parseSizeFilter } from "@/lib/size-mapping"
+import {Gender} from "@/hooks/useGender";
 
 interface GetProductsProps {
     gender: Gender

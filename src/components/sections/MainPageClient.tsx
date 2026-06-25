@@ -6,9 +6,9 @@ import BrandsSection from "@/components/sections/BrandsSection";
 import CollectionSection from "@/components/sections/collection-section/CollectionSection";
 import ProductsRow from "@/components/sections/ProductsRow";
 import {HomePageData} from "@/types/homepage";
-import {Gender} from "@/store/useGenderStore";
 import SpecialOfferBlock from "@/components/sections/special-offers/SpecialOfferBlock";
 import BrandsSwitcher from "@/components/sections/brands-explore/BrandsSwitcher";
+import {Gender} from "@/hooks/useGender";
 
 interface MainPageClientProps {
     homePageData: HomePageData;

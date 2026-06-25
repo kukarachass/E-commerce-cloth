@@ -1,4 +1,4 @@
-import {Gender} from "@/store/useGenderStore";
+import {Gender} from "@/hooks/useGender";
 
 export interface FilterProps{
     gender: Gender,

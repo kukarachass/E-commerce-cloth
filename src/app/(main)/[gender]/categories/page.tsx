@@ -3,8 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import {useState, useRef, useCallback, useMemo} from "react";
-import {useGenderStore} from "@/store/useGenderStore";
-import Breadcrumb from "@/components/ui/Breadcrumb";
+import {useGender} from "@/hooks/useGender";
 
 interface Category {
     name: string;
@@ -14,8 +13,7 @@ interface Category {
 }
 
 export default function CategoriesPage() {
-    const gender = useGenderStore(s => s.gender);
-
+    const gender = useGender();
     // const data: Category[] = [
     //     {name: "Bags", img: "/category/bags.png", href: `/${gender}/accessories/bags`, tag: "Accessories"},
     //     {name: "Dresses", img: "/category/dress.jpg", href: `/${gender}/clothing/dresses`, tag: "Clothing"},

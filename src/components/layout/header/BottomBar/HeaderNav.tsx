@@ -1,13 +1,11 @@
 "use client"
 
 import Link from "next/link";
-import {useGenderStore} from "@/store/useGenderStore";
 import {useCollections} from "@/hooks/useCollections";
-import {useState} from "react";
-
+import {useGender} from "@/hooks/useGender";
 
 export default function HeaderNav(){
-    const gender = useGenderStore(s => s.gender)
+    const gender = useGender();
     const { data: collections = [] } = useCollections()
 
     return(

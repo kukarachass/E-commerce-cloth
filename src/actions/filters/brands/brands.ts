@@ -22,9 +22,9 @@ export async function getBrands({ gender, categorySlug, productIds }: FilterProp
         id: brand.id,
         name: brand.name,
         slug: brand.slug,
-        logo: brand.logo,
         tags: brand.tags,
         maxDiscount: max(product.discount),
+        promoDetailsText: brand.promoDetailsText,
     })
         .from(brand)
         .innerJoin(product, and(
@@ -33,7 +33,7 @@ export async function getBrands({ gender, categorySlug, productIds }: FilterProp
             filter,
             eq(product.isActive, true),
         ))
-        .groupBy(brand.id, brand.name, brand.slug, brand.logo, brand.tags)
+        .groupBy(brand.id, brand.name, brand.slug, brand.tags)
         .orderBy(brand.name)
 
     return result
@@ -43,6 +43,15 @@ export async function getBrand({ slug }: { slug: string }) {
     const brand = await db.query.brand.findFirst({
         where: (brand, { eq }) => eq(brand.slug, slug)
     })
+    if (!brand) throw new Error("Brand not found")
+    return brand
+}
+
+export async function getBrandById(id: string){
+    const brand = await db.query.brand.findFirst({
+        where: (brand, { eq }) => eq(brand.id, id)
+    })
+
     if (!brand) throw new Error("Brand not found")
     return brand
 }

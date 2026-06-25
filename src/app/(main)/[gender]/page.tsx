@@ -2,7 +2,7 @@
 import { notFound } from 'next/navigation'
 import MainPageClient from "@/components/sections/MainPageClient";
 import {getHomePageStore} from "@/mocks/homepageStore";
-import {Gender} from "@/store/useGenderStore";
+import {Gender} from "@/hooks/useGender";
 
 const VALID_GENDERS = ['women', 'men']
 

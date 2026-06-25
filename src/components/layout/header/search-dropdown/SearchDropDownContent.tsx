@@ -6,9 +6,9 @@ import Container from "@/components/layout/Сontainer";
 import {useSearch} from "@/hooks/search/useSearch";
 import {useSearchQueryStore} from "@/store/useSearchQueryStore";
 import ActiveSearchDropwdown from "@/components/layout/header/search-dropdown/ActiveSearchDropdown";
-import {useEffect} from "react";
 import {useGenderStore} from "@/store/useGenderStore";
 import {useSearchStore} from "@/store/useSearchOpen";
+import {useGender} from "@/hooks/useGender";
 
 const brands = [
     {href: "/popular-brands/adidas.svg"},
@@ -32,7 +32,7 @@ export default function SearchDropDownContent() {
     const setSearchOpen = useSearchStore(state => state.setSearchOpen);
     const query = useSearchQueryStore(state => state.query)
     const {data, isLoading, isError} = useSearch(query)
-    const gender = useGenderStore(s => s.gender)
+    const gender = useGender()
 
 
     if (isError) {
