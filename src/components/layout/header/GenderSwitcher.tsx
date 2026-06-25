@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import {Gender, GENDERS, useGender} from "@/hooks/useGender";
+import cn from "classnames";
 
 export default function GenderSwitcher() {
     const router = useRouter();
@@ -20,7 +21,10 @@ export default function GenderSwitcher() {
                 <button
                     key={g}
                     onClick={() => switchGender(g)}
-                    className={g === currentGender ? "font-bold" : "text-black/50"}
+                    className={cn("capitalize cursor-pointer font-[600]", {
+                        "font-bold border-b-[1px]": g === currentGender,
+                        "text-black/50": g !== currentGender,
+                    })}
                 >
                     {g}
                 </button>

@@ -61,7 +61,7 @@ export default async function BrandPage({ params, searchParams }: Props) {
             <Breadcrumb className="py-2"/>
             <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2 relative w-full aspect-[16/5]">
-                    <Image src={`${brand.logo}`} alt={brand.name} fill className="object-cover"/>                    <div className="flex flex-col gap-6 items-center absolute left-0 right-0 top-[120px]">
+                    <Image src={brand.imageUrl} alt={brand.name} fill className="object-cover"/>                    <div className="flex flex-col gap-6 items-center absolute left-0 right-0 top-[120px]">
                         <h1 className="font-[family-name:var(--font-cormorant)] [font-variant-numeric:lining-nums] tracking-wider text-[48px] text-white font-bold">{brand.name}</h1>
                         <div className="flex flex-row gap-6 items-center">
                             <AddToFavButton id={brand.id} className="cursor-pointer" type={"brand"}/>

@@ -23,8 +23,13 @@ export async function getBrands({ gender, categorySlug, productIds }: FilterProp
         name: brand.name,
         slug: brand.slug,
         tags: brand.tags,
-        maxDiscount: max(product.discount),
+        description: brand.description,
         promoDetailsText: brand.promoDetailsText,
+        imageUrl: brand.imageUrl,
+        isActive: brand.isActive,       // ← добавили
+        createdAt: brand.createdAt,     // ← добавили
+        updatedAt: brand.updatedAt,     // ← добавили
+        maxDiscount: max(product.discount),
     })
         .from(brand)
         .innerJoin(product, and(
@@ -33,9 +38,19 @@ export async function getBrands({ gender, categorySlug, productIds }: FilterProp
             filter,
             eq(product.isActive, true),
         ))
-        .groupBy(brand.id, brand.name, brand.slug, brand.tags)
+        .groupBy(
+            brand.id,
+            brand.name,
+            brand.slug,
+            brand.tags,
+            brand.description,
+            brand.promoDetailsText,
+            brand.imageUrl,
+            brand.isActive,      // ← добавили
+            brand.createdAt,     // ← добавили
+            brand.updatedAt,     // ← добавили
+        )
         .orderBy(brand.name)
-
     return result
 }
 
