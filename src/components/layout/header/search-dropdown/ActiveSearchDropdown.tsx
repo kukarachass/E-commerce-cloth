@@ -5,6 +5,7 @@ import Link from "next/link";
 import SearchProductCard from "@/components/product/SearchProductCard";
 import {useSearchStore} from "@/store/useSearchOpen";
 import {useGenderStore} from "@/store/useGenderStore";
+import {useGender} from "@/hooks/useGender";
 
 interface ActiveSearchDropwdownProps {
     data: SearchResult | undefined;
@@ -13,7 +14,7 @@ interface ActiveSearchDropwdownProps {
 
 export default function ActiveSearchDropwdown({data, query}: ActiveSearchDropwdownProps) {
     const setSearchOpen = useSearchStore(state => state.setSearchOpen);
-    const gender = useGenderStore(s => s.gender);
+    const gender = useGender();
 
     const hasBrands = (data?.brands?.length ?? 0) > 0
     const hasProducts = (data?.products?.length ?? 0) > 0

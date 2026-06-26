@@ -1,31 +1,33 @@
 "use client"
 
-
-import {useRouter} from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import {Gender, GENDERS, useGender} from "@/hooks/useGender";
 import cn from "classnames";
-import {useGenderStore} from "@/store/useGenderStore";
 
-export default function GenderSwitcher(){
+export default function GenderSwitcher() {
     const router = useRouter();
-    const setGender = useGenderStore(state => state.setGender)
-    const gender = useGenderStore(state => state.gender)
+    const currentGender = useGender();
 
-
-    const handleGender = (gender: "women" | "men") => {
-        setGender(gender);
-        router.push(`/${gender}`);
+    function switchGender(newGender: Gender) {
+        // const segments = pathname.split("/");
+        // segments[1] = newGender;
+        router.push(`/${newGender}`);
     }
 
-    return(
-        <div className="flex flex-row items-center gap-4">
-            <button className={cn("text-[16px] cursor-pointer font-bold", {
-                ["text-black border-b"]: gender === "women",
-                ["text-[#999]"]: gender !== "women",
-            })} onClick={() => handleGender("women")}>Women</button>
-            <button className={cn("text-[16px] cursor-pointer font-bold",{
-                ["text-black border-b"]: gender === "men",
-                ["text-[#999]"]: gender !== "men",
-            })} onClick={() => handleGender("men")}>Man</button>
+    return (
+        <div className="flex gap-2">
+            {GENDERS.map(g => (
+                <button
+                    key={g}
+                    onClick={() => switchGender(g)}
+                    className={cn("capitalize cursor-pointer font-[600]", {
+                        "font-bold border-b-[1px]": g === currentGender,
+                        "text-black/50": g !== currentGender,
+                    })}
+                >
+                    {g}
+                </button>
+            ))}
         </div>
-    )
+    );
 }

@@ -27,21 +27,21 @@ async function seedCollections() {
 
     // Берём продукты подходящие для летней коллекции
     const summerSlugs = [
-        "triangle-bikini-set-women",
-        "one-piece-swimsuit-ribbed",
-        "high-waist-bikini-bottom",
-        "leather-strappy-sandal-women",
-        "platform-sandal-cork-sole",
-        "canvas-espadrille-wedge-women",
-        "stripe-jute-espadrilles-women",
-        "floral-wrap-midi-dress",
-        "striped-cotton-shirt-dress",
-        "pleated-midi-skirt",
-        "floral-print-wrap-skirt",
-        "linen-cropped-top-women",
-        "wide-leg-linen-trousers-women",
-        "linen-wide-leg-jumpsuit",
-        "toe-post-flat-sandal-women",
+        "women-sportswear-sports-accessories-1",
+        "women-clothing-coats-single-breasted-coats-1",
+        "women-accessories-sunglasses-2",
+        "women-clothing-shirts-and-tops-blouses-1",
+        "women-clothing-jackets-faux-fur-jackets-3",
+        "women-clothing-nightwear-dressing-gowns-and-kimonos-1",
+        "women-clothing-shirts-and-tops-tanks-and-camis-2",
+        "women-clothing-coats-double-breasted-coats-2",
+        "women-clothing-coats-wrap-coats-1",
+        "women-clothing-skirts-maxi-skirts-3",
+        "women-sportswear-skiwear-3",
+        "women-shoes-boots-1",
+        "women-clothing-swimwear-tankinis-1",
+        "women-accessories-bags-3",
+        "women-clothing-coats-parkas-2",
     ]
 
     const products = await db.select({ id: product.id })

@@ -259,7 +259,6 @@ const descriptions: Record<string, string> = {
 }
 
 async function updateDescriptions() {
-    console.log("Updating product descriptions...")
 
     let updated = 0
     let notFound = 0
@@ -279,13 +278,11 @@ async function updateDescriptions() {
         }
     }
 
-    console.log(`✓ ${updated} products updated (${notFound} not found)`)
 }
 
 async function main() {
     try {
         await updateDescriptions()
-        console.log("\n✅ Descriptions update completed successfully")
     } catch (error) {
         console.error("❌ Update failed:", error)
         process.exit(1)

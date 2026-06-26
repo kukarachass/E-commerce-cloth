@@ -1,73 +1,76 @@
-"use client"
-
-import {useGenderStore} from "@/store/useGenderStore";
 import Container from "@/components/layout/Сontainer";
 import HeroBanner from "@/components/sections/hero-banner/HeroBanner";
 import PopularCategories from "@/components/sections/PopularCategories";
-import SpecialOffers from "@/components/sections/special-offers/SpecialOffers";
 import NewIn from "@/components/sections/new-in/NewIn";
 import BrandsSection from "@/components/sections/BrandsSection";
-import ExploreBrands from "@/components/sections/brands-explore/ExploreBrands";
 import CollectionSection from "@/components/sections/collection-section/CollectionSection";
 import ProductsRow from "@/components/sections/ProductsRow";
-import {productsArray} from "@/mocks/catalogStore";
+import {HomePageData} from "@/types/homepage";
+import SpecialOfferBlock from "@/components/sections/special-offers/SpecialOfferBlock";
+import BrandsSwitcher from "@/components/sections/brands-explore/BrandsSwitcher";
+import {Gender} from "@/hooks/useGender";
+import {getCollection, getCollections} from "@/actions/collection/collection";
+import Link from "next/link";
 
-export default function MainPageClient() {
-    const gender = useGenderStore(s => s.gender)
+interface MainPageClientProps {
+    homePageData: HomePageData;
+    gender: Gender;
+}
+
+// async не нужен — данные уже зарезолвлены в page.tsx и приходят готовым пропом,
+// внутри компонента никакого await нет
+export default function MainPageClient({homePageData, gender}: MainPageClientProps) {
+    const {specialOffers, collectionSection, brandsSection, productsRows, heroBanner, newInProducts} = homePageData;
 
     return (
         <Container>
-            <div className="pb-6">
+            <div className="">
                 <HeroBanner
-                    buttonText={"O-Deal"}
-                    buttonUrl={`/${gender}/collections/o-deals`}
-                    imageUrl={"/banners/hero-banner-w.jpg"}
-                    title="10% extra off"
-                    description="Iconic brands, limited time, unbeatable deals"
+                    buttonText={heroBanner.buttonText}
+                    buttonUrl={`/${gender}${heroBanner.buttonUrlTemplate}`}
+                    imageUrl={heroBanner.imageUrl}
+                    title={heroBanner.title}
+                    description={heroBanner.description}
                 />
             </div>
-            <div className="pb-8">
-                <PopularCategories/>
+
+            <div className="py-10">
+                <PopularCategories gender={gender}/>
             </div>
 
-            <SpecialOffers/>
-            <NewIn/>
+            <div className="flex flex-row gap-6 py-10">
+                {specialOffers.map((offer) => (
+                    <SpecialOfferBlock key={offer.id} offer={offer}/>
+                ))}
 
-            <BrandsSection/>
+            </div>
+            <NewIn products={newInProducts}/>
 
-            <div className="pb-8">
-                <ExploreBrands/>
+            <BrandsSection gender={gender} brandData={brandsSection}/>
+
+            <div className="flex flex-col gap-6 pb-8">
+                <div className="flex flex-col gap-4">
+                    <h1 className="text-[var(--text)] text-[24px] font-bold leading-[125%]">Explore more</h1>
+                </div>
+                <BrandsSwitcher brands={homePageData.exploreBrands}/>
             </div>
 
             <CollectionSection
-                bannerUrl={"/banners/collection-banner.webp"}
-                description={"From beach days to late sunset drinks — this is your go-to summer edit."}
-                title={"Everything Summer"}
-                collectionLink={"everything-summer"}
+                gender={gender}
+                bannerUrl={collectionSection.bannerUrl}
+                description={collectionSection.description}
+                title={collectionSection.title}
+                collectionLink={collectionSection.collectionLink}
             />
 
-            <ProductsRow
-                products={productsArray}
-                title={"New at Otrium: adidas – up to 55% off"}
-                description={"Check out the launch collection and shop your Three Stripes now."}
-            />
-            <ProductsRow
-                products={productsArray}
-                title={"Festival fits: up to 75% off"}
-                description={"Headliner-worthy looks have arrived. Time to shop your festival wardrobe."}
-            />
-            <ProductsRow
-                products={productsArray}
-                title="Denim Deals: all under £47"
-                description="Legendary denim brands at unbeatable prices. Your perfect pair is waiting."
-            />
-            <ProductsRow
-                products={productsArray}
-                title={"The perfect pants – up to 75% off"}
-                description="From everyday staples to iconic statements, elevate every outfit with our trouser collection."
-
-            />
-
+            {productsRows.map(row => (
+                <ProductsRow
+                    key={row.id}
+                    products={row.products}
+                    title={row.title}
+                    description={row.description}
+                />
+            ))}
         </Container>
     )
 }

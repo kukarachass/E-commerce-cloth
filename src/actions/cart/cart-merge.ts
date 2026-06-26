@@ -61,7 +61,6 @@ export default async function MergeCart(opts: {
                 .set({ userId, token: null })
                 .where(eq(cart.id, guestCart.id))
                 .returning()
-            console.log("юзерской корзины нету, должна создаться юзерская корзина с айтемами из гостевой")
 
             return { ...updated, items: guestCart.items }
         } catch {
@@ -71,7 +70,6 @@ export default async function MergeCart(opts: {
                 with: { items: true },
             })
 
-            console.log("упал в catch на 67 строке")
 
             if (!existing) throw new Error("Cart not found after conflict in merge")
             return existing
@@ -80,7 +78,6 @@ export default async function MergeCart(opts: {
 
     // Обе корзины есть — мержим items из гостевой в юзерскую
     for (const item of guestCart.items) {
-        console.log("происходит мердж корзин")
         const existing = await tx.query.cartItem.findFirst({
             where: (cartItem, { eq, and }) => and(
                 eq(cartItem.cartId, userCart.id),

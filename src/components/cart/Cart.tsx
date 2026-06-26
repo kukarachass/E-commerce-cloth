@@ -2,21 +2,16 @@
 
 import CartTitle from "@/components/cart/ui/CartTitle";
 import InfoSvg from "@/components/ui/icons/InfoSvg";
-import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import SummaryBlock from "@/components/cart/ui/SummaryBlock/SummaryBlock";
 import FreeShippingProgress from "@/components/cart/ui/FreeShippingProgressBar";
-import {useRouter} from "next/navigation";
 import {CartWithConfig} from "@/types/cart";
 import CartItem from "@/components/cart/CartItem";
-import {useGenderStore} from "@/store/useGenderStore";
 
 interface Props {
     cart: CartWithConfig;
 }
 
 export default function Cart({ cart }: Props){
-    const gender = useGenderStore(s => s.gender);
-    const router = useRouter();
     const cartItems = cart.items;
 
     return(

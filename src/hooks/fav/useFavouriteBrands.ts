@@ -19,6 +19,7 @@ export default function useFavouriteBrands() {
     const { mutate: toggleFavMutate } = useMutation({
         mutationFn: (brandId: string) => toggleFavouriteBrand({ brandId }),
         onSuccess: async (data) => {
+            if(!data.success) toast.error("no")
             if (data?.action === "added") {
                 toast.success("Added to favourites")
             } else if (data?.action === "removed") {

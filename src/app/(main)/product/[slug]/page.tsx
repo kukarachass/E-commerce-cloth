@@ -5,6 +5,7 @@ import ProductsRelated from "@/components/product/ProductsRelated";
 import {productsArray} from "@/mocks/catalogStore";
 import {getProduct} from "@/actions/products/get-product";
 import {notFound} from "next/navigation";
+import getCompleteTheLook from "@/actions/category/completeTheLook";
 
 interface Props {
     params: Promise<{
@@ -15,11 +16,14 @@ interface Props {
 export default async function ProductPage({params}: Props) {
     const { slug } = await params;
     const product = await getProduct({ slug });
-    console.log(product);
     if (!product) notFound()
+    const { gender, categoryId } = product;
+
+    const completeTheLookProducts = await getCompleteTheLook({ gender, categoryId });
 
     return (
         <div className="max-w-[1200px] mx-auto pb-10">
+            {product.gender}
             <div className="flex flex-col">
                 <div className="py-4">
                     <Breadcrumb/>
@@ -33,8 +37,8 @@ export default async function ProductPage({params}: Props) {
                     </div>
                 </div>
                 <div className="flex flex-col gap-8">
-                    <ProductsRelated type={"related"} currentId={product.id} products={productsArray}/>
-                    <ProductsRelated type={"complete-look"} currentId={product.id} products={productsArray}/>
+                    {/*<ProductsRelated type={"related"} currentId={product.id} products={productsArray}/>*/}
+                    <ProductsRelated type={"complete-look"} currentId={product.id} products={completeTheLookProducts}/>
                 </div>
 
             </div>

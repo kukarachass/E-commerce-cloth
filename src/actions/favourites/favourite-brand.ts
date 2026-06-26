@@ -44,19 +44,13 @@ export async function getFavouriteBrands() {
     const session = await getServerSession();
     if (!session) return null;
 
-    return db.select({
-        id: brand.id,
-        name: brand.name,
-        slug: brand.slug,
-        logo: brand.logo,
-        tags: brand.tags,
-        maxDiscount: max(product.discount),
-        addedAt: max(favoriteBrand.createdAt), // ← берём дату добавления
-    })
-        .from(favoriteBrand)
-        .innerJoin(product, eq(product.brandId, favoriteBrand.brandId))
-        .innerJoin(brand, eq(brand.id, favoriteBrand.brandId))
-        .where(eq(favoriteBrand.userId, session.user.id))
-        .groupBy(brand.id, brand.name, brand.slug, brand.logo, brand.tags)
-        .orderBy(({ addedAt }) => desc(addedAt)) // ← сортируем по дате
+    const result = await db.query.favoriteBrand.findMany({
+        where: eq(favoriteBrand.userId, session.user.id),
+        with: {
+            brand: true, // возвращает полный IBrand — все поля схемы
+        },
+        orderBy: desc(favoriteBrand.createdAt),
+    });
+
+    return result.map(r => r.brand);
 }

@@ -1,8 +1,6 @@
-
 import CatalogLayout from "@/components/catalog/CatalogLayout"
 import { getCategoryWithSubs } from "@/actions/category/categories"
 import { getProducts } from "@/actions/products/get-products"
-import { isGender } from "@/store/useGenderStore"
 import { getBrands } from "@/actions/filters/brands/brands"
 import { getSizes } from "@/actions/filters/sizes/sizes"
 import { getPrice } from "@/actions/filters/price/price"
@@ -11,6 +9,7 @@ import { getPatterns } from "@/actions/filters/pattern/pattern"
 import { getStyles } from "@/actions/filters/style/style"
 import { getDiscounts } from "@/actions/filters/discount/dicount"
 import { notFound } from "next/navigation"
+import {isGender} from "@/lib/isGender";
 
 export default async function CategoryLayout({
                                                  children,

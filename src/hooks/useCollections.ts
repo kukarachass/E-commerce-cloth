@@ -3,10 +3,10 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { getCollections } from "@/actions/collection/collection"
-import { useGenderStore } from "@/store/useGenderStore"
+import {useGender} from "@/hooks/useGender";
 
 export function useCollections() {
-    const gender = useGenderStore(s => s.gender)
+    const gender = useGender();
 
     return useQuery({
         queryKey: ["collections", gender],

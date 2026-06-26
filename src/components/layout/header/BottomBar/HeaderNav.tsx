@@ -1,44 +1,57 @@
 "use client"
 
 import Link from "next/link";
-import {useGenderStore} from "@/store/useGenderStore";
-import {useCollections} from "@/hooks/useCollections";
+import { usePathname } from "next/navigation";
+import { useCollections } from "@/hooks/useCollections";
+import { useGender } from "@/hooks/useGender";
 
+export default function HeaderNav() {
+    const gender = useGender();
+    const pathname = usePathname();
+    const { data: collections = [] } = useCollections();
 
-export default function HeaderNav(){
-    const gender = useGenderStore(s => s.gender)
-    const { data: collections = [] } = useCollections()
+    const links = [
+        { href: `/${gender}/new-items`,    label: "New items"   },
+        { href: `/${gender}/brands`,        label: "Brands"      },
+        ...collections.map((c) => ({
+            href: `/${gender}/collections/${c.slug}`,
+            label: c.title,
+        })),
+        { href: `/${gender}/clothing`,     label: "Clothing"    },
+        { href: `/${gender}/sportswear`,   label: "Sportswear"  },
+        { href: `/${gender}/shoes`,        label: "Shoes"       },
+        { href: `/${gender}/accessories`,  label: "Accessories" },
+    ];
 
-    return(
-        <div className="flex flex-row gap-8 items-center text-[var(--text)] text-[16px] capitalize">
-            <Link href={`/${gender}/women-accessories-bags`}>
-                t-shirts
-            </Link>
-            <Link href={`/${gender}/new-items`}>
-                New items
-            </Link>
-            <Link href={`/${gender}/brands`}>
-                Brands
-            </Link>
-            {collections.map((c) => (
-                <div key={c.id} className="flex flex-row gap-8">
-                    <Link href={`/${gender}/collections/${c.slug}`}>
-                        {c.title}
+    const isActive = (href: string) =>
+        pathname === href || pathname.startsWith(href + "/");
+
+    return (
+        <nav className="flex flex-row items-center gap-7">
+            {links.map((link) => {
+                const active = isActive(link.href);
+                return (
+                    <Link
+                        key={link.href}
+                        href={link.href}
+                        className={[
+                            // base
+                            "relative pb-[3px]",
+                            "font-medium",
+                            "transition-colors duration-200",
+                            // underline via after pseudo-element
+                            "after:absolute after:bottom-0 after:left-0 after:h-[1px]",
+                            "after:transition-[width] after:duration-300 after:ease-out",
+                            // state
+                            active
+                                ? "text-[var(--text)] after:w-full after:bg-[var(--text)]"
+                                : "text-neutral-400 after:w-0 after:bg-[var(--text)] hover:text-[var(--text)] hover:after:w-full",
+                        ].join(" ")}
+                    >
+                        {link.label}
                     </Link>
-                </div>
-            ))}
-            <Link href={`/${gender}/clothing`}>
-                Clothing
-            </Link>
-            <Link href={`/${gender}/sportswear`}>
-                Sportswear
-            </Link>
-            <Link href={`/${gender}/shoes`}>
-                Shoes
-            </Link>
-            <Link href={`/${gender}/accessories`}>
-                Accessories
-            </Link>
-        </div>
-    )
+                );
+            })}
+        </nav>
+    );
 }

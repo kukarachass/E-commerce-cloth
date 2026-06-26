@@ -187,10 +187,11 @@ export const address = pgTable("address", {
 // isActive — скрыть бренд без удаления из БД.
 export const brand = pgTable("brand", {
     id: uuid("id").defaultRandom().primaryKey(),
+    imageUrl: text("image_url").notNull(),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
-    description: text("description"),
-    logo: text("logo"),
+    description: text("description").notNull(),
+    promoDetailsText: text("promo_details_text"),
     tags: text("tags").array().default([]).notNull(),
     isActive: boolean("is_active").default(true).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

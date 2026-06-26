@@ -5,7 +5,6 @@ import CatalogContainer from "@/components/catalog/CatalogContainer"
 import Container from "@/components/layout/Сontainer"
 import {getCollection} from "@/actions/collection/collection"
 import {getProducts} from "@/actions/products/get-products"
-import {Gender} from "@/store/useGenderStore"
 import {getBrands} from "@/actions/filters/brands/brands";
 import {getSizes} from "@/actions/filters/sizes/sizes";
 import {getPrice} from "@/actions/filters/price/price";
@@ -13,6 +12,8 @@ import {getColors} from "@/actions/filters/color/color";
 import {getPatterns} from "@/actions/filters/pattern/pattern";
 import {getStyles} from "@/actions/filters/style/style";
 import {getDiscounts} from "@/actions/filters/discount/dicount";
+import {Gender} from "@/hooks/useGender";
+import {notFound} from "next/navigation";
 
 interface Props {
     params: Promise<{ gender: Gender; collection: string }>
@@ -33,6 +34,7 @@ export default async function CollectionPage({params, searchParams}: Props) {
     const filters = await searchParams
 
     const collectionData = await getCollection({ slug: collectionSlug, gender })
+    if (!collectionData) notFound()
     const collectionProductIds = (collectionData?.products ?? []).map(p => p.productId)
 
 

@@ -26,4 +26,3 @@ export async function getCategoryWithSubs(gender: Gender, slug: string) {
 }
 
 const response = await getCategoryWithSubs("women", "women-clothing-coats-trenchcoats");
-console.log(response);

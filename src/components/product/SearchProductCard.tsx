@@ -9,7 +9,6 @@ interface SearchProductCardProps {
 
 export default function SearchProductCard({product}: SearchProductCardProps) {
 
-    console.log("IMAGE URL ---->", product.imageUrl);
     return (
         <div className="flex flex-col gap-4">
             <div className="relative aspect-[185/280] w-full max-w-[185px]">

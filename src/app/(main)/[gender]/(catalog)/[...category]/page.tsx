@@ -1,9 +1,9 @@
 
 import { getProducts } from "@/actions/products/get-products"
 import CatalogContainer from "@/components/catalog/CatalogContainer"
-import { isGender } from "@/store/useGenderStore"
 import { getCategoryWithSubs } from "@/actions/category/categories"
 import { notFound } from "next/navigation"
+import {isGender} from "@/lib/isGender";
 
 export default async function CategoryPage({
                                                params,
