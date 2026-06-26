@@ -4,8 +4,9 @@ import {useEffect, useState} from "react";
 import BrandInfoSvg from "@/components/ui/icons/BrandInfoSvg";
 import CloseButtonSvg from "@/components/ui/buttons/CloseButtonSvg";
 import Image from "next/image";
+import {IBrand} from "@/types/IBrand";
 
-export default function InfoButton({brandName}: { brandName: string }) {
+export default function InfoButton({brand }: { brand: IBrand }) {
     const [open, setOpen] = useState(false);
     useEffect(() => {
         if (open) {
@@ -27,17 +28,17 @@ export default function InfoButton({brandName}: { brandName: string }) {
                     <div className='flex flex-col gap-4 rounded-[10px] bg-white w-full max-w-[600px] p-4'>
                         <div className='flex flex-row items-center relative'>
                             <h1 className="flex-1 text-center text-[var(--text)] text-[24px] font-bold">
-                                About {brandName}
+                                About {brand.name}
                             </h1>
                             <button className="absolute right-0 cursor-pointer" onClick={() => setOpen(false)}>
                                 <CloseButtonSvg className="stroke-black"/>
                             </button>
                         </div>
-                        <div className="relative w-full aspect-[16/5]">
-                            <Image className="rounded" src={"/banners/model-banner.jpg"} alt={"fdsfsdfsf"} fill/>
+                        <div className="relative w-full aspect-[16/5] overflow-hidden">
+                            <Image className="object-cover rounded" src={brand.imageUrl} alt={brand.name} fill/>
                         </div>
                         <div className='text-[16px] text-[var(--muted)]'>
-                            Lorem ipsum dolor sit amet, consectetur adipisicing elit. Aliquid aperiam, aut, debitis excepturi laudantium non numquam obcaecati odio officiis quam quia saepe sapiente sequi, soluta tempora tenetur ullam voluptas. Voluptate.
+                            {brand.description}
                         </div>
                     </div>
                 </div>
