@@ -5,8 +5,10 @@ import {formatPrice} from "@/lib/formatPrice";
 import Link from "next/link";
 import {ProductWithDetails} from "@/types/product-details";
 import AddToFavButton from "@/components/favourites/AddToFavButton";
+import {useRouter} from "next/navigation";
 
 export default function CatalogProductCard({ product }: {product: ProductWithDetails }) {
+    const router = useRouter();
     const sizes = product.sizes.length > 5
         ? `${product.sizes.length} available`
         : product.sizes.map(s => s.size)
@@ -17,7 +19,7 @@ export default function CatalogProductCard({ product }: {product: ProductWithDet
     }
 
     return(
-        <Link href={`/product/${product.slug}`} className="flex flex-col gap-4 ">
+        <div onClick={() => router.push(`/product/${product.slug}`)} className="flex flex-col gap-4 ">
             <div className="group relative w-[290px] h-[435px]">
                 <Image className="rounded"     src={product.images[0]?.url ?? "/placeholder.jpg"}
                        alt={product.name} fill/>
@@ -29,6 +31,6 @@ export default function CatalogProductCard({ product }: {product: ProductWithDet
                 <span className="leading-[150%] font-[600]">{formatPrice(Number(product.originalPrice))}</span>
                 <span className="leading-[143%] text-[#999]">{Array.isArray(sizes) ? sizes.join(" / ") : sizes}</span>
             </div>
-        </Link>
+        </div>
     )
 }

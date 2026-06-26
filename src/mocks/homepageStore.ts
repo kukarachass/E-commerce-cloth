@@ -16,7 +16,7 @@ export async function getHomePageStore(gender: Gender): Promise<HomePageData> {
             title: "10% extra off",
             description: "Iconic brands, limited time, unbeatable deals",
             buttonText: "SUMMER",
-            buttonUrlTemplate: "/collections/everything-summer",
+            buttonUrlTemplate: `/collections/everything-summer-${gender}`,
             imageUrl: "/banners/hero-banner-v2.jpg",
         },
 
@@ -26,17 +26,22 @@ export async function getHomePageStore(gender: Gender): Promise<HomePageData> {
                 imageUrl: `/banners/spec-offer/${gender === "women" ? "women/spec-offer-women-1.png" : "men/spec-offer-men-1.png"}`,
                 title: "10% extra off. Code O-DEAL.",
                 dealEnd: new Date(Date.now() + 7 * 60 * 60 * 1000 + 21 * 60 * 1000),
+                link: `${gender}/brands/tommy-hilfiger`,
             },
             {
                 id: "offer-2",
                 imageUrl: `/banners/spec-offer/${gender === "women" ? "women/spec-offer-women-2.png" : "men/spec-offer-men-2.png"}`,
-                title: "15% extra off. Code SUMMER15.",
-                dealEnd: new Date(Date.now() + 3 * 60 * 60 * 1000),
+                title: "Local highlights",
+                subtitle: "Shop now",
+                link: `${gender}/clothing?brand=lacoste&brand=levis`,
+
             },
             {
                 id: "offer-3",
                 imageUrl: `/banners/spec-offer/${gender === "women" ? "women/spec-offer-women-3.png" : "men/spec-offer-men-3.png"}`,
-                title: "Free shipping over €50",
+                title: "New brand, better deals",
+                subtitle: "Up to 65% off the first drops",
+                link: `${gender}/clothing?brand=nike&brand=adidas`,
             },
         ],
 
@@ -49,10 +54,10 @@ export async function getHomePageStore(gender: Gender): Promise<HomePageData> {
         },
 
         collectionSection: {
-            bannerUrl: "/banners/collection-banner.webp",
+            bannerUrl: `/banners/collection-banner/${gender}/banner.webp`,
             title: "Everything Summer",
             description: "From beach days to late sunset drinks — this is your go-to summer edit.",
-            collectionLink: "everything-summer",
+            collectionLink: `everything-summer-${gender}`,
         },
         exploreBrands: [
             {
@@ -111,12 +116,12 @@ export async function getHomePageStore(gender: Gender): Promise<HomePageData> {
                 description: "Check out the launch collection and shop your Three Stripes now.",
                 products: adidasProducts,
             },
-            {
-                id: "New: Calvin Klein",
-                title: "Up to 60% off the first drop",
-                description: "Headliner-worthy looks have arrived. Time to shop your festival wardrobe.",
-                products: calvinKleinProducts,
-            },
+            // {
+            //     id: "New: Calvin Klein",
+            //     title: "Up to 60% off the first drop",
+            //     description: "Headliner-worthy looks have arrived. Time to shop your festival wardrobe.",
+            //     products: calvinKleinProducts,
+            // },
             {
                 id: "row-nike",
                 title: "New drop: & Nike",

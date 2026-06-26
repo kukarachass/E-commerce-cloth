@@ -13,6 +13,7 @@ import {getPatterns} from "@/actions/filters/pattern/pattern";
 import {getStyles} from "@/actions/filters/style/style";
 import {getDiscounts} from "@/actions/filters/discount/dicount";
 import {Gender} from "@/hooks/useGender";
+import {notFound} from "next/navigation";
 
 interface Props {
     params: Promise<{ gender: Gender; collection: string }>
@@ -33,6 +34,7 @@ export default async function CollectionPage({params, searchParams}: Props) {
     const filters = await searchParams
 
     const collectionData = await getCollection({ slug: collectionSlug, gender })
+    if (!collectionData) notFound()
     const collectionProductIds = (collectionData?.products ?? []).map(p => p.productId)
 
 

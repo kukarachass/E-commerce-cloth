@@ -1,7 +1,11 @@
+"use client"
+
 import Image from "next/image";
 import cn from "classnames";
 import AddToFavButton from "@/components/favourites/AddToFavButton";
 import {IBrand} from "@/types/IBrand";
+import {usePathname, useRouter} from "next/navigation";
+import {useGender} from "@/hooks/useGender";
 
 interface Props {
     brand: IBrand;
@@ -9,10 +13,11 @@ interface Props {
 }
 
 export default function BrandCard({ brand, variant }: Props) {
-    console.log("brand пришедший", brand);
-    console.log("tags --->", brand.tags)
+    const router = useRouter();
+    const gender = useGender();
+
     return (
-        <div className="group flex w-full flex-col gap-3 rounded-lg border border-transparent p-2 transition-colors duration-200 hover:border-gray-100 cursor-pointer">
+        <div onClick={() => router.push(`${gender}/brands/${brand.slug}`)} className="group flex w-full flex-col gap-3 rounded-lg border border-transparent p-2 transition-colors duration-200 hover:border-gray-100 cursor-pointer">
             <div className={cn(
                 "relative w-full overflow-hidden rounded-md bg-gray-50",
                 variant === "wide" ? "aspect-[21/9]" : "aspect-[3/2]"

@@ -20,12 +20,12 @@ export default function PopularCategories({ gender }: { gender: Gender }) {
     ]
 
     const menCat = [
-        { id: "1", name: "T-shirts", url: "/pop-cat/men/pop-cat-t-shirt.png", href: `men/clothing/t-shirts-and-polos`},
+        { id: "1", name: "T-shirts", url: "/pop-cat/men/pop-cat-t-shirt.png", href: `/men/clothing/t-shirts-and-polos`},
         { id: "2", name: "Jeans", url: "/pop-cat/men/pop-cat-jeans.png", href: `/men/clothing/jeans`},
-        { id: "3", name: "Trainers", url: "/pop-cat/men/pop-cat-trainers.png", href: `/men/clothing/trainers`},
+        { id: "3", name: "Trainers", url: "/pop-cat/men/pop-cat-trainers.png", href: `/men/shoes/trainers`},
 
-        { id: "4", name: "Jackets", url: "/pop-cat/men/pop-cat-jackets.jpg", href: `/men/shoes/jackets`},
-        { id: "5", name: "Shirts", url: "/pop-cat/men/pop-cat-shirts.png", href: `/men/accessories/shirts`},
+        { id: "4", name: "Jackets", url: "/pop-cat/men/pop-cat-jackets.jpg", href: `/men/clothing/jackets`},
+        { id: "5", name: "Shirts", url: "/pop-cat/men/pop-cat-shirts.png", href: `/men/clothing/shirts`},
         { id: "6", name: "Sports Clothing & Apparel", url: "/pop-cat/men/pop-cat-sports.png", href: `/men/sportswear`}
     ]
 

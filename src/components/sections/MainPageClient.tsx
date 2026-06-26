@@ -9,6 +9,8 @@ import {HomePageData} from "@/types/homepage";
 import SpecialOfferBlock from "@/components/sections/special-offers/SpecialOfferBlock";
 import BrandsSwitcher from "@/components/sections/brands-explore/BrandsSwitcher";
 import {Gender} from "@/hooks/useGender";
+import {getCollection, getCollections} from "@/actions/collection/collection";
+import Link from "next/link";
 
 interface MainPageClientProps {
     homePageData: HomePageData;
@@ -17,12 +19,12 @@ interface MainPageClientProps {
 
 // async не нужен — данные уже зарезолвлены в page.tsx и приходят готовым пропом,
 // внутри компонента никакого await нет
-export default function MainPageClient({ homePageData, gender }: MainPageClientProps) {
+export default function MainPageClient({homePageData, gender}: MainPageClientProps) {
     const {specialOffers, collectionSection, brandsSection, productsRows, heroBanner, newInProducts} = homePageData;
 
     return (
         <Container>
-            <div className="pb-6">
+            <div className="">
                 <HeroBanner
                     buttonText={heroBanner.buttonText}
                     buttonUrl={`/${gender}${heroBanner.buttonUrlTemplate}`}
@@ -32,13 +34,13 @@ export default function MainPageClient({ homePageData, gender }: MainPageClientP
                 />
             </div>
 
-            <div className="pb-8">
+            <div className="py-10">
                 <PopularCategories gender={gender}/>
             </div>
 
-            <div className="flex flex-row gap-6">
+            <div className="flex flex-row gap-6 py-10">
                 {specialOffers.map((offer) => (
-                    <SpecialOfferBlock offer={offer} key={offer.id}/>
+                    <SpecialOfferBlock key={offer.id} offer={offer}/>
                 ))}
 
             </div>

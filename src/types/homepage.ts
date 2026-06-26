@@ -17,7 +17,9 @@ export type SpecialOfferData = {
     id: string;
     imageUrl: string;
     title: string;
+    subtitle?: string;
     dealEnd?: Date; // нет значения — таймер не рендерится
+    link: string;
 };
 
 export type BrandsSectionData = {

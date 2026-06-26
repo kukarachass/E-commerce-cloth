@@ -6,6 +6,7 @@ import { Cormorant_Garamond } from "next/font/google"
 import {Toaster} from "sonner";
 import {ReactQueryClientProvider} from "@/providers/ReactQueryClientProvider";
 import PendingOrderNotifier from "@/components/account/PendingOrderNotifier";
+import FavAuthModal from "@/components/favourites/FavAuthModal";
 
 
 const cormorant = Cormorant_Garamond({
@@ -32,9 +33,10 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <html lang="en" className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}>
         <body className={`${sourceSans.className} min-h-screen flex flex-col`}>
         <ReactQueryClientProvider>
+            <FavAuthModal/>
             <PendingOrderNotifier/>
             <ScrollToTop/>
-            <Toaster position="bottom-center" richColors/>
+            <Toaster position="bottom-center" theme={"dark"}/>
             {children}
         </ReactQueryClientProvider>
         </body>

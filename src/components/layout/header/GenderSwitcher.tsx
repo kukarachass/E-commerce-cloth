@@ -6,13 +6,12 @@ import cn from "classnames";
 
 export default function GenderSwitcher() {
     const router = useRouter();
-    const pathname = usePathname();
     const currentGender = useGender();
 
     function switchGender(newGender: Gender) {
-        const segments = pathname.split("/");
-        segments[1] = newGender;
-        router.push(segments.join("/"));
+        // const segments = pathname.split("/");
+        // segments[1] = newGender;
+        router.push(`/${newGender}`);
     }
 
     return (

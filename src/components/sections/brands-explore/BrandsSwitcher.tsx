@@ -13,7 +13,7 @@ export default function BrandsSwitcher({ brands }: { brands: BrandWithType[] }) 
 
     return (
         <div className="flex flex-col gap-7">
-            <div className="flex flex-row gap-2 border-b border-black/[0.06] pb-5">
+            <div className="flex flex-row gap-2">
                 {types.map(type => (
                     <button
                         key={type}

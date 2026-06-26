@@ -53,6 +53,10 @@ export async function getProducts({
                                       sort,
                                   }: GetProductsProps) {
 
+    if (Array.isArray(productIds) && productIds.length === 0) {
+        return []
+    }
+
     // --- бренды ---
     let brandIds: string[] = []
     if (brandSlug) {
