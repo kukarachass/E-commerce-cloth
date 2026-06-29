@@ -6,11 +6,11 @@ import {CartItemWithDetails} from "@/types/cart";
 
 interface UseGetProductsRecommendationsProps {
     gender: string;
-    products?: ProductWithDetails[] | CartItemWithDetails[];
+    cartItems?: CartItemWithDetails[];
 }
-export function useGetProductsRecommendations({ gender, products }: UseGetProductsRecommendationsProps){
+export function useGetProductsRecommendations({ gender, cartItems }: UseGetProductsRecommendationsProps){
     return useQuery({
         queryKey: ["product"],
-        queryFn: () => productsRecommendations({ gender, products})
+        queryFn: () => productsRecommendations({ gender, cartItems})
     })
 }

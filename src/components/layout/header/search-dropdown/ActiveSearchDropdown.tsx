@@ -4,7 +4,6 @@ import {SearchResult} from "@/actions/search/search";
 import Link from "next/link";
 import SearchProductCard from "@/components/product/SearchProductCard";
 import {useSearchStore} from "@/store/useSearchOpen";
-import {useGenderStore} from "@/store/useGenderStore";
 import {useGender} from "@/hooks/useGender";
 
 interface ActiveSearchDropwdownProps {

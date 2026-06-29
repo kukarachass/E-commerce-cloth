@@ -1,7 +1,7 @@
 import { Package } from "lucide-react"
 import { getLatestReturnStatus } from "@/lib/returns/latestReturn"
-import type { ReturnHistoryOrder } from "@/actions/returns/getReturnHistory"
 import ReturnStatusBadge from "@/components/account/returns/ReturnStatusBadge";
+import {ReturnHistoryOrder} from "@/types/returns";
 
 type ProductSnapshot = { name?: string; brand?: string }
 
