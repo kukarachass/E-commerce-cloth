@@ -12,8 +12,8 @@ import {useGender} from "@/hooks/useGender";
 export default function CartPage() {
     const {data: cart, isPending, isError} = useGetCart()
     const gender = useGender()
-    const products = cart?.items;
-    const { data: recommendations, isLoading: isProductsLoading, isError: isProductsError } = useGetProductsRecommendations({gender, products});
+    const cartItems = cart?.items;
+    const { data: recommendations, isLoading: isProductsLoading, isError: isProductsError } = useGetProductsRecommendations({gender, cartItems});
     if (isPending) return <CartSkeleton/>
     if (isError) return <div className="text-center text-[#999] py-20">Something went wrong</div>
     if (!cart) return <EmptyCart products={recommendations}/>
