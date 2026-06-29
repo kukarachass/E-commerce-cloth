@@ -1,4 +1,5 @@
 import type { db } from "@/db"
+import {getReturnHistory} from "@/actions/returns/getReturnHistory";
 
 // Тип результата запроса возвратопригодных заказов — выводим из формы запроса,
 // НЕ из самой server-функции (иначе круговая зависимость).
@@ -25,3 +26,6 @@ export type ItemReturnState = {
     isReturnable: boolean
     blockedReason: BlockedReason // почему нельзя (для бейджа), если returnable === 0
 }
+
+export type ReturnHistoryOrder = Awaited<ReturnType<typeof getReturnHistory>>[number]
+export type ReturnHistoryItem = ReturnHistoryOrder["items"][number]

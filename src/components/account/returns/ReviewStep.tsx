@@ -1,7 +1,7 @@
 "use client"
 
 import { REASON_LABEL, type ReturnReason } from "@/lib/returns/reasons"
-import {ReturnableItem} from "@/actions/returns/getReturnableOrders";
+import {ReturnableItem} from "@/types/returns";
 
 type OrderItem = { id: string; name: string; size: string; price: string }
 type Selection = Record<string, { quantity: number; reason: ReturnReason | null }>
