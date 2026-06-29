@@ -4,6 +4,11 @@ import { useEffect, useCallback } from "react"
 import { X, MapPin, CreditCard, Package, Check } from "lucide-react"
 import OrderStatusBadge from "./OrderStatusBadge"
 import { IOrderWithDetails } from "@/types/user"
+import {IOrderWithReturns} from "@/types/IOrder";
+import {isBlocking, ReturnItemStatus} from "@/lib/returns/status";
+import {returnItem} from "@/db/schema";
+import {getLatestReturnStatus} from "@/lib/returns/latestReturn";
+import ReturnStatusBadge from "@/components/account/returns/ReturnStatusBadge";
 
 // productSnapshot shape — то что ты кладёшь в JSON при создании заказа
 type ProductSnapshot = {
@@ -47,7 +52,7 @@ const fulfillmentToStep: Record<string, number> = {
 }
 
 interface OrderDetailDrawerProps {
-    order: IOrderWithDetails | null
+    order: IOrderWithReturns | null
     onClose: () => void
 }
 
@@ -221,28 +226,31 @@ export default function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerP
                                             const name      = snap?.name      ?? item.product.name
                                             const brand     = snap?.brand     ?? ""
                                             const color     = snap?.color     ?? ""
+                                            const returnStatus = getLatestReturnStatus(item) // ← хелпер вместо инлайн-сортировки
 
                                             return (
                                                 <div key={item.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
                                                     <div className="w-10 h-10 rounded-lg bg-neutral-100 border border-neutral-100 flex items-center justify-center shrink-0">
                                                         <Package size={16} className="text-neutral-400" />
                                                     </div>
+
                                                     <div className="flex-1 min-w-0">
-                                                        <p className="text-[13px] font-medium text-neutral-900 truncate">
-                                                            {name}
-                                                        </p>
+                                                        <p className="text-[13px] font-medium text-neutral-900 truncate">{name}</p>
                                                         <p className="text-[11px] text-neutral-400 mt-0.5">
                                                             {[brand, item.size, color].filter(Boolean).join(" · ")}
                                                         </p>
+                                                        {/* бейдж возврата под мета-строкой, если позиция в возврате */}
+                                                        {returnStatus && (
+                                                            <div className="mt-1.5">
+                                                                <ReturnStatusBadge status={returnStatus} />
+                                                            </div>
+                                                        )}
                                                     </div>
+
                                                     <div className="flex flex-col items-end gap-0.5 shrink-0">
-                                                        <span className="text-[13px] font-semibold text-neutral-900 tabular-nums">
-                                                            €{price.toFixed(2)}
-                                                        </span>
+                                                        <span className="text-[13px] font-semibold text-neutral-900 tabular-nums">€{price.toFixed(2)}</span>
                                                         {origPrice && origPrice > price && (
-                                                            <span className="text-[11px] text-neutral-400 line-through tabular-nums">
-                                                                €{origPrice.toFixed(2)}
-                                                            </span>
+                                                            <span className="text-[11px] text-neutral-400 line-through tabular-nums">€{origPrice.toFixed(2)}</span>
                                                         )}
                                                     </div>
                                                 </div>
@@ -276,6 +284,7 @@ export default function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerP
                                             <span className="text-emerald-600 font-medium tabular-nums">−€{saved.toFixed(2)}</span>
                                         </div>
                                     )}
+
                                     <div className="flex justify-between text-[14px] font-semibold pt-2.5 border-t border-neutral-100">
                                         <span className="text-neutral-900">Total</span>
                                         <span className="text-neutral-900 tabular-nums">

@@ -509,23 +509,22 @@ export const storeConfig = pgTable("store_config", {
 
 // Жизненный цикл заявки на возврат
 export const returnStatusEnum = pgEnum("return_status", [
-    "requested",  // покупатель создал заявку
-    "approved",   // одобрено (можно слать назад)
-    "rejected",   // отклонено
-    "in_transit", // товар едет назад
-    "received",   // товар получен и осмотрен
-    "refunded",   // деньги возвращены
-    "cancelled",  // заявка отменена покупателем
+    "open",     // есть позиции, ждущие решения
+    "closed",   // по всем позициям есть финальное решение (refunded/rejected/cancelled)
 ])
+
+export const returnItemStatusEnum = pgEnum("return_item_status", [
+    "requested",  // ждёт решения
+    "approved",   // одобрено, деньги ещё не вернули
+    "refunded",   // деньги за позицию возвращены
+    "rejected",   // ОКОНЧАТЕЛЬНО не подлежит возврату → блокирует навсегда
+    "cancelled",  // покупатель сам отменил до решения → освобождает единицу
+])
+
 
 // Причина возврата — зеркалит RETURN_REASONS на фронте
 export const returnReasonEnum = pgEnum("return_reason", [
-    "size",
-    "fit",
-    "changed_mind",
-    "defective",
-    "wrong_item",
-    "not_as_described",
+    "size", "fit", "changed_mind", "defective", "wrong_item", "not_as_described",
 ])
 
 // refundAmount   — ожидаемая сумма возврата, В ЦЕНТАХ (как в payment)
@@ -536,13 +535,11 @@ export const returnRequest = pgTable("return_request", {
     orderId:        uuid("order_id").notNull().references(() => order.id),
     userId:         text("user_id").references(() => user.id), // nullable — гость; денормализация для быстрых выборок
 
-    status:         returnStatusEnum("status").notNull().default("requested"),
+    status:         returnStatusEnum("status").notNull().default("open"),
 
-    refundAmount:   integer("refund_amount").notNull().default(0),
-    refundedAmount: integer("refunded_amount").notNull().default(0),
-    currency:       text("currency").notNull().default("eur"),
-
-    stripeRefundId: text("stripe_refund_id"), // re_... — заполнится когда реально вернёшь деньги
+    stripeRefundId: text("stripe_refund_id"),       // re_...
+    refundedAmount: integer("refunded_amount").notNull().default(0), // фактически возвращено, центы
+    currency: text("currency").notNull().default("eur"),
 
     customerNote:   text("customer_note"),    // необязательный комментарий покупателя
     adminNote:      text("admin_note"),       // внутренняя пометка (видна только тебе)
@@ -565,6 +562,8 @@ export const returnItem = pgTable("return_item", {
     returnRequestId: uuid("return_request_id").notNull().references(() => returnRequest.id, { onDelete: "cascade" }),
     orderItemId:     uuid("order_item_id").notNull().references(() => orderItem.id),
 
+    status: returnItemStatusEnum("status").notNull().default("requested"),
+
     quantity:        integer("quantity").notNull(),
     reason:          returnReasonEnum("reason").notNull(),
     price:           decimal("price", { precision: 10, scale: 2 }).notNull(),
@@ -572,6 +571,7 @@ export const returnItem = pgTable("return_item", {
     restocked:       boolean("restocked").notNull().default(false),
 
     createdAt:       timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
 }, (t) => [
     unique().on(t.returnRequestId, t.orderItemId),
     index("return_item_request_idx").on(t.returnRequestId),
@@ -685,7 +685,6 @@ export const orderRelations = relations(order, ({ one, many }) => ({
     items:    many(orderItem),
     payments: many(payment),
     returns: many(returnRequest),
-
 }))
 
 export const orderItemRelations = relations(orderItem, ({ one, many }) => ({
@@ -724,11 +723,11 @@ export const paymentRelations = relations(payment, ({ one }) => ({
 // --- RETURN ---
 export const returnRequestRelations = relations(returnRequest, ({ one, many }) => ({
     order: one(order, { fields: [returnRequest.orderId], references: [order.id] }),
-    user:  one(user,  { fields: [returnRequest.userId],  references: [user.id]  }),
+    user: one(user, { fields: [returnRequest.userId], references: [user.id] }),
     items: many(returnItem),
 }))
 
 export const returnItemRelations = relations(returnItem, ({ one }) => ({
-    request:   one(returnRequest, { fields: [returnItem.returnRequestId], references: [returnRequest.id] }),
-    orderItem: one(orderItem,     { fields: [returnItem.orderItemId],     references: [orderItem.id]     }),
+    request: one(returnRequest, { fields: [returnItem.returnRequestId], references: [returnRequest.id] }),
+    orderItem: one(orderItem, { fields: [returnItem.orderItemId], references: [orderItem.id] }),
 }))
