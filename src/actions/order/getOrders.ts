@@ -13,7 +13,10 @@ export async function getOrders() {
         where: (order, { eq }) => eq(order.userId, user.id),
         with: {
             items: {
-                with: { product: true }
+                with: { product: true, returnItems: true },
+            },
+            returns: {
+                with: { items: true }
             }
         }
     })

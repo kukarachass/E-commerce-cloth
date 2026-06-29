@@ -1,10 +1,13 @@
 import { ChevronRight } from "lucide-react"
 import OrderStatusBadge from "./OrderStatusBadge"
 import { IOrderWithDetails } from "@/types/user"
+import {IOrderWithReturns} from "@/types/IOrder";
+import {i} from "framer-motion/m";
+import {getLatestReturnStatus} from "@/lib/returns/latestReturn";
 
 interface OrderCardProps {
-    order: IOrderWithDetails
-    onClick: (order: IOrderWithDetails) => void
+    order: IOrderWithReturns
+    onClick: (order: IOrderWithReturns) => void
 }
 
 export default function OrderCard({ order, onClick }: OrderCardProps) {
@@ -39,6 +42,8 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
         .join(", ")
 
     const itemCount = order.items.length
+    const itemsInReturn = order.items.filter((item) => getLatestReturnStatus(item) !== null).length
+
 
     return (
         <button
@@ -77,6 +82,13 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
                         </span>
                     ) : (
                         <span className="text-[11px] text-neutral-300">—</span>
+                    )}
+
+                    {itemsInReturn > 0 && (
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+                            {itemsInReturn} {itemsInReturn === 1 ? "item" : "items"} in return
+                        </span>
                     )}
 
                     <OrderStatusBadge status={order.paymentStatus} />

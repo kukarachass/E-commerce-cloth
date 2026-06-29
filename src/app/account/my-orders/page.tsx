@@ -10,18 +10,19 @@ import useGetActivePendingOrder from "@/hooks/checkout/useGetActivePendingOrder"
 import OrderCard from "@/components/order/OrderCard"
 import OrderDetailDrawer from "@/components/order/OrderDetailDrawer"
 import { IOrderWithDetails } from "@/types/user"
+import {IOrderWithReturns} from "@/types/IOrder";
 
 export default function MyOrdersPage() {
     const { data: orders, isPending, isError } = useGetOrders()
     const { data: activeOrder } = useGetActivePendingOrder()
 
-    const [selectedOrder, setSelectedOrder] = useState<IOrderWithDetails | null>(null)
+    const [selectedOrder, setSelectedOrder] = useState<IOrderWithReturns | null>(null)
 
     useEffect(() => {
         if (isError) toast.error("Couldn't load your orders. Please try again.")
     }, [isError])
 
-    const list       = Array.isArray(orders) ? (orders as IOrderWithDetails[]) : []
+    const list       = Array.isArray(orders) ? (orders as IOrderWithReturns[]) : []
     const pastOrders = list.filter((o) => o.id !== activeOrder?.id)
     const isEmpty    = !activeOrder && pastOrders.length === 0
 
