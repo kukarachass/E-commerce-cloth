@@ -2,7 +2,7 @@
 
 import { RETURN_REASONS, type ReturnReason } from "@/lib/returns/reasons"
 import { getItemReturnState } from "@/lib/returns/itemReturnable"
-import {BlockedReason, ReturnableItem} from "@/types/returns";
+import { BlockedReason, ReturnableItem } from "@/types/returns"
 
 type Selection = Record<string, { quantity: number; reason: ReturnReason | null }>
 type Props = {
@@ -25,40 +25,48 @@ export default function SelectItemsStep({ items, selection, onToggle, onQty, onR
             {items.map((item) => {
                 const state = getItemReturnState(item)
 
-                // ── позиция недоступна: показываем приглушённой с причиной, без чекбокса
+                // ── заблокированная позиция
                 if (!state.isReturnable) {
                     return (
                         <div key={item.id} className="rounded-xl border border-neutral-100 bg-neutral-50/50 p-4">
-                            <div className="flex items-center gap-4 opacity-60">
+                            <div className="flex items-start gap-4 opacity-60">
                                 <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
                                     {item.product.images?.[0] && (
                                         // eslint-disable-next-line @next/next/no-img-element
                                         <img src={item.product.images[0].url} alt={item.product.name} className="h-full w-full object-cover" />
                                     )}
                                 </div>
-                                <div className="flex flex-1 flex-col gap-0.5">
-                                    <span className="text-[14px] font-medium text-neutral-500">{item.product.name}</span>
-                                    <span className="text-[12px] text-neutral-400">Size {item.size}</span>
+
+                                {/* Badge переехал внутрь — теперь под именем на мобилке */}
+                                <div className="flex flex-1 flex-col gap-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div className="flex flex-col gap-0.5 min-w-0">
+                                            <span className="truncate text-[14px] font-medium text-neutral-500">
+                                                {item.product.name}
+                                            </span>
+                                            <span className="text-[12px] text-neutral-400">Size {item.size}</span>
+                                        </div>
+                                        {state.blockedReason && (
+                                            <span className="shrink-0 rounded-full bg-neutral-200 px-2.5 py-1 text-[11px] font-medium text-neutral-600">
+                                                {BLOCKED_LABEL[state.blockedReason]}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                                {state.blockedReason && (
-                                    <span className="shrink-0 rounded-full bg-neutral-200 px-2.5 py-1 text-[11px] font-medium text-neutral-600">
-                                        {BLOCKED_LABEL[state.blockedReason]}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     )
                 }
 
-                // ── доступная позиция (остаток > 0)
+                // ── доступная позиция
                 const picked = selection[item.id]
                 const checked = Boolean(picked)
                 return (
                     <div key={item.id} className={`rounded-xl border p-4 transition-colors ${checked ? "border-neutral-900" : "border-neutral-200"}`}>
-                        <div className="flex items-start gap-4">
+                        <div className="flex items-start gap-3 sm:gap-4">
                             <button
                                 onClick={() => onToggle(item.id)}
-                                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition-colors ${checked ? "border-neutral-900 bg-neutral-900" : "border-neutral-300 hover:border-neutral-400"}`}
+                                className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border transition-colors ${checked ? "border-neutral-900 bg-neutral-900" : "border-neutral-300"}`}
                                 aria-pressed={checked}
                             >
                                 {checked && (
@@ -75,14 +83,18 @@ export default function SelectItemsStep({ items, selection, onToggle, onQty, onR
                                 )}
                             </div>
 
-                            <div className="flex flex-1 flex-col gap-0.5">
-                                <span className="text-[14px] font-medium text-neutral-900">{item.product.name}</span>
+                            <div className="flex flex-1 flex-col gap-0.5 min-w-0">
+                                <span className="truncate text-[14px] font-medium text-neutral-900">
+                                    {item.product.name}
+                                </span>
                                 <span className="text-[12px] text-neutral-400">
                                     Size {item.size} · {state.returnable} of {state.purchased} returnable
                                 </span>
                             </div>
 
-                            <span className="text-[14px] font-medium tabular-nums text-neutral-900">€{item.price}</span>
+                            <span className="shrink-0 text-[14px] font-medium tabular-nums text-neutral-900">
+                                €{item.price}
+                            </span>
                         </div>
 
                         {checked && (
@@ -96,7 +108,9 @@ export default function SelectItemsStep({ items, selection, onToggle, onQty, onR
                                                 disabled={picked.quantity <= 1}
                                                 className="px-2.5 py-1 text-neutral-500 hover:text-neutral-900 disabled:opacity-30"
                                             >−</button>
-                                            <span className="w-7 text-center text-[13px] tabular-nums text-neutral-900">{picked.quantity}</span>
+                                            <span className="w-7 text-center text-[13px] tabular-nums text-neutral-900">
+                                                {picked.quantity}
+                                            </span>
                                             <button
                                                 onClick={() => onQty(item.id, Math.min(state.returnable, picked.quantity + 1))}
                                                 disabled={picked.quantity >= state.returnable}
@@ -106,7 +120,7 @@ export default function SelectItemsStep({ items, selection, onToggle, onQty, onR
                                     </div>
                                 )}
 
-                                <div className="relative sm:w-56">
+                                <div className="relative w-full sm:w-56">
                                     <select
                                         value={picked.reason ?? ""}
                                         onChange={(e) => onReason(item.id, e.target.value as ReturnReason)}
