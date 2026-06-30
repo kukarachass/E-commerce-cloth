@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link";
 import Image from "next/image";
 import Search from "@/components/layout/header/BottomBar/Search";
@@ -9,6 +11,7 @@ import ActiveSearchDropwdown from "@/components/layout/header/search-dropdown/Ac
 import {useSearchStore} from "@/store/useSearchOpen";
 import {useGender} from "@/hooks/useGender";
 import {Gender} from "@/lib/isGender";
+import GenderSwitcher from "@/components/layout/header/GenderSwitcher";
 
 
 function getPopBrands(gender: Gender){
@@ -76,11 +79,25 @@ export default function SearchDropDownContent() {
 
 
     return (
-        <div className="bg-white w-full ">
+        <div className="bg-white w-full">
             <Container>
-                <div className={isSticky ? "py-5" : ""}>
-                    {isSticky && <Search/>}
+                {/* Mobile: BottomBar скрыт на этом брейкпоинте → поиск рендерится только тут */}
+                <div className="py-5 lg:hidden">
+                    <Search/>
                 </div>
+
+                {/* Mobile: переключатель пола, на десктопе уже есть в MiddleBar */}
+                <div className="pb-5 lg:hidden">
+                    <GenderSwitcher/>
+                </div>
+
+                {/* Desktop: BottomBar.Search прячется под sticky-шапку → дублируем его тут */}
+                {isSticky && (
+                    <div className="hidden lg:block py-5">
+                        <Search/>
+                    </div>
+                )}
+
                 {query.length > 0 ? (
                     <ActiveSearchDropwdown data={data} query={query}/>
                 ) : (
@@ -114,7 +131,7 @@ export default function SearchDropDownContent() {
                             <div className="flex flex-row gap-4 pb-2 lg:pb-0 overflow-x-auto lg:overflow-x-visible">
                                 {categories.map((cat) => (
                                     <Link onClick={() => setSearchOpen(false)} href={cat.href} key={cat.id}
-                                         className="flex flex-col gap-2 cursor-pointer shrink-0 w-[185px]">
+                                          className="flex flex-col gap-2 cursor-pointer shrink-0 w-[185px]">
                                         <Image src={cat.url} alt={cat.name} width={185} height={50}/>
                                         <span
                                             className="text-center text-[14px] text-[var(--text)] font-bold">{cat.name}</span>

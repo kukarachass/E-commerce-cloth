@@ -24,53 +24,53 @@ export default function MainPageClient({homePageData, gender}: MainPageClientPro
 
     return (
         <Container>
-            <div className="">
-                <HeroBanner
-                    buttonText={heroBanner.buttonText}
-                    buttonUrl={`/${gender}${heroBanner.buttonUrlTemplate}`}
-                    imageUrl={heroBanner.imageUrl}
-                    title={heroBanner.title}
-                    description={heroBanner.description}
-                />
-            </div>
+            {/*<div className="">*/}
+            {/*    <HeroBanner*/}
+            {/*        buttonText={heroBanner.buttonText}*/}
+            {/*        buttonUrl={`/${gender}${heroBanner.buttonUrlTemplate}`}*/}
+            {/*        imageUrl={heroBanner.imageUrl}*/}
+            {/*        title={heroBanner.title}*/}
+            {/*        description={heroBanner.description}*/}
+            {/*    />*/}
+            {/*</div>*/}
 
-            <div className="py-10">
-                <PopularCategories gender={gender}/>
-            </div>
+            {/*<div className="py-10">*/}
+            {/*    <PopularCategories gender={gender}/>*/}
+            {/*</div>*/}
 
-            <div className="flex flex-row gap-6 py-10">
-                {specialOffers.map((offer) => (
-                    <SpecialOfferBlock key={offer.id} offer={offer}/>
-                ))}
+            {/*<div className="flex flex-row gap-6 py-10">*/}
+            {/*    {specialOffers.map((offer) => (*/}
+            {/*        <SpecialOfferBlock key={offer.id} offer={offer}/>*/}
+            {/*    ))}*/}
 
-            </div>
-            <NewIn products={newInProducts}/>
+            {/*</div>*/}
+            {/*<NewIn products={newInProducts}/>*/}
 
-            <BrandsSection gender={gender} brandData={brandsSection}/>
+            {/*<BrandsSection gender={gender} brandData={brandsSection}/>*/}
 
-            <div className="flex flex-col gap-6 pb-8">
-                <div className="flex flex-col gap-4">
-                    <h1 className="text-[var(--text)] text-[24px] font-bold leading-[125%]">Explore more</h1>
-                </div>
-                <BrandsSwitcher brands={homePageData.exploreBrands}/>
-            </div>
+            {/*<div className="flex flex-col gap-6 pb-8">*/}
+            {/*    <div className="flex flex-col gap-4">*/}
+            {/*        <h1 className="text-[var(--text)] text-[24px] font-bold leading-[125%]">Explore more</h1>*/}
+            {/*    </div>*/}
+            {/*    <BrandsSwitcher brands={homePageData.exploreBrands}/>*/}
+            {/*</div>*/}
 
-            <CollectionSection
-                gender={gender}
-                bannerUrl={collectionSection.bannerUrl}
-                description={collectionSection.description}
-                title={collectionSection.title}
-                collectionLink={collectionSection.collectionLink}
-            />
+            {/*<CollectionSection*/}
+            {/*    gender={gender}*/}
+            {/*    bannerUrl={collectionSection.bannerUrl}*/}
+            {/*    description={collectionSection.description}*/}
+            {/*    title={collectionSection.title}*/}
+            {/*    collectionLink={collectionSection.collectionLink}*/}
+            {/*/>*/}
 
-            {productsRows.map(row => (
-                <ProductsRow
-                    key={row.id}
-                    products={row.products}
-                    title={row.title}
-                    description={row.description}
-                />
-            ))}
+            {/*{productsRows.map(row => (*/}
+            {/*    <ProductsRow*/}
+            {/*        key={row.id}*/}
+            {/*        products={row.products}*/}
+            {/*        title={row.title}*/}
+            {/*        description={row.description}*/}
+            {/*    />*/}
+            {/*))}*/}
         </Container>
     )
 }
