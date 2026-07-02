@@ -15,13 +15,13 @@ interface Props {
 export default function Sidebar({ title, items, products }: Props) {
     return (
         <div className="flex flex-col gap-4 pb-6">
-            <div className="flex flex-row gap-4 pt-6 pb-3 max-h-[75px]">
+            <div className="flex flex-row gap-4 pt-6 pb-3 max-h-[75px] pl-4 xl:pl-0 items-center">
                 <h1 className="text-[var(--text)] text-[24px] leading-[133%] font-bold">{title}</h1>
-                <span className="flex items-center text-[var(--text)] font-[600] text-[13px] bg-[#f0f0f0] rounded-[16px] px-2">
+                <div className="shrink-0 max-h-[24px] flex items-center text-[var(--text)] font-[600] text-[13px] bg-[#f0f0f0] rounded-[10px] px-2 text-nowrap">
                     {products.length} results
-                </span>
+                </div>
             </div>
-            <div className="flex flex-col overflow-y-auto h-[calc(100vh-113px)]">
+            <div className="flex flex-col overflow-y-auto h-[calc(100vh-113px)] pl-4 xl:pl-0">
                 {items.map(item => (
                     <SidebarItem key={item.id} item={item} />
                 ))}

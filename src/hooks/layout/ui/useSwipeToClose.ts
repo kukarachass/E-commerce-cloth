@@ -1,17 +1,17 @@
 import { useState, useRef } from "react"
 
-const CLOSE_THRESHOLD = 80   // px
-const VELOCITY_THRESHOLD = 0.5 // px/ms
+const CLOSE_THRESHOLD = 80
+const VELOCITY_THRESHOLD = 0.5
 
 export function useSwipeToClose(onClose: () => void) {
-    const [dragY, setDragY]       = useState(0)
+    const [dragY, setDragY] = useState(0)
     const [isDragging, setIsDragging] = useState(false)
-    const startY    = useRef(0)
+    const startY = useRef(0)
     const startTime = useRef(0)
-    const dragYRef  = useRef(0) // избегаем stale closure в onTouchEnd
+    const dragYRef = useRef(0)
 
     const onTouchStart = (e: React.TouchEvent) => {
-        startY.current    = e.touches[0].clientY
+        startY.current = e.touches[0].clientY
         startTime.current = Date.now()
         setIsDragging(true)
     }
@@ -24,7 +24,7 @@ export function useSwipeToClose(onClose: () => void) {
 
     const onTouchEnd = () => {
         setIsDragging(false)
-        const elapsed  = Date.now() - startTime.current
+        const elapsed = Date.now() - startTime.current
         const velocity = elapsed > 0 ? dragYRef.current / elapsed : 0
         const shouldClose = dragYRef.current > CLOSE_THRESHOLD || velocity > VELOCITY_THRESHOLD
 
@@ -37,9 +37,5 @@ export function useSwipeToClose(onClose: () => void) {
         }
     }
 
-    return {
-        dragY,
-        isDragging,
-        dragHandlers: { onTouchStart, onTouchMove, onTouchEnd },
-    }
+    return { dragY, isDragging, dragHandlers: { onTouchStart, onTouchMove, onTouchEnd } }
 }

@@ -5,6 +5,7 @@ import useFavouriteProducts from "@/hooks/fav/useFavouriteProducts"
 import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands"
 import { useFavAuthModal } from "@/store/useFavAuthModal"
 import { authClient } from "@/lib/auth-client"
+import { useHasMounted } from "@/hooks/useHasMounted"
 
 interface Props extends React.HTMLAttributes<HTMLDivElement> {
     id: string
@@ -15,26 +16,33 @@ function ProductFav({ id }: { id: string }) {
     const { isFavourite, toggleFav } = useFavouriteProducts()
     const { open } = useFavAuthModal()
     const { data: session } = authClient.useSession()
+    const mounted = useHasMounted()
 
     const handleClick = () => {
         if (!session?.user) return open()
         toggleFav(id)
     }
 
-    return <FavIcon isFav={isFavourite(id)} onChange={handleClick} />
+    // до монтирования — всегда false, идентично тому, что было в SSR-разметке
+    const isFav = mounted ? isFavourite(id) : false
+
+    return <FavIcon isFav={isFav} onChange={handleClick} />
 }
 
 function BrandFav({ id }: { id: string }) {
     const { isFavourite, toggleFav } = useFavouriteBrands()
     const { open } = useFavAuthModal()
     const { data: session } = authClient.useSession()
+    const mounted = useHasMounted()
 
     const handleClick = () => {
         if (!session?.user) return open()
         toggleFav(id)
     }
 
-    return <FavIcon isFav={isFavourite(id)} onChange={handleClick} />
+    const isFav = mounted ? isFavourite(id) : false
+
+    return <FavIcon isFav={isFav} onChange={handleClick} />
 }
 
 export default function AddToFavButton({ id, type, className, ...rest }: Props) {

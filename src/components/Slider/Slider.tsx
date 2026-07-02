@@ -1,17 +1,16 @@
 "use client"
 
-import { type ReactNode, useEffect, useRef, useState, Children } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import cn from "classnames";
 
 interface Props {
     children: ReactNode;
     className?: string;
-    itemsVisible?: number;
     gap?: number;
 }
 
-export default function Slider({ children, className, itemsVisible = 4, gap = 16 }: Props) {
+export default function Slider({ children, className, gap = 16 }: Props) {
     const scrollRef = useRef<HTMLDivElement>(null);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(false);
@@ -45,8 +44,6 @@ export default function Slider({ children, className, itemsVisible = 4, gap = 16
         };
     }, [children]);
 
-    const itemWidth = `calc((100% - ${gap * (itemsVisible - 1)}px) / ${itemsVisible})`;
-
     return (
         <div className="relative w-full">
             <button
@@ -54,7 +51,7 @@ export default function Slider({ children, className, itemsVisible = 4, gap = 16
                 className={cn(
                     "absolute left-[-25px] top-1/2 -translate-y-1/2 z-10",
                     "size-8 rounded-full bg-white text-gray-700 shadow-md border-none",
-                    "flex items-center justify-center cursor-pointer",
+                    "hidden sm:flex items-center justify-center cursor-pointer",
                     "transition-all duration-200 hover:bg-gray-100",
                     !canScrollLeft && "invisible pointer-events-none"
                 )}
@@ -67,7 +64,7 @@ export default function Slider({ children, className, itemsVisible = 4, gap = 16
                 className={cn(
                     "absolute right-[-20px] top-1/2 -translate-y-1/2 z-10",
                     "size-8 rounded-full bg-white text-gray-700 shadow-md border-none",
-                    "flex items-center justify-center cursor-pointer",
+                    "hidden sm:flex items-center justify-center cursor-pointer",
                     "transition-all duration-200 hover:bg-gray-100",
                     !canScrollRight && "invisible pointer-events-none"
                 )}
@@ -79,16 +76,12 @@ export default function Slider({ children, className, itemsVisible = 4, gap = 16
                 ref={scrollRef}
                 style={{ gap }}
                 className={cn(
-                    "flex overflow-x-auto",
+                    "flex overflow-x-auto snap-x snap-mandatory sm:snap-none",
                     "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]",
                     className
                 )}
             >
-                {Children.map(children, (child) => (
-                    <div style={{ width: itemWidth, minWidth: itemWidth, flexShrink: 0 }}>
-                        {child}
-                    </div>
-                ))}
+                {children}
             </div>
         </div>
     );

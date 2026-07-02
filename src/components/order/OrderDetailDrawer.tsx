@@ -4,13 +4,13 @@ import { useEffect } from "react"
 import { X } from "lucide-react"
 import { IOrderWithReturns } from "@/types/IOrder"
 import { IOrderWithDetails } from "@/types/user"
-import { useSwipeToClose } from "@/hooks/order/useSwipeToClose"
 import { useOrderDrawerData } from "@/hooks/order/useOrderDrawerData"
 import {ShipmentSection} from "@/components/order/drawer/ShippmentSection";
 import {ItemsSection} from "@/components/order/drawer/ItemSection";
 import {SummarySection} from "@/components/order/drawer/SummarySection";
 import {DeliverySection} from "@/components/order/drawer/DeliverySection";
 import {PaymentSection} from "@/components/order/drawer/PaymentSection";
+import {useSwipeToClose} from "@/hooks/layout/ui/useSwipeToClose";
 
 interface Props {
     order: IOrderWithReturns | null

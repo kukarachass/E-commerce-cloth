@@ -2,20 +2,11 @@
 
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-
-const filterKeysMap: Record<string, string[]> = {
-    Brands: ["brand"],
-    Size: ["size"],
-    Price: ["minPrice", "maxPrice"],
-    Colours: ["color"],
-    Pattern: ["pattern"],
-    Style: ["style"],
-    Discount: ["discount"],
-}
+import { FILTER_KEYS_MAP } from "@/components/catalog/filters/filterKeysMap"
 
 export default function FilterBadge({ filterName }: { filterName: string }) {
     const searchParams = useSearchParams()
-    const keys = filterKeysMap[filterName] ?? []
+    const keys = FILTER_KEYS_MAP[filterName] ?? []
     const count = keys.reduce((acc, key) => acc + searchParams.getAll(key).length, 0)
 
     return (
