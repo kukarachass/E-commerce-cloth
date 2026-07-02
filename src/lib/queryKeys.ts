@@ -1,3 +1,5 @@
+import {Gender} from "@/hooks/useGender";
+
 export const queryKeys = {
     cart: ["cart"] as const,
     product: (slug: string) => ["product", slug] as const,
@@ -5,4 +7,10 @@ export const queryKeys = {
     returnableOrders: ["returnableOrders"] as const,
     activePendingOrder: ["order", "active-pending"] as const,
     returnHistory: ["returnHistory"] as const,
+    subCats: (gender: Gender, slug: string) => {
+        return ['category', 'subcats', gender, slug] as const
+    },
+    parentCats: (gender: Gender) => {
+        return ['parentCats', gender] as const
+    }
 }

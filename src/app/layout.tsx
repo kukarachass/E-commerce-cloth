@@ -7,7 +7,7 @@ import {Toaster} from "sonner";
 import {ReactQueryClientProvider} from "@/providers/ReactQueryClientProvider";
 import PendingOrderNotifier from "@/components/account/PendingOrderNotifier";
 import FavAuthModal from "@/components/favourites/FavAuthModal";
-import MobileMenu from "@/components/layout/header/adaptive/MobileMenu";
+import MobileMenu from "@/components/layout/header/adaptive/mobile-menu/MobileMenu";
 
 
 const cormorant = Cormorant_Garamond({
