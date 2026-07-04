@@ -8,7 +8,6 @@ import { useSearchStore } from "@/store/useSearchOpen"
 import { useBottomBarHeight } from "@/store/useHeaderBarHeightStore"
 import { useElementHeight } from "@/hooks/layout/useElementHeight"
 import Container from "@/components/layout/Сontainer"
-import MobileMenu from "@/components/layout/header/adaptive/MobileMenu";
 
 export default function BottomBar() {
     const isSticky = useStickyStore(state => state.isSticky)
