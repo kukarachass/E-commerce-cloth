@@ -20,7 +20,6 @@ export default function ReadyUserView({ user, onEdit }: Props) {
     const run = useRunCheckout()
 
     useEffect(() => {
-        // нет адреса — оплачивать нечем по сохранённым данным
         if (!user.address) {
             setSubmit(null)
             return
@@ -36,7 +35,6 @@ export default function ReadyUserView({ user, onEdit }: Props) {
                 city: user.address!.city,
                 country: user.address!.country,
             }
-            // email возьмётся из сессии на сервере → передавать не нужно
             run({ address }).catch(() => fail(CHECKOUT_MESSAGES.UNKNOWN))
         })
 
@@ -45,16 +43,16 @@ export default function ReadyUserView({ user, onEdit }: Props) {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-10">
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-[var(--text)] text-[24px] font-[600]">Contact Info</h2>
+            <div className="flex flex-col gap-6 sm:gap-10">
+                <div className="flex flex-col gap-3 sm:gap-4">
+                    <h2 className="text-[var(--text)] text-[20px] sm:text-[24px] font-[600]">Contact Info</h2>
                     <div className="flex flex-col gap-2">
                         <span className="text-[var(--text)] capitalize text-[14px]">{user.name} {user.lastName}</span>
-                        <span className="text-[var(--text)] text-[14px]">{user.email}</span>
+                        <span className="text-[var(--text)] text-[14px] break-all">{user.email}</span>
                     </div>
                 </div>
-                <div className="flex flex-col gap-4">
-                    <h2 className="text-[var(--text)] text-[24px] font-[600]">Shipping & billing address</h2>
+                <div className="flex flex-col gap-3 sm:gap-4">
+                    <h2 className="text-[var(--text)] text-[20px] sm:text-[24px] font-[600]">Shipping & billing address</h2>
                     <div className="flex flex-col gap-2">
                         <span className="text-[var(--text)] capitalize text-[14px]">
                             {user.address?.street} {user.address?.houseNumber} {user.address?.houseAddition}
@@ -65,7 +63,7 @@ export default function ReadyUserView({ user, onEdit }: Props) {
                 </div>
             </div>
 
-            <ButtonPrimary variant="secondary" onClick={onEdit} className="max-w-[200px]">
+            <ButtonPrimary variant="secondary" onClick={onEdit} className="w-full sm:max-w-[200px]">
                 Edit details
             </ButtonPrimary>
         </div>

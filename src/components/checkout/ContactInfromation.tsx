@@ -17,7 +17,7 @@ export default function ContactInformation() {
     const showReadyView = !!user && user.readyToCheckout && !isEditing
 
     return (
-        <div className="flex flex-col gap-8 max-w-[600px] w-full">
+        <div className="flex flex-col gap-6 sm:gap-8 w-full lg:max-w-[600px]">
             {showReadyView ? (
                 <ReadyUserView user={user} onEdit={() => setIsEditing(true)} />
             ) : (
@@ -25,12 +25,14 @@ export default function ContactInformation() {
             )}
 
             <div className="flex flex-col gap-4">
-                <h3 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Delivery option</h3>
-                <div className="p-4 flex flex-row gap-4 items-center bg-[#f9f9f9] rounded-[10px] border border-[#ccc]">
+                <h3 className="text-[var(--text)] font-bold text-[20px] sm:text-[24px] leading-[133%]">
+                    Delivery option
+                </h3>
+                <div className="p-4 flex flex-row gap-3 sm:gap-4 items-center bg-[#f9f9f9] rounded-[10px] border border-[#ccc]">
                     <Checkbox defaultChecked label="" checked={deliveryOption} setChecked={setDeliveryOption} />
-                    <div className="flex flex-col">
-                        <h3 className="text-[16px] text-[var(--text)] font-bold">Royal Mail · £5.95</h3>
-                        <span className="text-[#999] text-[14px]">Standard delivery</span>
+                    <div className="flex flex-col min-w-0">
+                        <h3 className="text-[15px] sm:text-[16px] text-[var(--text)] font-bold">Royal Mail · £5.95</h3>
+                        <span className="text-[#999] text-[13px] sm:text-[14px]">Standard delivery</span>
                     </div>
                 </div>
             </div>

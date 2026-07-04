@@ -11,15 +11,15 @@ import { IUserWithDetails } from "@/types/user"
 import { AddressSnapshot } from "@/types/IOrder"
 import { useCheckout } from "@/store/useCheckout"
 import { useRunCheckout } from "@/hooks/checkout/useRunCheckout"
-import {CHECKOUT_MESSAGES, SIGNUP_MESSAGES} from "@/lib/checkout/messages"
+import { CHECKOUT_MESSAGES, SIGNUP_MESSAGES } from "@/lib/checkout/messages"
 import { useCheckoutStore } from "@/store/useCheckoutAddressStore"
 import FloatingLabelInput from "@/components/ui/inputs/FloatingLabelInput"
 import PhoneInput from "@/components/ui/inputs/PhoneInput"
 import Checkbox from "@/components/ui/inputs/Checkbox"
 import CreateAccountPanel from "@/components/checkout/CreateAccountPanel"
 import BillingAddresForm from "@/components/checkout/BillingAddresForm"
-import {useUpdateProfile} from "@/hooks/profile /useUpdateProfile";
-import {signUpAndSaveProfile} from "@/actions/profile/signUpAndSaveProfile";
+import { useUpdateProfile } from "@/hooks/profile /useUpdateProfile"
+import { signUpAndSaveProfile } from "@/actions/profile/signUpAndSaveProfile"
 
 interface Props {
     user: IUserWithDetails | null | undefined
@@ -57,7 +57,7 @@ export default function CheckoutForm({ user }: Props) {
 
     const onSubmit = useCallback(
         async (data: UpdateProfileCheckoutValues) => {
-            start() // pending=true, error=null
+            start()
 
             const address: AddressSnapshot = {
                 street: data.street ?? "",
@@ -68,16 +68,14 @@ export default function CheckoutForm({ user }: Props) {
                 country: "Netherlands",
             }
 
-            setContactData(data) // опционально — если адрес/контакты нужны другому UI
+            setContactData(data)
 
-            // хочет аккаунт, но пароль невалиден — не молчим, останавливаемся
             if (!user && wantsAccount && !password) {
                 fail("Enter a valid password or uncheck account creation")
                 return
             }
 
             try {
-                // 1) гость захотел аккаунт — best-effort, НЕ блокирует оплату
                 if (!user && wantsAccount && password) {
                     const res = await signUpAndSaveProfile({
                         email: data.email,
@@ -88,12 +86,11 @@ export default function CheckoutForm({ user }: Props) {
                         address,
                     })
                     if (!res.ok) {
-                        fail(SIGNUP_MESSAGES[res.error])   // покажется у кнопки
-                        return                             // к оплате НЕ идём
+                        fail(SIGNUP_MESSAGES[res.error])
+                        return
                     }
                 }
 
-                // 2) залогинен и хочет сохранить адрес — best-effort
                 if (user && updateShipping) {
                     try {
                         mutate(data)
@@ -102,7 +99,6 @@ export default function CheckoutForm({ user }: Props) {
                     }
                 }
 
-                // 3) ЕДИНСТВЕННЫЙ вызов оплаты
                 await run({ address, email: user ? undefined : data.email })
             } catch (err) {
                 console.error("checkout error:", err)
@@ -112,7 +108,6 @@ export default function CheckoutForm({ user }: Props) {
         [user, wantsAccount, password, updateShipping, start, fail, run, mutate, setContactData],
     )
 
-    // регистрируем submit формы в сторе; перерегистрируем, когда onSubmit меняется
     useEffect(() => {
         setSubmit(handleSubmit(onSubmit))
         return () => setSubmit(null)
@@ -120,12 +115,12 @@ export default function CheckoutForm({ user }: Props) {
 
     return (
         <>
-            {/* onSubmit на форме нужен для сабмита по Enter; кнопку дёргает стор */}
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
-                <h1 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Contact information</h1>
+                <h1 className="text-[var(--text)] font-bold text-[20px] sm:text-[24px] leading-[133%]">
+                    Contact information
+                </h1>
                 <div className="flex flex-col gap-4">
-                    {/* row 1 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-2">
                             <FloatingLabelInput value={watch("name")} label="First Name *" {...register("name")} />
                             {errors.name && <p className="text-red-500 text-sm">{errors.name.message}</p>}
@@ -135,8 +130,8 @@ export default function CheckoutForm({ user }: Props) {
                             {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
                         </div>
                     </div>
-                    {/* row 2 */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="flex flex-col gap-3">
                             <FloatingLabelInput
                                 value={watch("email")}
@@ -148,7 +143,7 @@ export default function CheckoutForm({ user }: Props) {
                             {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
                         </div>
                         <div className="flex flex-col gap-2">
-                            <div className="flex gap-3">
+                            <div className="flex gap-2 sm:gap-3">
                                 <PhoneInput />
                                 <FloatingLabelInput
                                     label="Phone number"
@@ -171,15 +166,16 @@ export default function CheckoutForm({ user }: Props) {
                 )}
 
                 <div className="flex flex-col gap-4">
-                    <h1 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Shipping & billing address</h1>
+                    <h1 className="text-[var(--text)] font-bold text-[20px] sm:text-[24px] leading-[133%]">
+                        Shipping & billing address
+                    </h1>
                     <div className="flex flex-col gap-4">
-                        <div className="flex flex-row gap-4">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex flex-col gap-3 w-full">
                                 <FloatingLabelInput
                                     label="Street *"
                                     {...register("street")}
                                     value={watch("street")}
-                                    className="col-span-2 md:col-span-1"
                                 />
                                 {errors.street && <p className="text-red-500 text-sm">{errors.street.message}</p>}
                             </div>
@@ -194,8 +190,8 @@ export default function CheckoutForm({ user }: Props) {
                                 </div>
                             </div>
                         </div>
-                        {/* row 2 */}
-                        <div className="flex flex-row gap-4">
+
+                        <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex flex-col gap-2 w-full">
                                 <FloatingLabelInput label="Postcode *" value={watch("postcode")} {...register("postcode")} />
                                 {errors.postcode && <p className="text-red-500 text-sm">{errors.postcode.message}</p>}
@@ -205,7 +201,7 @@ export default function CheckoutForm({ user }: Props) {
                                 {errors.city && <p className="text-red-500 text-sm">{errors.city.message}</p>}
                             </div>
                         </div>
-                        {/* row 3 */}
+
                         <FloatingLabelInput label="Country *" />
                     </div>
                 </div>
@@ -218,7 +214,9 @@ export default function CheckoutForm({ user }: Props) {
                 </div>
                 {billingAddress && (
                     <div className="flex flex-col gap-4">
-                        <h1 className="text-[var(--text)] font-bold text-[24px] leading-[133%]">Billing Address</h1>
+                        <h1 className="text-[var(--text)] font-bold text-[20px] sm:text-[24px] leading-[133%]">
+                            Billing Address
+                        </h1>
                         <BillingAddresForm />
                     </div>
                 )}

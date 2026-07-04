@@ -18,8 +18,8 @@ type PasswordValues = z.infer<typeof passwordSchema>
 
 interface CreateAccountPanelProps {
     wantsAccount: boolean
-    setWantsAccount: (value: boolean) => void          // ← было () => void (нельзя снять галочку)
-    onPasswordChange: (password: string | null) => void // null если невалидный
+    setWantsAccount: (value: boolean) => void
+    onPasswordChange: (password: string | null) => void
 }
 
 export default function CreateAccountPanel({
@@ -40,7 +40,7 @@ export default function CreateAccountPanel({
 
     return (
         <div className="bg-[#F9F9F9] rounded-[10px] flex flex-col gap-4 text-[var(--text)] p-4">
-            <h1 className="text-[24px] font-[600]">Create an account for easy tracking & returns</h1>
+            <h1 className="text-[18px] sm:text-[24px] font-[600]">Create an account for easy tracking & returns</h1>
             <Checkbox label="Yes, create my account" checked={wantsAccount} setChecked={setWantsAccount} />
             {wantsAccount && (
                 <div className="flex flex-col gap-1">
