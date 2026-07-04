@@ -1,6 +1,6 @@
 import {useQuery} from "@tanstack/react-query";
-import productsRecommendations from "@/components/product/productsRecommendations";
 import {CartItemWithDetails} from "@/types/cart";
+import productsRecommendations from "@/actions/products/productsRecommendations";
 
 
 interface UseGetProductsRecommendationsProps {

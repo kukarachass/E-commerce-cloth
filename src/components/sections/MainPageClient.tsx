@@ -36,7 +36,7 @@ export default function MainPageClient({homePageData, gender}: MainPageClientPro
                 <PopularCategories gender={gender}/>
             </div>
             <div className="px-4 xl:px-0">
-                <div className="flex flex-row justify-between gap-6 py-8 xl:py-10 overflow-x-auto">
+                <div className="flex flex-row justify-between gap-2 lg:gap-6 py-8 xl:py-10 overflow-x-auto">
                     {specialOffers.map((offer) => (
                         <SpecialOfferBlock key={offer.id} offer={offer}/>
                     ))}

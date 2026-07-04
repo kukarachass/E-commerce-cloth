@@ -7,18 +7,20 @@ import CartSkeleton from "@/components/cart/ui/CartSkeletonLoader";
 import ProductsRelated from "@/components/product/ProductsRelated";
 import { useGetProductsRecommendations } from "@/hooks/product/useGetProductsRecommendations";
 import { useGender } from "@/hooks/useGender";
+import ProductsRelatedSkeleton from "@/components/ui/skeleton-loaders/ProductsRelatedSkeletonLoader";
 
 export default function CartPage() {
     const { data: cart, isPending, isError } = useGetCart()
     const gender = useGender()
     const cartItems = cart?.items;
-    const { data: recommendations, isLoading: isProductsLoading, isError: isProductsError } = useGetProductsRecommendations({ gender, cartItems });
+    const { data: recommendations, isLoading: isProductsLoading } = useGetProductsRecommendations({ gender, cartItems });
 
     if (isPending) return <CartSkeleton />
     if (isError) return <div className="text-center text-[#999] py-20">Something went wrong</div>
     if (!cart) return <EmptyCart products={recommendations} />
     if (cart.items.length <= 0) return <EmptyCart products={recommendations} />
-    if (!recommendations) return <>Loading...</>
+    if (!recommendations) return <CartSkeleton />
+    if(isProductsLoading) return <ProductsRelatedSkeleton/>
 
     return (
         <div className="w-full">

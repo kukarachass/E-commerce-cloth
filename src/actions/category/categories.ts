@@ -5,6 +5,7 @@ import { db } from "@/db"
 import { category, product } from "@/db/schema"
 import { eq, and, isNull, inArray } from "drizzle-orm"
 import {Gender} from "@/hooks/useGender";
+import {Category} from "@/types/filters/category";
 
 // Поиск категории страницы по ПОЛНОМУ slug.
 // slug уникален, поэтому однозначно идентифицирует строку; gender добавлен

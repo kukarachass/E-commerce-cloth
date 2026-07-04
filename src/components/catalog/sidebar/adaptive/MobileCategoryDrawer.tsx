@@ -6,6 +6,7 @@ import { ProductWithDetails } from "@/types/product-details"
 import CategoryHeader from "@/components/catalog/sidebar/adaptive/CategoryHeader";
 import {useCatalogSidebarStore} from "@/store/adaptive/catalog/useCatalogSidebarStore";
 import CategoryList from "@/components/catalog/sidebar/adaptive/CategoryList";
+import {useGetCategoryByProductIds} from "@/hooks/category/useGetCategoryByProductIds";
 
 interface Props {
     title: string
@@ -17,7 +18,10 @@ export default function MobileCategoryDrawer({ title, items, products }: Props) 
     const isOpen = useCatalogSidebarStore(state => state.isOpen)
     const setOpen = useCatalogSidebarStore(state => state.setOpen)
     const handleClose = () => setOpen(false)
+    const productIds = products.map(p => p.id);
 
+    const { data: categoryItems } = useGetCategoryByProductIds(productIds)
+    const catItems = items.length <= 0 ? categoryItems ?? [] : items
     return (
         <AnimatePresence>
             {isOpen && (
@@ -56,7 +60,7 @@ export default function MobileCategoryDrawer({ title, items, products }: Props) 
                         </div>
 
                         <div className="flex-1 overflow-y-auto px-3 py-3">
-                            <CategoryList items={items} />
+                            <CategoryList items={catItems} />
                         </div>
                     </motion.aside>
                 </>

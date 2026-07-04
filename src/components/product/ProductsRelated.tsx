@@ -18,8 +18,8 @@ export default function ProductsRelated({ products, currentId, type }: Props) {
     const filteredProducts = products.filter((p) => !excludedIds.includes(p.id));
 
     return (
-        <div className="flex flex-col max-w-[1200px]">
-            <div className="flex flex-col gap-3 w-full">
+        <div className="flex flex-col w-full min-w-0 max-w-[1200px]">
+            <div className="flex flex-col gap-3 w-full min-w-0">
                 <h2 className="text-[var(--text)] text-[20px] sm:text-[24px] font-bold">
                     {TITLES[type]}
                 </h2>

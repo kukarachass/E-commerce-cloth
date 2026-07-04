@@ -7,6 +7,7 @@ export const queryKeys = {
     returnableOrders: ["returnableOrders"] as const,
     activePendingOrder: ["order", "active-pending"] as const,
     returnHistory: ["returnHistory"] as const,
+    categories: ["categories"] as const,
     subCats: (gender: Gender, slug: string) => {
         return ['category', 'subcats', gender, slug] as const
     },

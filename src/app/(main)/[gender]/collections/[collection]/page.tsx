@@ -14,6 +14,8 @@ import {getStyles} from "@/actions/filters/style/style";
 import {getDiscounts} from "@/actions/filters/discount/dicount";
 import {Gender} from "@/hooks/useGender";
 import {notFound} from "next/navigation";
+import MobileCategoryDrawer from "@/components/catalog/sidebar/adaptive/MobileCategoryDrawer";
+import {useGetCategoryByProductIds} from "@/hooks/category/useGetCategoryByProductIds";
 
 interface Props {
     params: Promise<{ gender: Gender; collection: string }>
@@ -50,12 +52,14 @@ export default async function CollectionPage({params, searchParams}: Props) {
         getDiscounts({ gender, productIds: collectionProductIds }),
     ])
 
+
+
     return (
         <Container>
             <div className="flex flex-col gap-10">
                 <div className="flex flex-col gap-6">
                     <div className="flex flex-col gap-2">
-                        <Breadcrumb className="py-2"/>
+                        <Breadcrumb className="py-2 xl:px-0 px-4"/>
                         <CollectionBanner
                             title={collectionData?.title ?? "no title"}
                             description={collectionData?.description ?? "no desc"}
@@ -63,6 +67,7 @@ export default async function CollectionPage({params, searchParams}: Props) {
                     </div>
                     <div className="z-20">
                         <FilterBar
+                            showCategoryTrigger={false}
                             brands={brands}
                             sizes={sizes}
                             price={price}
