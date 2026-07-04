@@ -47,16 +47,16 @@ export async function POST(req: Request) {
 
             switch (event.type) {
                 case "checkout.session.completed":
-                    await handleCheckoutCompleted(tx, event.data.object);
+                    await handleCheckoutCompleted(tx, event.data.object as Stripe.Checkout.Session);
                     break
                 case "checkout.session.expired":
                     await handleCheckoutExpired(tx, event.data.object);
                     break
                 case "payment_intent.payment_failed":
-                    await handlePaymentFailed(tx, event.data.object);
+                    await handlePaymentFailed(tx, event.data.object as Stripe.PaymentIntent);
                     break
                 case "charge.refunded":
-                    await handleChargeRefunded(tx, event.data.object);
+                    await handleChargeRefunded(tx, event.data.object as Stripe.Charge);
                     break
                 default:
                     break

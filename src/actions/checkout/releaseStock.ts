@@ -12,7 +12,9 @@ export async function releaseStockTx(tx: DbTx, orderId: string, terminalStatus: 
     const lines = await tx.select().from(orderItem).where(eq(orderItem.orderId, orderId))
     for (const line of lines) {
         const [ps] = await tx.select().from(productSize)
-            .where(and(eq(productSize.productId, line.productId), eq(productSize.size, line.size)))
+            .where(and(
+                eq(productSize.productId, line.productId),
+                eq(productSize.id, line.productSizeId)))
             .for("update")
         if (ps) {
             await tx.update(productSize)
