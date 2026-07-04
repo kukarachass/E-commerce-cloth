@@ -28,9 +28,11 @@ export default function ActionButtons() {
 
     return (
         <div className="flex flex-row items-center gap-3 relative">
-            {isSticky && (
-                <SearchButton/>
-            )}
+            <div className="hidden lg:flex">
+                {isSticky && (
+                    <SearchButton/>
+                )}
+            </div>
             <div className="flex">
                 <LottieButton json={accountJson} onClick={() => setOpen(!open)}/>
             </div>

@@ -13,11 +13,11 @@ export default function ProductsRow({ products, title, description }: IProps) {
         <div className="flex flex-col gap-4 w-full py-8">
             <div className="flex flex-row justify-between items-center">
                 <div className="flex flex-col text-[var(--text)]">
-                    <h1 className={"text-[24px] font-bold leading-[125%]"}>{title}</h1>
-                    <span className="text-[18px]">{description}</span>
+                    <h1 className={"text-[20px] sm:text-[24px] font-bold leading-[125%]"}>{title}</h1>
+                    <span className="text-[16px] sm:text-[18px]">{description}</span>
                 </div>
             </div>
-            <Slider itemsVisible={6} gap={24}>
+            <Slider>
                 {products.map((product) => (
                     <ProductCard key={product.id} product={product}/>
                 ))}
