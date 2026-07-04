@@ -6,7 +6,7 @@ import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import { ProductWithDetails } from "@/types/product-details";
 import ProductsRelated from "@/components/product/ProductsRelated";
 
-export default function EmptyCart({ products }: { products: ProductWithDetails[] }) {
+export default function EmptyCart({ products }: { products?: ProductWithDetails[] }) {
     const router = useRouter();
     return (
         <div className="max-w-[1200px] mx-auto py-10 min-h-screen px-4">
@@ -19,7 +19,7 @@ export default function EmptyCart({ products }: { products: ProductWithDetails[]
                     Start shopping
                 </ButtonPrimary>
 
-                <ProductsRelated type={"related"} products={products} />
+                <ProductsRelated type={"related"} products={products ?? []} />
             </div>
         </div>
     )
