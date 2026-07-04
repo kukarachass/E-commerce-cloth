@@ -1,6 +1,6 @@
 export default function CartSkeleton() {
     return (
-        <div className="max-w-[1200px] mx-auto py-10 flex flex-row gap-8">
+        <div className="max-w-[1200px] mx-auto py-10 flex flex-row gap-8 px-2 xl:px-0">
             {/* Items skeleton */}
             <div className="flex flex-col flex-1 gap-0">
                 {[...Array(3)].map((_, i) => (

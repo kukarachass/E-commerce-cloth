@@ -1,6 +1,6 @@
 export default function ProductsRelatedSkeleton() {
     return (
-        <div className="flex flex-col w-full min-w-0 max-w-[1200px]">
+        <div className="flex flex-col w-full min-w-0 max-w-[1200px] px-4 xl:px-0">
             <div className="flex flex-col gap-3 w-full min-w-0">
                 {/* Title */}
                 <div className="h-[24px] sm:h-[28px] w-[220px] bg-neutral-200 rounded-[4px] animate-pulse" />

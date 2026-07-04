@@ -24,10 +24,10 @@ export default function CartPage() {
 
     return (
         <div className="w-full">
-            <div className="max-w-[1200px] mx-auto py-6 sm:py-10 px-4 xl:px-0">
+            <div className="max-w-[1200px] mx-auto py-6 sm:py-10 px-0 xl:px-0">
                 <div className="flex flex-col gap-6 sm:gap-8">
                     <Cart cart={cart} />
-                    <div className="px-4">
+                    <div className="xl:px-0 px-4">
                         <ProductsRelated products={recommendations} type={"related"} />
                     </div>
                 </div>
