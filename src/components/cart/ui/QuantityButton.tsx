@@ -18,14 +18,14 @@ export default function QuantityButton({ cartItem }: QuantityButtonProps) {
             <button
                 onClick={() => subtract({ cartItemId: cartItem.id, quantity: cartItem.quantity - 1 })}
                 disabled={isPending}
-                className="w-8 h-8 flex items-center justify-center text-[#999] hover:bg-[#f5f5f5] hover:text-[var(--text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
+                className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-[#999] hover:bg-[#f5f5f5] hover:text-[var(--text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
             >
                 <svg width="10" height="2" viewBox="0 0 10 2" fill="none">
-                    <path d="M1 1H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M1 1H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
             </button>
 
-            <div className="w-8 h-8 flex items-center justify-center border-x border-[#e8e8e8]">
+            <div className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center border-x border-[#e8e8e8]">
                 {isPending ? (
                     <div className="w-3 h-3 border border-[#ccc] border-t-[#999] rounded-full animate-spin" />
                 ) : (
@@ -38,10 +38,10 @@ export default function QuantityButton({ cartItem }: QuantityButtonProps) {
             <button
                 onClick={() => add({ productId: cartItem.productId, productSizeId: cartItem.productSizeId, quantity: 1 })}
                 disabled={isPending || cartItem.quantity >= cartItem.productSize.stockAmount}
-                className="w-8 h-8 flex items-center justify-center text-[#999] hover:bg-[#f5f5f5] hover:text-[var(--text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
+                className="w-9 h-9 sm:w-8 sm:h-8 flex items-center justify-center text-[#999] hover:bg-[#f5f5f5] hover:text-[var(--text)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
             >
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M5 1V9M1 5H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    <path d="M5 1V9M1 5H9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
             </button>
         </div>

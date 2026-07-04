@@ -23,7 +23,7 @@ export default function ProductsRelated({ products, currentId, type }: Props) {
                 <h2 className="text-[var(--text)] text-[20px] sm:text-[24px] font-bold">
                     {TITLES[type]}
                 </h2>
-                <Slider itemsVisible={{ base: 2, sm: 4, md: 5, lg: 6 }}>
+                <Slider>
                     {filteredProducts.map((product) => (
                         <ProductCard key={product.id} product={product} />
                     ))}
