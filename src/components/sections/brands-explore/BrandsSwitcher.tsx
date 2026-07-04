@@ -12,7 +12,10 @@ export default function BrandsSwitcher({ brands }: { brands: BrandWithType[] }) 
     const activeItems = brands.filter(b => b.brandType === selected);
 
     return (
-        <div className="flex flex-col gap-7">
+        <div className="flex flex-col gap-4 xl:gap-7">
+            <div className="flex flex-col gap-4">
+                <h1 className="text-[var(--text)] text-[24px] font-bold leading-[125%]">Explore more</h1>
+            </div>
             <div className="flex flex-row gap-2">
                 {types.map(type => (
                     <button
@@ -30,11 +33,17 @@ export default function BrandsSwitcher({ brands }: { brands: BrandWithType[] }) 
                 ))}
             </div>
 
-            <Slider>
+            <Slider className="hidden xl:flex">
                 {activeItems.map(brand => (
                     <BrandCard key={brand.brand.id} variant="default" brand={brand.brand}/>
                 ))}
             </Slider>
+
+            <div className="xl:hidden flex flex-row gap-4 overflow-x-auto pb-4">
+                {activeItems.map(brand => (
+                    <BrandCard key={brand.brand.id} variant="default" brand={brand.brand}/>
+                ))}
+            </div>
         </div>
     )
 }

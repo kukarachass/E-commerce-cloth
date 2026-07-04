@@ -13,12 +13,12 @@ interface Props {
 
 export default function CollectionSection({bannerUrl, collectionLink, description, title, gender}: Props){
     return(
-        <Container>
-            <div className="flex flex-row justify-between items-center w-full gap-8 py-10">
-                <div className="relative w-1/2 aspect-[4/3] shrink-0">
+        <Container className="px-4">
+            <div className="flex flex-col min-[550px]:flex-row min-[550px]:justify-between min-[550px]:items-center w-full gap-8 py-10">
+                <div className="relative w-full min-[550px]:w-1/2 aspect-[4/3] shrink-0">
                     <Image src={bannerUrl} alt={title} fill className="object-cover rounded-md"/>
                 </div>
-                <div className="flex flex-col items-center text-[var(--text)]">
+                <div className="flex flex-col min-[550px]:gap-0 gap-2 items-start min-[550px]:items-center text-[var(--text)]">
                     <h1 className="font-bold text-[24px] leading-[125%]">{title}</h1>
                     <span className="text-[16px] leading-[150%]">{description}</span>
                     <Link href={`/${gender}/collections/${collectionLink}`} className="text-[16px] underline font-[600]">Shop now</Link>

@@ -1,39 +1,44 @@
 "use client"
 
-import {useState} from "react";
-import {AnimatePresence, motion} from "framer-motion";
-import {ChevronDown} from "lucide-react";
-import {FaqItem} from "@/components/account/customer-service/data";
+import { useState } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { ChevronDown } from "lucide-react"
 
-export default function FaqAccordionItem({ question, answer }: FaqItem) {
+interface Props {
+    question: string
+    answer: string
+}
+
+export default function FaqAccordionItem({ question, answer }: Props) {
     const [open, setOpen] = useState(false)
 
     return (
-        <div className="border-b border-[#f0f0f0] last:border-0">
+        <div className="border-b border-neutral-100 last:border-none">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between py-4 text-left cursor-pointer gap-4"
+                className="flex w-full items-center justify-between gap-4 py-4 text-left"
             >
-                <span className="text-[15px] font-medium text-[var(--text)]">{question}</span>
+                <span className="text-[14px] font-medium text-neutral-900">{question}</span>
                 <motion.div
                     animate={{ rotate: open ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
-                    className="shrink-0 text-[#999]"
+                    className="shrink-0"
                 >
-                    <ChevronDown size={16} />
+                    <ChevronDown size={15} className="text-neutral-400" />
                 </motion.div>
             </button>
 
             <AnimatePresence initial={false}>
                 {open && (
                     <motion.div
+                        key="answer"
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.22, ease: "easeInOut" }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
                         className="overflow-hidden"
                     >
-                        <p className="text-[14px] text-[#666] leading-relaxed pb-4 pr-8">
+                        <p className="pb-4 text-[13px] leading-relaxed text-neutral-500">
                             {answer}
                         </p>
                     </motion.div>

@@ -7,6 +7,7 @@ import {Toaster} from "sonner";
 import {ReactQueryClientProvider} from "@/providers/ReactQueryClientProvider";
 import PendingOrderNotifier from "@/components/account/PendingOrderNotifier";
 import FavAuthModal from "@/components/favourites/FavAuthModal";
+import MobileMenu from "@/components/layout/header/adaptive/mobile-menu/MobileMenu";
 
 
 const cormorant = Cormorant_Garamond({
@@ -33,6 +34,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <html lang="en" className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}>
         <body className={`${sourceSans.className} min-h-screen flex flex-col`}>
         <ReactQueryClientProvider>
+            <MobileMenu/>
             <FavAuthModal/>
             <PendingOrderNotifier/>
             <ScrollToTop/>

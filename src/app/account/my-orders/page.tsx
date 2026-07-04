@@ -9,13 +9,11 @@ import PendingOrderBanner from "@/components/order/PendingOrderBanner"
 import useGetActivePendingOrder from "@/hooks/checkout/useGetActivePendingOrder"
 import OrderCard from "@/components/order/OrderCard"
 import OrderDetailDrawer from "@/components/order/OrderDetailDrawer"
-import { IOrderWithDetails } from "@/types/user"
-import {IOrderWithReturns} from "@/types/IOrder";
+import { IOrderWithReturns } from "@/types/IOrder"
 
 export default function MyOrdersPage() {
     const { data: orders, isPending, isError } = useGetOrders()
     const { data: activeOrder } = useGetActivePendingOrder()
-
     const [selectedOrder, setSelectedOrder] = useState<IOrderWithReturns | null>(null)
 
     useEffect(() => {
@@ -28,7 +26,7 @@ export default function MyOrdersPage() {
 
     return (
         <>
-            <div className="flex flex-col gap-6">
+            <div className="flex flex-col gap-6 px-4 xl:px-0">
                 <div>
                     <h1 className="text-[20px] font-semibold text-neutral-900 tracking-tight">Orders</h1>
                     <p className="text-[13px] text-neutral-400 mt-0.5">

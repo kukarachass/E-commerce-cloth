@@ -15,7 +15,7 @@ export async function getCategoryWithSubs(gender: Gender, slug: string) {
         return { name: "New Items", subcategories: allCategories }
     }
 
-    return db.query.category.findFirst({
+    const result = db.query.category.findFirst({
         where: and(eq(category.gender, gender), eq(category.slug, slug)),
         with: {
             subcategories: {
@@ -24,10 +24,16 @@ export async function getCategoryWithSubs(gender: Gender, slug: string) {
                     subcategories: {
                         orderBy: (cat, { asc }) => [asc(cat.name)],
                     },
+                    parent: true
                 },
             },
         },
     })
+    if (!result) {
+        throw new Error(`Category not found: gender=${gender}, slug=${slug}`)
+    }
+
+    return result;
 }
 
 export async function getAllCategoriesWithSubs({ gender }: { gender: Gender }) {
@@ -61,4 +67,18 @@ export async function getCategoriesByProductIds(productIds: string[]) {
         .innerJoin(product, eq(product.categoryId, category.id))
         .where(inArray(product.id, productIds))
         .orderBy(category.name)
+}
+
+export async function getParentsCategories({ gender }: { gender: Gender }) {
+    if(!gender) throw new Error("gender is required");
+
+    const result = await db.query.category.findMany({
+        where: (cat, { and, eq }) => and(
+            isNull(category.parentId),
+            eq(cat.gender, gender)
+        )
+    })
+
+    if(!result) throw new Error("Parent category not found");
+    return result;
 }

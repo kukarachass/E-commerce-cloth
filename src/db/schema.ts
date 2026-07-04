@@ -12,7 +12,7 @@ import {
     date,
     check,
     pgEnum,
-    AnyPgColumn,
+    AnyPgColumn, uniqueIndex,
 } from "drizzle-orm/pg-core"
 import { relations, sql } from "drizzle-orm"
 
@@ -464,6 +464,9 @@ export const order = pgTable("order", {
     index("order_user_idx").on(t.userId),
     index("order_payment_status_idx").on(t.paymentStatus),
     index("order_fulfillment_status_idx").on(t.fulfillmentStatus),
+    uniqueIndex("one_pending_order_per_cart")
+        .on(t.cartId)
+        .where(sql`${t.paymentStatus} = 'pending'`),
 ])
 
 // price           — цена продукта на момент заказа

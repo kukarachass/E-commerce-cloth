@@ -14,30 +14,11 @@ import AccountActionsModal from "@/components/account/AccountActionsModal";
 import useFavouriteProducts from "@/hooks/fav/useFavouriteProducts";
 import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands";
 import {useGetCart} from "@/hooks/cart/useGetCart";
-
-function LottieButton({json, onClick}: { json: object; onClick?: () => void }) {
-    const ref = useRef<Player>(null)
-
-    return (
-        <button
-            className="cursor-pointer"
-            onClick={onClick}
-            onMouseEnter={() => ref.current?.playFromBeginning()}
-        >
-            <Player
-                ref={ref}
-                icon={json}
-                size={24}
-                onComplete={() => ref.current?.pause()}
-            />
-        </button>
-    )
-}
+import LottieButton from "@/components/layout/header/action-buttons/LottieButton";
+import SearchButton from "@/components/layout/header/adaptive/SearchButton";
 
 export default function ActionButtons() {
     const isSticky = useStickyStore(state => state.isSticky)
-    const setSearchOpen = useSearchStore(state => state.setSearchOpen)
-    const searchOpen = useSearchStore(state => state.searchOpen)
     const {data: cart} = useGetCart()
     const router = useRouter()
     const { favProducts } = useFavouriteProducts()
@@ -45,15 +26,13 @@ export default function ActionButtons() {
     const isEmpty = favProducts?.length === 0 && favBrands?.length === 0
     const [open, setOpen] = useState(false);
 
-
     return (
         <div className="flex flex-row items-center gap-3 relative">
-            {isSticky && (
-                <LottieButton
-                    json={searchJson}
-                    onClick={() => setSearchOpen(!searchOpen)}
-                />
-            )}
+            <div className="hidden lg:flex">
+                {isSticky && (
+                    <SearchButton/>
+                )}
+            </div>
             <div className="flex">
                 <LottieButton json={accountJson} onClick={() => setOpen(!open)}/>
             </div>

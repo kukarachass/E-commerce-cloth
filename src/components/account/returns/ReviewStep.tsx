@@ -1,11 +1,9 @@
 "use client"
 
 import { REASON_LABEL, type ReturnReason } from "@/lib/returns/reasons"
-import {ReturnableItem} from "@/types/returns";
+import { ReturnableItem } from "@/types/returns"
 
-type OrderItem = { id: string; name: string; size: string; price: string }
 type Selection = Record<string, { quantity: number; reason: ReturnReason | null }>
-
 type Props = { items: ReturnableItem[]; selection: Selection }
 
 export default function ReviewStep({ items, selection }: Props) {
@@ -20,15 +18,17 @@ export default function ReviewStep({ items, selection }: Props) {
                     return (
                         <div
                             key={item.id}
-                            className={`flex items-center justify-between p-4 ${idx > 0 ? "border-t border-neutral-100" : ""}`}
+                            className={`flex items-center justify-between gap-3 p-4 ${idx > 0 ? "border-t border-neutral-100" : ""}`}
                         >
-                            <div className="flex flex-col gap-0.5">
-                                <span className="text-[14px] font-medium text-neutral-900">{item.product.name}</span>
+                            <div className="flex flex-col gap-0.5 min-w-0 flex-1">
+                                <span className="truncate text-[14px] font-medium text-neutral-900">
+                                    {item.product.name}
+                                </span>
                                 <span className="text-[12px] text-neutral-400">
                                     Size {item.size} · Qty {sel.quantity} · {sel.reason ? REASON_LABEL[sel.reason] : ""}
                                 </span>
                             </div>
-                            <span className="text-[14px] font-medium tabular-nums text-neutral-900">
+                            <span className="shrink-0 text-[14px] font-medium tabular-nums text-neutral-900">
                                 €{(Number(item.price) * sel.quantity).toFixed(2)}
                             </span>
                         </div>
@@ -38,7 +38,9 @@ export default function ReviewStep({ items, selection }: Props) {
 
             <div className="flex items-center justify-between rounded-xl bg-neutral-50 px-4 py-3.5">
                 <span className="text-[13px] text-neutral-500">Estimated refund</span>
-                <span className="text-[16px] font-semibold tabular-nums text-neutral-900">€{refund.toFixed(2)}</span>
+                <span className="text-[16px] font-semibold tabular-nums text-neutral-900">
+                    €{refund.toFixed(2)}
+                </span>
             </div>
 
             <p className="text-[12px] leading-relaxed text-neutral-400">

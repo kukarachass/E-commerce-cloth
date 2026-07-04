@@ -7,6 +7,9 @@ interface Props {
     className?: string;
 }
 
+// сегменты, которые не должны попадать в хлебные крошки
+const EXCLUDED_SEGMENTS = new Set(["women", "men", "new-items", "product"]);
+
 export default function Breadcrumb({ className }: Props) {
     const pathname = usePathname();
 
@@ -14,10 +17,14 @@ export default function Breadcrumb({ className }: Props) {
 
     const items = [
         { label: "Home", href: "/" },
-        ...segments.map((segment, index) => ({
-            label: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " "),
-            href: "/" + segments.slice(0, index + 1).join("/"),
-        })),
+        ...segments
+            .map((segment, index) => ({
+                segment,
+                label: segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, " "),
+                // href строим от ПОЛНОГО пути, а не от отфильтрованного индекса
+                href: "/" + segments.slice(0, index + 1).join("/"),
+            }))
+            .filter(({ segment }) => !EXCLUDED_SEGMENTS.has(segment)),
     ];
 
     return (

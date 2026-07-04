@@ -1,30 +1,37 @@
 "use client"
 
-import {useState} from "react";
-import {AnimatePresence, motion} from "framer-motion";
-import {ChevronDown} from "lucide-react";
+import { useState, ReactNode } from "react"
+import { AnimatePresence, motion } from "framer-motion"
+import { ChevronDown } from "lucide-react"
 
-interface AccordionSectionProps {
+interface Props {
     title: string
-    children: React.ReactNode
+    description?: string
+    children: ReactNode
     defaultOpen?: boolean
 }
 
-export default function AccordionSection({ title, children, defaultOpen = true }: AccordionSectionProps) {
+export default function AccordionSection({ title, description, children, defaultOpen = true }: Props) {
     const [open, setOpen] = useState(defaultOpen)
 
     return (
-        <div className="border-t border-gray-300">
+        <div className="rounded-xl border border-neutral-200 bg-white overflow-hidden">
             <button
                 onClick={() => setOpen(!open)}
-                className="w-full flex items-center justify-between py-6 text-left cursor-pointer"
+                className="w-full flex items-center justify-between px-6 py-5 text-left hover:bg-neutral-50 transition-colors"
             >
-                <span className="text-[18px] font-semibold text-[var(--text)]">{title}</span>
+                <div className="flex flex-col gap-0.5">
+                    <span className="text-[15px] font-semibold text-neutral-900">{title}</span>
+                    {description && (
+                        <span className="text-[12px] text-neutral-400">{description}</span>
+                    )}
+                </div>
                 <motion.div
                     animate={{ rotate: open ? 180 : 0 }}
                     transition={{ duration: 0.2, ease: "easeInOut" }}
+                    className="shrink-0 ml-4"
                 >
-                    <ChevronDown size={20} className="text-[var(--text)]" />
+                    <ChevronDown size={16} className="text-neutral-400" />
                 </motion.div>
             </button>
 
@@ -38,7 +45,7 @@ export default function AccordionSection({ title, children, defaultOpen = true }
                         transition={{ duration: 0.25, ease: "easeInOut" }}
                         className="overflow-hidden"
                     >
-                        <div className="pb-8">
+                        <div className="border-t border-neutral-100 px-6 py-6">
                             {children}
                         </div>
                     </motion.div>

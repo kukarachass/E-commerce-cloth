@@ -1,152 +1,77 @@
 "use client"
 
-import { useEffect, useCallback } from "react"
-import { X, MapPin, CreditCard, Package, Check } from "lucide-react"
-import OrderStatusBadge from "./OrderStatusBadge"
+import { useEffect } from "react"
+import { X } from "lucide-react"
+import { IOrderWithReturns } from "@/types/IOrder"
 import { IOrderWithDetails } from "@/types/user"
-import {IOrderWithReturns} from "@/types/IOrder";
-import {isBlocking, ReturnItemStatus} from "@/lib/returns/status";
-import {returnItem} from "@/db/schema";
-import {getLatestReturnStatus} from "@/lib/returns/latestReturn";
-import ReturnStatusBadge from "@/components/account/returns/ReturnStatusBadge";
+import { useOrderDrawerData } from "@/hooks/order/useOrderDrawerData"
+import {ShipmentSection} from "@/components/order/drawer/ShippmentSection";
+import {ItemsSection} from "@/components/order/drawer/ItemSection";
+import {SummarySection} from "@/components/order/drawer/SummarySection";
+import {DeliverySection} from "@/components/order/drawer/DeliverySection";
+import {PaymentSection} from "@/components/order/drawer/PaymentSection";
+import {useSwipeToClose} from "@/hooks/layout/ui/useSwipeToClose";
 
-// productSnapshot shape — то что ты кладёшь в JSON при создании заказа
-type ProductSnapshot = {
-    name?: string
-    brand?: string
-    originalPrice?: string
-    color?: string
-    size?: string         // размер тоже можно класть в snapshot
-}
-
-// addressSnapshot shape
-type AddressSnapshot = {
-    street?: string
-    houseNumber?: string
-    houseAddition?: string
-    postcode?: string
-    city?: string
-    country?: string
-}
-
-const STEPS = [
-    "Order placed",
-    "Payment confirmed",
-    "Preparing shipment",
-    "In transit",
-    "Delivered",
-]
-
-// paymentStatus → шаг трекинга
-const paymentToStep: Record<string, number> = {
-    pending:  0,
-    paid:     1,
-}
-
-// fulfillmentStatus → шаг трекинга (приоритет над paymentStatus для paid заказов)
-const fulfillmentToStep: Record<string, number> = {
-    unfulfilled: 1,
-    processing:  2,
-    shipped:     3,
-    delivered:   4,
-}
-
-interface OrderDetailDrawerProps {
+interface Props {
     order: IOrderWithReturns | null
     onClose: () => void
 }
 
-export default function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerProps) {
-    const open = !!order
-
-    const handleKey = useCallback(
-        (e: KeyboardEvent) => { if (e.key === "Escape") onClose() },
-        [onClose]
-    )
+export default function OrderDetailDrawer({ order, onClose }: Props) {
+    const open          = !!order
+    const data          = useOrderDrawerData(order)
+    const { dragY, isDragging, dragHandlers } = useSwipeToClose(onClose)
+    const paymentMethod = (order as IOrderWithDetails & { paymentMethod?: string })?.paymentMethod ?? null
 
     useEffect(() => {
-        document.addEventListener("keydown", handleKey)
-        return () => document.removeEventListener("keydown", handleKey)
-    }, [handleKey])
+        const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose() }
+        document.addEventListener("keydown", onKey)
+        return () => document.removeEventListener("keydown", onKey)
+    }, [onClose])
 
     useEffect(() => {
         document.body.style.overflow = open ? "hidden" : ""
         return () => { document.body.style.overflow = "" }
     }, [open])
 
-    const isCancelled = order?.fulfillmentStatus === "cancelled"
-    const isReturned  = order?.fulfillmentStatus === "returned"
-
-    // Определяем текущий шаг: сначала смотрим fulfillment (если заказ оплачен),
-    // иначе смотрим payment
-    const currentStep = order
-        ? order.paymentStatus === "paid" || order.paymentStatus === "refunded"
-            ? (fulfillmentToStep[order.fulfillmentStatus] ?? 1)
-            : (paymentToStep[order.paymentStatus] ?? 0)
-        : -1
-
-    // Статус для бейджа — показываем fulfillment если оплачено, иначе payment
-    const displayStatus = order
-        ? order.paymentStatus === "paid"
-            ? order.fulfillmentStatus
-            : order.paymentStatus
-        : ""
-
-    const total = order ? parseFloat(order.totalAmount) : 0
-
-    const originalTotal = order
-        ? order.items.reduce((acc, item) => {
-            const snap = item.productSnapshot as ProductSnapshot
-            const orig = snap?.originalPrice ? parseFloat(snap.originalPrice) : parseFloat(item.price)
-            return acc + orig * item.quantity
-        }, 0)
-        : 0
-
-    const saved = originalTotal - total
-
-    const addressSnap = order?.addressSnapshot as AddressSnapshot | null
-
-    const formattedAddress = addressSnap
-        ? [
-            `${addressSnap.street ?? ""} ${addressSnap.houseNumber ?? ""}${addressSnap.houseAddition ? ` ${addressSnap.houseAddition}` : ""}`.trim(),
-            `${addressSnap.postcode ?? ""} ${addressSnap.city ?? ""}`.trim(),
-            addressSnap.country,
-        ]
-            .filter(Boolean)
-            .join(", ")
-        : null
-
-    const formattedDate = order
-        ? new Date(order.createdAt).toLocaleDateString("en-GB", {
-            day: "numeric", month: "long", year: "numeric",
-        })
-        : ""
-
-    // Читаем payment method из первого payment relation если есть,
-    // иначе — не показываем секцию (добавь payments в IOrderWithDetails если нужно)
-    const paymentMethod = (order as IOrderWithDetails & { paymentMethod?: string })?.paymentMethod ?? null
-
     return (
         <>
             {/* Overlay */}
             <div
                 onClick={onClose}
-                className={`fixed inset-0 bg-black/25 z-50 transition-opacity duration-200 ${
-                    open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-                }`}
+                style={{ opacity: open ? Math.max(0, 1 - dragY / 300) : 0 }}
+                className={`fixed inset-0 bg-black/25 z-50 transition-opacity duration-200 ${open ? "pointer-events-auto" : "pointer-events-none"}`}
             />
 
             {/* Drawer */}
             <aside
-                className={`fixed right-0 top-0 bottom-0 w-full max-w-[400px] bg-white border-l border-neutral-200 z-50 flex flex-col
+                style={{
+                    transform:  open ? `translateY(${dragY}px)` : undefined,
+                    transition: isDragging ? "none" : undefined,
+                }}
+                className={`
+                    fixed z-50 bg-white flex flex-col
+                    bottom-0 left-0 right-0 max-h-[92svh] rounded-t-2xl border-t border-neutral-200
                     transition-transform duration-[220ms] ease-[cubic-bezier(.4,0,.2,1)]
-                    ${open ? "translate-x-0" : "translate-x-full"}`}
-                aria-label="Order details"
+                    ${open ? "translate-y-0" : "translate-y-full"}
+                    sm:inset-y-0 sm:left-auto sm:right-0 sm:w-full sm:max-w-[420px]
+                    sm:max-h-none sm:rounded-none sm:border-t-0 sm:border-l
+                    ${open ? "sm:translate-y-0 sm:translate-x-0" : "sm:translate-x-full"}
+                `}
                 role="dialog"
                 aria-modal="true"
+                aria-label="Order details"
             >
+                {/* Drag handle — только мобилка */}
+                <div
+                    className="flex justify-center pt-3 pb-2 sm:hidden shrink-0 cursor-grab touch-none"
+                    {...dragHandlers}
+                >
+                    <div className={`w-10 h-1 rounded-full transition-colors ${isDragging ? "bg-neutral-400" : "bg-neutral-200"}`} />
+                </div>
+
                 {/* Header */}
-                <div className="flex items-start justify-between px-5 py-4 border-b border-neutral-100 sticky top-0 bg-white z-10">
+                <div className="flex items-start justify-between px-5 py-4 border-b border-neutral-100 shrink-0">
                     <div className="flex flex-col gap-0.5">
                         <span className="text-[15px] font-semibold text-neutral-900">Order details</span>
                         {order && (
@@ -157,7 +82,7 @@ export default function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerP
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-400 hover:bg-neutral-50 hover:text-neutral-700 transition-colors duration-100"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-400 hover:bg-neutral-50 transition-colors"
                         aria-label="Close"
                     >
                         <X size={14} />
@@ -165,172 +90,35 @@ export default function OrderDetailDrawer({ order, onClose }: OrderDetailDrawerP
                 </div>
 
                 {/* Body */}
-                {order && (
-                    <div className="flex-1 overflow-y-auto">
+                {order && data && (
+                    <div className="flex-1 overflow-y-auto overscroll-contain">
                         <div className="flex flex-col divide-y divide-neutral-100">
-
-                            {/* Shipment */}
-                            <section className="px-5 py-5">
-                                <p className="text-[11px] font-medium tracking-widest text-neutral-400 uppercase mb-3">
-                                    Shipment
-                                </p>
-                                <div className="bg-neutral-50 border border-neutral-100 rounded-xl px-4 py-4">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <OrderStatusBadge status={displayStatus} />
-                                        <span className="text-[12px] text-neutral-400">{formattedDate}</span>
-                                    </div>
-
-                                    {!isCancelled && !isReturned && (
-                                        <div className="flex flex-col">
-                                            {STEPS.map((step, i) => {
-                                                const done   = i <= currentStep
-                                                const active = i === currentStep
-                                                const last   = i === STEPS.length - 1
-                                                return (
-                                                    <div key={step} className="flex gap-3 items-stretch">
-                                                        <div className="flex flex-col items-center">
-                                                            <div className={`
-                                                                w-[18px] h-[18px] rounded-full flex items-center justify-center shrink-0 mt-0.5
-                                                                ${done ? "bg-neutral-900" : "bg-white border border-neutral-200"}
-                                                            `}>
-                                                                {done && <Check size={10} strokeWidth={2.5} className="text-white" />}
-                                                            </div>
-                                                            {!last && (
-                                                                <div className={`w-px flex-1 my-1 ${i < currentStep ? "bg-neutral-900" : "bg-neutral-200"}`} />
-                                                            )}
-                                                        </div>
-                                                        <div className={`pb-3 pt-0.5 flex-1 ${last ? "pb-0" : ""}`}>
-                                                            <span className={`text-[13px] ${active ? "font-medium text-neutral-900" : done ? "text-neutral-700" : "text-neutral-400"}`}>
-                                                                {step}
-                                                            </span>
-                                                        </div>
-                                                    </div>
-                                                )
-                                            })}
-                                        </div>
-                                    )}
-                                </div>
-                            </section>
-
-                            {/* Items */}
-                            {order.items.length > 0 && (
-                                <section className="px-5 py-5">
-                                    <p className="text-[11px] font-medium tracking-widest text-neutral-400 uppercase mb-3">
-                                        Items ({order.items.length})
-                                    </p>
-                                    <div className="flex flex-col divide-y divide-neutral-100">
-                                        {order.items.map((item) => {
-                                            const snap      = item.productSnapshot as ProductSnapshot
-                                            const price     = parseFloat(item.price)
-                                            const origPrice = snap?.originalPrice ? parseFloat(snap.originalPrice) : null
-                                            const name      = snap?.name      ?? item.product.name
-                                            const brand     = snap?.brand     ?? ""
-                                            const color     = snap?.color     ?? ""
-                                            const returnStatus = getLatestReturnStatus(item) // ← хелпер вместо инлайн-сортировки
-
-                                            return (
-                                                <div key={item.id} className="flex items-center gap-3 py-3 first:pt-0 last:pb-0">
-                                                    <div className="w-10 h-10 rounded-lg bg-neutral-100 border border-neutral-100 flex items-center justify-center shrink-0">
-                                                        <Package size={16} className="text-neutral-400" />
-                                                    </div>
-
-                                                    <div className="flex-1 min-w-0">
-                                                        <p className="text-[13px] font-medium text-neutral-900 truncate">{name}</p>
-                                                        <p className="text-[11px] text-neutral-400 mt-0.5">
-                                                            {[brand, item.size, color].filter(Boolean).join(" · ")}
-                                                        </p>
-                                                        {/* бейдж возврата под мета-строкой, если позиция в возврате */}
-                                                        {returnStatus && (
-                                                            <div className="mt-1.5">
-                                                                <ReturnStatusBadge status={returnStatus} />
-                                                            </div>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="flex flex-col items-end gap-0.5 shrink-0">
-                                                        <span className="text-[13px] font-semibold text-neutral-900 tabular-nums">€{price.toFixed(2)}</span>
-                                                        {origPrice && origPrice > price && (
-                                                            <span className="text-[11px] text-neutral-400 line-through tabular-nums">€{origPrice.toFixed(2)}</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )
-                                        })}
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Summary */}
-                            <section className="px-5 py-5">
-                                <p className="text-[11px] font-medium tracking-widest text-neutral-400 uppercase mb-3">
-                                    Summary
-                                </p>
-                                <div className="flex flex-col gap-2.5">
-                                    <div className="flex justify-between text-[13px]">
-                                        <span className="text-neutral-500">Subtotal</span>
-                                        <span className="text-neutral-900 tabular-nums">€{total.toFixed(2)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-[13px]">
-                                        <span className="text-neutral-500">Shipping</span>
-                                        {parseFloat(order.deliveryFee) > 0 ? (
-                                            <span className="text-neutral-900 tabular-nums">€{parseFloat(order.deliveryFee).toFixed(2)}</span>
-                                        ) : (
-                                            <span className="text-emerald-600 font-medium">Free</span>
-                                        )}
-                                    </div>
-                                    {saved > 0.01 && (
-                                        <div className="flex justify-between text-[13px]">
-                                            <span className="text-neutral-500">You saved</span>
-                                            <span className="text-emerald-600 font-medium tabular-nums">−€{saved.toFixed(2)}</span>
-                                        </div>
-                                    )}
-
-                                    <div className="flex justify-between text-[14px] font-semibold pt-2.5 border-t border-neutral-100">
-                                        <span className="text-neutral-900">Total</span>
-                                        <span className="text-neutral-900 tabular-nums">
-                                            €{(total + parseFloat(order.deliveryFee)).toFixed(2)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </section>
-
-                            {/* Delivery */}
-                            {formattedAddress && (
-                                <section className="px-5 py-5">
-                                    <p className="text-[11px] font-medium tracking-widest text-neutral-400 uppercase mb-3">
-                                        Delivery
-                                    </p>
-                                    <div className="flex items-start gap-2.5">
-                                        <MapPin size={14} className="text-neutral-400 mt-0.5 shrink-0" />
-                                        <span className="text-[13px] text-neutral-700">{formattedAddress}</span>
-                                    </div>
-                                </section>
-                            )}
-
-                            {/* Payment */}
-                            {paymentMethod && (
-                                <section className="px-5 py-5">
-                                    <p className="text-[11px] font-medium tracking-widest text-neutral-400 uppercase mb-3">
-                                        Payment
-                                    </p>
-                                    <div className="flex items-center gap-2.5">
-                                        <CreditCard size={14} className="text-neutral-400 shrink-0" />
-                                        <span className="text-[13px] text-neutral-700">{paymentMethod}</span>
-                                    </div>
-                                </section>
-                            )}
-
+                            <ShipmentSection
+                                displayStatus={data.displayStatus}
+                                formattedDate={data.formattedDate}
+                                currentStep={data.currentStep}
+                                isCancelled={data.isCancelled}
+                                isReturned={data.isReturned}
+                            />
+                            <ItemsSection items={order.items} />
+                            <SummarySection
+                                total={data.total}
+                                deliveryFee={data.deliveryFee}
+                                saved={data.saved}
+                            />
+                            {data.formattedAddress && <DeliverySection address={data.formattedAddress} />}
+                            {paymentMethod && <PaymentSection method={paymentMethod} />}
                         </div>
                     </div>
                 )}
 
                 {/* Footer */}
-                {order && !isCancelled && !isReturned && (
-                    <div className="px-5 py-4 border-t border-neutral-100 flex gap-2.5 bg-white">
-                        <button className="flex-1 py-2.5 text-[13px] font-medium text-neutral-700 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors duration-100">
+                {order && !data?.isCancelled && !data?.isReturned && (
+                    <div className="px-5 py-4 border-t border-neutral-100 flex gap-2.5 bg-white shrink-0 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+                        <button className="flex-1 py-2.5 text-[13px] font-medium text-neutral-700 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
                             Request a return
                         </button>
-                        <button className="flex-1 py-2.5 text-[13px] font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-700 transition-colors duration-100">
+                        <button className="flex-1 py-2.5 text-[13px] font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-700 transition-colors">
                             Track package
                         </button>
                     </div>

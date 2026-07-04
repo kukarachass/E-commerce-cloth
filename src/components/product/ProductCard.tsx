@@ -4,7 +4,7 @@ import Image from "next/image";
 import { formatPrice } from "@/lib/formatPrice";
 import { ProductWithDetails } from "@/types/product-details";
 import AddToFavButton from "@/components/favourites/AddToFavButton";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface IProductCardProps {
     product: ProductWithDetails;
@@ -12,7 +12,7 @@ interface IProductCardProps {
 
 export default function ProductCard({ product }: IProductCardProps) {
     const router = useRouter();
-    const salePrice   = Number(product.originalPrice);
+    const salePrice = Number(product.originalPrice);
     const retailPrice = 195; // TODO: заменить на product.retailPrice
     const discountPct = retailPrice > salePrice
         ? Math.round(((retailPrice - salePrice) / retailPrice) * 100)
@@ -21,18 +21,19 @@ export default function ProductCard({ product }: IProductCardProps) {
     return (
         <div
             onClick={() => router.push(`/product/${product.slug}`)}
-            className="group flex flex-col gap-3 w-full max-w-[180px]"
+            className="group flex flex-col gap-3 w-[170px] shrink-0 cursor-pointer"
         >
             {/* ── Image ── */}
-            <div className="relative w-[180px] h-[270px] overflow-hidden bg-neutral-100">
+            <div className="relative w-[170px] h-[270px] overflow-hidden bg-neutral-100 rounded-[8px]">
                 <Image
                     src={product.images[0].url}
                     alt={product.name}
                     fill
-                    className="rounded-[8px] object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                    sizes="170px"
+                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
                 />
 
-                <AddToFavButton className={"absolute top-2 right-2"} id={product.id} type={"product"}/>
+                <AddToFavButton className="absolute top-2 right-2" id={product.id} type="product" />
 
                 {discountPct > 0 && (
                     <span className="
