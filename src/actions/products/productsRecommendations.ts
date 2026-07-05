@@ -1,8 +1,8 @@
 "use server"
 
-import {ProductWithDetails} from "@/types/product-details";
-import {db} from "@/db";
-import {CartItemWithDetails} from "@/types/cart";
+import { ProductWithDetails } from "@/types/product-details";
+import { db } from "@/db";
+import { CartItemWithDetails } from "@/types/cart";
 
 interface ProductsRecommendationsProps {
     cartItems?: CartItemWithDetails[];
@@ -11,36 +11,37 @@ interface ProductsRecommendationsProps {
 
 const LIMIT = 11;
 
-
-export default async function productsRecommendations({cartItems, gender}: ProductsRecommendationsProps): Promise<ProductWithDetails[]> {
-    if (!gender) throw new Error("products and gender are required");
+export default async function productsRecommendations({ cartItems, gender }: ProductsRecommendationsProps): Promise<ProductWithDetails[]> {
+    if (!gender) throw new Error("gender is required");
 
     if (cartItems && cartItems.length > 0) {
+        console.log("карт айтемы есть")
         const products = cartItems.map(c => c.product)
-        const productIds = cartItems.map(p => p.id);
+        const productIds = cartItems.map(c => c.productId);
         const categoryIds = [...new Set(products.map(p => p.categoryId))];
 
-        // По 2 продукта из каждой категории корзины
         const results = await Promise.all(
             categoryIds.map(catId =>
                 db.query.product.findMany({
-                    where: (p, {eq, and, notInArray}) => and(
+                    where: (p, { eq, and, notInArray }) => and(
                         eq(p.categoryId, catId),
                         eq(p.gender, gender),
-                        notInArray(p.id, productIds),  // не показывать то что уже в корзине
+                        notInArray(p.id, productIds),
                     ),
-                    with: {sizes: true, images: true, brand: true},
+                    with: { sizes: true, images: true, brand: true },
                     limit: 2,
                 })
             )
         );
+        console.error("результаты", results.flat().length)
 
         return results.flat().slice(0, LIMIT);
     }
+    console.warn("карт айтемов нет")
     return await db.query.product.findMany({
-        where: (product, {eq}) => eq(product.gender, gender),
-        with: {sizes: true, images: true, brand: true,},
-        orderBy: (p, {desc}) => desc(p.createdAt),
+        where: (product, { eq }) => eq(product.gender, gender),
+        with: { sizes: true, images: true, brand: true },
+        orderBy: (p, { desc }) => desc(p.createdAt),
         limit: LIMIT
     })
 }

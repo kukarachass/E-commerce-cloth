@@ -13,5 +13,8 @@ export const queryKeys = {
     },
     parentCats: (gender: Gender) => {
         return ['parentCats', gender] as const
+    },
+    recommendations: (gender: Gender, productIds: string) => {
+        return ['recommendations', gender, productIds] as const
     }
 }
