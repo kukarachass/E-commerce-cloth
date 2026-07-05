@@ -11,6 +11,7 @@ export function useFilters() {
 
     const removeFilters = useCallback((key: string, values: string[]) => {
         const params = new URLSearchParams(searchParams.toString())
+        params.delete("page") // ← сброс на первую страницу при смене фильтра
         const current = params.getAll(key).filter(v => !values.includes(v))
         params.delete(key)
         current.forEach(v => params.append(key, v))
@@ -19,7 +20,7 @@ export function useFilters() {
 
     const setFilter = useCallback((key: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString())
-
+        params.delete("page") // ← сброс на первую страницу при смене фильтра
         const current = params.getAll(key)
 
         if (current.includes(value)) {
@@ -38,6 +39,7 @@ export function useFilters() {
     const setUniqueFilter = useCallback(
         (filters: Record<string, string>) => {
             const params = new URLSearchParams(searchParams.toString())
+            params.delete("page") // ← сброс на первую страницу при смене фильтра
             Object.entries(filters).forEach(([key, value]) => {
                 params.set(key, value)
             })
@@ -50,6 +52,7 @@ export function useFilters() {
 
         (keys: string | string[]) => {
             const params = new URLSearchParams(searchParams.toString())
+            params.delete("page") // ← сброс на первую страницу при смене фильтра
             if (Array.isArray(keys)) {
                 keys.forEach((key) => params.delete(key))
             } else {

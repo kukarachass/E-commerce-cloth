@@ -19,7 +19,7 @@ export default async function CategoryPage({
     const categoryData = await getCategoryWithSubs(gender, slug)
     if (!categoryData) notFound()
 
-    const products = await getProducts({
+    const { products, total, page, perPage } = await getProducts({
         gender,
         category: categorySlug,
         ...filters,
@@ -29,11 +29,14 @@ export default async function CategoryPage({
         brand: filters.brand
             ? Array.isArray(filters.brand) ? filters.brand : [filters.brand]
             : undefined,
+        page: typeof filters.page === "string" ? filters.page : undefined, // ← читаем page из URL
     })
+
+    const totalPages = Math.ceil(total / perPage)
 
     return (
         <div>
-            <CatalogContainer products={products} />
+            <CatalogContainer currentPage={page} totalPages={totalPages} products={products} />
         </div>
     )
 }
