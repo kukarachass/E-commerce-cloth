@@ -46,7 +46,7 @@ export default async function CategoryLayout({
             patterns={patterns}
             styles={styles}
             discounts={discounts}
-            products={products}
+            products={products.products}
         >
             {children}
         </CatalogLayout>

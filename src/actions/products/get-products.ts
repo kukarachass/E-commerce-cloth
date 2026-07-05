@@ -9,6 +9,8 @@ import { getCategoryIds, collectDescendantIds, type Category } from "@/lib/db-he
 import { parseSizeFilter } from "@/lib/size-mapping"
 import {Gender} from "@/hooks/useGender";
 
+const PER_PAGE = 24
+
 interface GetProductsProps {
     gender: Gender
     category?: string
@@ -23,6 +25,7 @@ interface GetProductsProps {
     maxPrice?: string
     discount?: string
     sort?: string
+    page?: string
 }
 
 function isAncestorOfSelected(nodeId: string, selectedIds: Set<string>, byId: Map<string, Category>): boolean {
@@ -51,10 +54,11 @@ export async function getProducts({
                                       maxPrice,
                                       discount,
                                       sort,
+                                      page,
                                   }: GetProductsProps) {
 
     if (Array.isArray(productIds) && productIds.length === 0) {
-        return []
+        return { products: [], total: 0, page: 1, perPage: PER_PAGE }
     }
 
     // --- бренды ---
@@ -182,22 +186,45 @@ export async function getProducts({
         categoryIds = all.map(c => c.id)
     }
 
+    // --- пагинация: валидация страницы и offset ---
+    const currentPage = Math.max(1, Number(page) || 1) // клампим мусор: -5, abc, undefined → 1
+    const offset = (currentPage - 1) * PER_PAGE
+
     // --- коллекции ---
     if (productIds && productIds.length > 0) {
-        return db.query.product.findMany({
-            where: and(inArray(product.id, productIds), ...commonFilters),
-            orderBy,
-            with: { brand: true, images: true, sizes: true },
-        })
+        const whereClause = and(inArray(product.id, productIds), ...commonFilters)
+
+        const [products, [{ total }]] = await Promise.all([
+            db.query.product.findMany({
+                where: whereClause,
+                orderBy,
+                limit: PER_PAGE,
+                offset,
+                with: { brand: true, images: true, sizes: true },
+            }),
+            db.select({ total: sql<number>`count(*)::int` }).from(product).where(whereClause),
+        ])
+
+        return { products, total, page: currentPage, perPage: PER_PAGE }
     }
 
-    return db.query.product.findMany({
-        where: and(
-            eq(product.gender, gender),
-            inArray(product.categoryId, categoryIds),
-            ...commonFilters,
-        ),
-        orderBy,
-        with: { brand: true, images: true, sizes: true },
-    })
+    // --- обычный каталог ---
+    const whereClause = and(
+        eq(product.gender, gender),
+        inArray(product.categoryId, categoryIds),
+        ...commonFilters,
+    )
+
+    const [products, [{ total }]] = await Promise.all([
+        db.query.product.findMany({
+            where: whereClause,
+            orderBy,
+            limit: PER_PAGE,
+            offset,
+            with: { brand: true, images: true, sizes: true },
+        }),
+        db.select({ total: sql<number>`count(*)::int` }).from(product).where(whereClause),
+    ])
+
+    return { products, total, page: currentPage, perPage: PER_PAGE }
 }
