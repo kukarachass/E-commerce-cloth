@@ -20,7 +20,7 @@ export default function ReturnsPage() {
     const [returnId, setReturnId] = useState<string | null>(null)
     const [tab, setTab] = useState<Tab>("create")
 
-    const activeOrder = orders?.find((o) => o.id === state.orderId)
+    const activeOrder = orders?.returnableOrders.find((o) => o.id === state.orderId)
 
     const submit = () => {
         if (!state.orderId) return
