@@ -2,6 +2,8 @@
 
 import {db} from "@/db";
 import {getServerSession} from "@/lib/get-session";
+import {desc} from "drizzle-orm";
+import {order} from "@/db/schema";
 
 export async function getOrders() {
     const session = await getServerSession();
@@ -18,7 +20,8 @@ export async function getOrders() {
             returns: {
                 with: { items: true }
             }
-        }
+        },
+        orderBy: desc(order.createdAt),
     })
 
 }
