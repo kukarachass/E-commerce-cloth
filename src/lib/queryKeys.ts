@@ -16,5 +16,8 @@ export const queryKeys = {
     },
     recommendations: (gender: Gender, productIds: string) => {
         return ['recommendations', gender, productIds] as const
+    },
+    cancelOrders: (orderId: string) => {
+        return ['cancel-order', orderId] as const
     }
 }

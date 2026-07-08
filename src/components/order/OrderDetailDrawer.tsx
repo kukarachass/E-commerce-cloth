@@ -1,16 +1,18 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { X } from "lucide-react"
 import { IOrderWithReturns } from "@/types/IOrder"
 import { IOrderWithDetails } from "@/types/user"
 import { useOrderDrawerData } from "@/hooks/order/useOrderDrawerData"
-import {ShipmentSection} from "@/components/order/drawer/ShippmentSection";
-import {ItemsSection} from "@/components/order/drawer/ItemSection";
-import {SummarySection} from "@/components/order/drawer/SummarySection";
-import {DeliverySection} from "@/components/order/drawer/DeliverySection";
-import {PaymentSection} from "@/components/order/drawer/PaymentSection";
-import {useSwipeToClose} from "@/hooks/layout/ui/useSwipeToClose";
+import { ShipmentSection } from "@/components/order/drawer/ShippmentSection"
+import { ItemsSection } from "@/components/order/drawer/ItemSection"
+import { SummarySection } from "@/components/order/drawer/SummarySection"
+import { DeliverySection } from "@/components/order/drawer/DeliverySection"
+import { PaymentSection } from "@/components/order/drawer/PaymentSection"
+import { CancelOrderModal } from "@/components/order/drawer/CancelOrderModal"
+import { useSwipeToClose } from "@/hooks/layout/ui/useSwipeToClose"
+import useCancelPaidOrder from "@/hooks/order/useCancelPaidOrder"
 
 interface Props {
     order: IOrderWithReturns | null
@@ -18,6 +20,8 @@ interface Props {
 }
 
 export default function OrderDetailDrawer({ order, onClose }: Props) {
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+    const { mutate: cancel, isPending: isCancelling } = useCancelPaidOrder(order?.id)
     const open          = !!order
     const data          = useOrderDrawerData(order)
     const { dragY, isDragging, dragHandlers } = useSwipeToClose(onClose)
@@ -115,15 +119,39 @@ export default function OrderDetailDrawer({ order, onClose }: Props) {
                 {/* Footer */}
                 {order && !data?.isCancelled && !data?.isReturned && (
                     <div className="px-5 py-4 border-t border-neutral-100 flex gap-2.5 bg-white shrink-0 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-                        <button className="flex-1 py-2.5 text-[13px] font-medium text-neutral-700 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
-                            Request a return
-                        </button>
+                        {order.fulfillmentStatus === "unfulfilled" ? (
+                            <button
+                                disabled={isCancelling}
+                                onClick={(e) => {
+                                    e.stopPropagation()
+                                    setShowCancelConfirm(true)
+                                }}
+                                className="cursor-pointer flex-1 py-2.5 text-[13px] font-medium text-white border bg-red-700 border-neutral-200 rounded-lg hover:bg-red-500/90 transition-colors"
+                            >
+                                {isCancelling ? "Cancelling..." : "Cancel order"}
+                            </button>
+                        ) : (
+                            <button className="cursor-pointer flex-1 py-2.5 text-[13px] font-medium text-neutral-700 border border-neutral-200 rounded-lg hover:bg-neutral-50 transition-colors">
+                                Request a return
+                            </button>
+                        )}
                         <button className="flex-1 py-2.5 text-[13px] font-semibold text-white bg-neutral-900 rounded-lg hover:bg-neutral-700 transition-colors">
                             Track package
                         </button>
                     </div>
                 )}
             </aside>
+
+            <CancelOrderModal
+                open={showCancelConfirm}
+                isPending={isCancelling}
+                onClose={() => setShowCancelConfirm(false)}
+                onConfirm={() => {
+                    cancel(undefined, {
+                        onSettled: () => setShowCancelConfirm(false),
+                    })
+                }}
+            />
         </>
     )
 }
