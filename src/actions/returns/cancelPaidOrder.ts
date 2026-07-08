@@ -3,7 +3,7 @@
 import {getServerSession} from "@/lib/get-session";
 import {db} from "@/db";
 import {stripe} from "@/lib/stripe/stripe";
-import {order, orderItem, productSize} from "@/db/schema";
+import {order, orderItem, productSize, returnItem, returnRequest} from "@/db/schema";
 import {and, eq} from "drizzle-orm";
 
 interface cancelPaidOrderProps {
@@ -48,39 +48,75 @@ export async function cancelPaidOrder({ orderId }: cancelPaidOrderProps): Promis
     const { userPayment, ord } = result
     if (!userPayment.stripePaymentIntentId) return { success: false, error: "PAYMENT_NOT_FOUND" }
 
+    let stripeRefundId: string | null;
     try {
-        await stripe.refunds.create({
+        const result = await stripe.refunds.create({
             payment_intent: userPayment.stripePaymentIntentId,
             amount: userPayment.amount,
             reason: "requested_by_customer"
 
         }, {idempotencyKey: `cancel-refund-${orderId}`})
+        stripeRefundId = result.id
+
     } catch (err) {
         console.error(err)
+        stripeRefundId = null
         return {error: "REFUND_FAILED", success: false};
     }
 
-    await db.transaction(async (tx) => {
-        const [fresh] = await tx.select().from(order).where(eq(order.id, ord.id)).for("update")
-        if (!fresh || fresh.paymentStatus !== "paid") return
 
-        await tx.update(order)
-            .set({paymentStatus: "refunded", fulfillmentStatus: "cancelled"})
-            .where(eq(order.id, ord.id))
 
-        const orderItems = await tx.select().from(orderItem).where(eq(orderItem.orderId, ord.id))
+    try{
+        await db.transaction(async (tx) => {
+            const [fresh] = await tx.select().from(order).where(eq(order.id, ord.id)).for("update")
+            if (!fresh || fresh.paymentStatus !== "paid") return
 
-        for (const it of orderItems) {
-            const [ps] = await tx.select().from(productSize)
-                .where(eq(productSize.id, it.productSizeId))   // productSizeId прямо на orderItem
-                .for("update")
-            if (ps) {
+            await tx.update(order)
+                .set({paymentStatus: "refunded", fulfillmentStatus: "cancelled"})
+                .where(eq(order.id, fresh.id))
+
+            const [request] = await tx.insert(returnRequest)
+                .values({
+                    orderId: fresh.id,
+                    userId: session.user.id,
+                    status: "closed",
+                    stripeRefundId: stripeRefundId,
+                    refundedAmount: userPayment.amount,
+                    currency: userPayment.currency,
+                })
+                .returning({ id: returnRequest.id })
+
+            const orderItems = await tx.select().from(orderItem).where(eq(orderItem.orderId, fresh.id))
+
+            for (const it of orderItems) {
+
+                const [ps] = await tx.select().from(productSize)
+                    .where(eq(productSize.id, it.productSizeId))   // productSizeId прямо на orderItem
+                    .for("update")
+                if (!ps) throw new Error(`ProductSize not found for orderItem ${it.id}`)
+
                 await tx.update(productSize)
                     .set({stockAmount: ps.stockAmount + it.quantity})
                     .where(eq(productSize.id, ps.id))
+
+                await tx.insert(returnItem)
+                    .values({
+                        returnRequestId: request.id,
+                        orderItemId: it.id,
+                        status: "refunded",
+                        quantity: it.quantity,
+                        reason: "changed_mind",
+                        price: it.price,
+                        restocked: true
+                    })
             }
-        }
-    })
+        })
+    }catch(err){
+        console.error("CRITICAL: refund succeeded but DB update failed", {
+            orderId, stripeRefundId, err,
+        })
+        return { success: false, error: "UNKNOWN" }
+    }
 
     return {success: true}
 }
