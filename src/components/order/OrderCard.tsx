@@ -8,10 +8,15 @@ interface OrderCardProps {
     onClick: (order: IOrderWithReturns) => void
 }
 
+const NEW_ORDER_WINDOW_MINUTES = 10
+
 export default function OrderCard({ order, onClick }: OrderCardProps) {
     const date = new Date(order.createdAt).toLocaleDateString("en-GB", {
         day: "numeric", month: "short", year: "numeric",
     })
+
+    const minutesSinceCreated = (Date.now() - new Date(order.createdAt).getTime()) / 60000
+    const isNew = minutesSinceCreated <= NEW_ORDER_WINDOW_MINUTES
 
     const total = parseFloat(order.totalAmount)
 
@@ -42,19 +47,32 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
     return (
         <button
             onClick={() => onClick(order)}
-            className="group w-full text-left bg-white border border-neutral-200 rounded-xl px-4 py-4 sm:px-5 hover:border-neutral-300 hover:shadow-[0_1px_6px_rgba(0,0,0,0.06)] transition-all duration-150"
+            className={`group relative w-full text-left bg-white rounded-xl px-4 py-4 sm:px-5 hover:shadow-[0_1px_6px_rgba(0,0,0,0.06)] transition-all duration-150 ${
+                isNew
+                    ? "border border-neutral-900/15 ring-1 ring-neutral-900/5 hover:border-neutral-900/25"
+                    : "border border-neutral-200 hover:border-neutral-300"
+            }`}
         >
             <div className="flex items-start gap-3 sm:gap-4">
 
                 {/* Left — info */}
                 <div className="flex flex-col gap-1.5 flex-1 min-w-0">
-                    {/* ID + date */}
+                    {/* ID + date + new badge */}
                     <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-mono text-[11px] tracking-wider text-neutral-400 uppercase">
                             #{order.id.slice(0, 8)}
                         </span>
                         <span className="text-[11px] text-neutral-300">·</span>
                         <span className="text-[12px] text-neutral-400">{date}</span>
+                        {isNew && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-neutral-900 px-2 py-0.5 text-[10px] font-medium text-white">
+                                <span className="relative flex h-1.5 w-1.5">
+                                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                                </span>
+                                New
+                            </span>
+                        )}
                     </div>
 
                     {/* Item names */}

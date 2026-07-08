@@ -30,6 +30,7 @@ export default async function ProductPage({ params }: Props) {
                         <ProductImageGallery alt={product.name} images={product.images} />
                     </div>
                     <div className="flex-1 min-w-0">
+                        <span className="font-bold text-red-500">{product.id}</span>
                         <ProductInfo product={product} />
                     </div>
                 </div>
