@@ -14,8 +14,6 @@ import {getStyles} from "@/actions/filters/style/style";
 import {getDiscounts} from "@/actions/filters/discount/dicount";
 import {Gender} from "@/hooks/useGender";
 import {notFound} from "next/navigation";
-import MobileCategoryDrawer from "@/components/catalog/sidebar/adaptive/MobileCategoryDrawer";
-import {useGetCategoryByProductIds} from "@/hooks/category/useGetCategoryByProductIds";
 
 interface Props {
     params: Promise<{ gender: Gender; collection: string }>
@@ -52,7 +50,7 @@ export default async function CollectionPage({params, searchParams}: Props) {
         getDiscounts({ gender, productIds: collectionProductIds }),
     ])
 
-
+    const totalPages = Math.ceil(products.total / products.perPage)
 
     return (
         <Container>
@@ -79,7 +77,7 @@ export default async function CollectionPage({params, searchParams}: Props) {
                         />
                     </div>
                 </div>
-                <CatalogContainer variant="collection" products={products}/>
+                <CatalogContainer currentPage={products.page} totalPages={totalPages} products={products.products}/>
             </div>
         </Container>
     )

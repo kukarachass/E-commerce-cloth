@@ -226,5 +226,8 @@ export async function getProducts({
         db.select({ total: sql<number>`count(*)::int` }).from(product).where(whereClause),
     ])
 
-    return { products, total, page: currentPage, perPage: PER_PAGE }
+    const totalPages = Math.ceil(total / PER_PAGE)
+
+
+    return { products, total, page: currentPage, perPage: PER_PAGE, totalPages}
 }
