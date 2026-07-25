@@ -63,6 +63,11 @@ export const auth = betterAuth({
                 type: "string",
                 required: false,
             },
+            role: {
+                type: "string",
+                defaultValue: "customer",
+                input: false,   // ← самая важная строчка во всём файле
+            },
         }
     },
     hooks: {
