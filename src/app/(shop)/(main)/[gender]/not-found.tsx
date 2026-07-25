@@ -1,4 +1,4 @@
-import NotFoundPage from "@/app/not-found";
+import NotFoundPage from "@/app/(shop)/not-found";
 
 export default function NotFound(){
     return <NotFoundPage/>;

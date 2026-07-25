@@ -35,16 +35,16 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
     return (
         <html lang="en" className={`${sourceSans.variable} ${cormorant.variable} h-full antialiased`}>
         <body className={`${sourceSans.className} min-h-screen flex flex-col`}>
-        <ReactQueryClientProvider>
-            <GenderStoreHydrator/>
-            <GenderSync/>
-            <MobileMenu/>
-            <FavAuthModal/>
-            <PendingOrderNotifier/>
-            <ScrollToTop/>
-            <Toaster position="bottom-center" theme={"dark"}/>
-            {children}
-        </ReactQueryClientProvider>
+            <ReactQueryClientProvider>
+                <GenderStoreHydrator/>
+                <GenderSync/>
+                <MobileMenu/>
+                <FavAuthModal/>
+                <PendingOrderNotifier/>
+                <ScrollToTop/>
+                <Toaster position="bottom-center" theme={"dark"}/>
+                {children}
+            </ReactQueryClientProvider>
         </body>
         </html>
     )

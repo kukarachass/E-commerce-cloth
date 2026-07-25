@@ -2,7 +2,7 @@ import {db} from "@/db";
 import {order} from "@/db/schema";
 import {and, eq, lt} from "drizzle-orm";
 import {verifySignatureAppRouter} from "@upstash/qstash/nextjs";
-import {reconcileOrder} from "@/app/api/jobs/reconcile/reconcileOrder";
+import {reconcileOrder} from "@/app/(shop)/api/jobs/reconcile/reconcileOrder";
 
 export const runtime = "nodejs"
 

@@ -82,7 +82,7 @@ The checkout flow ([`src/actions/checkout/checkout.ts`](src/actions/checkout/che
 3. If the Stripe API call itself fails after the DB commit, the code explicitly **compensates** by
    releasing the reserved stock (`releaseStock`) — no orphaned "reserved forever" inventory.
 
-The webhook handler ([`src/app/api/webhooks/stripe/route.ts`](src/app/api/webhooks/stripe/route.ts))
+The webhook handler ([`src/app/api/webhooks/stripe/route.ts`](src/app/(shop)/api/webhooks/stripe/route.ts))
 is where most of the interesting engineering lives:
 
 - **Signature verification happens before any database access.** The raw request body (not parsed
@@ -113,7 +113,7 @@ Webhooks are "best effort, at least once" — never "guaranteed, exactly once." 
 never reaches the app (DNS blip, deploy restart at the wrong millisecond), an order would be stuck
 `pending` forever even though the customer was actually charged.
 
-[`src/app/api/jobs/reconcile/reconcileOrder.ts`](src/app/api/jobs/reconcile/reconcileOrder.ts) closes
+[`src/app/api/jobs/reconcile/reconcileOrder.ts`](src/app/(shop)/api/jobs/reconcile/reconcileOrder.ts) closes
 that gap by **asking Stripe directly** for the ground truth of a Checkout Session and reusing the
 exact same idempotent handlers the webhook uses:
 
@@ -270,7 +270,7 @@ than calling Resend inline, so a slow or down email provider can never delay a S
 response (Stripe retries webhooks that don't 200 quickly, which would otherwise risk duplicate
 processing).
 
-- The job endpoint ([`src/app/api/jobs/order-confirmation/route.ts`](src/app/api/jobs/order-confirmation/route.ts))
+- The job endpoint ([`src/app/api/jobs/order-confirmation/route.ts`](src/app/(shop)/api/jobs/order-confirmation/route.ts))
   is wrapped in `verifySignatureAppRouter`, which checks QStash's signing keys before the handler
   runs — so it can't be triggered by an arbitrary POST from the internet.
 - QStash itself provides retry-with-backoff (`retries: 3`); the handler is written to be safely
