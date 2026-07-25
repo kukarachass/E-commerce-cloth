@@ -10,7 +10,6 @@ import {authClient} from "@/lib/auth-client";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import {useRouter} from "next/navigation";
 import AdminSvg from "@/components/ui/icons/AdminSvg";
-import useIsAdmin from "@/hooks/useIsAdmin";
 import Link from "next/link";
 
 interface Props {
@@ -19,9 +18,9 @@ interface Props {
 
 export default function AccountActionsModal({ onChange }: Props) {
     const ref = useRef<HTMLDivElement>(null)
-    const { data: isAdmin} = useIsAdmin();
     const router = useRouter()
     const { data: session, isPending } = authClient.useSession()
+    const isAdmin = session?.user.role === "admin"
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {

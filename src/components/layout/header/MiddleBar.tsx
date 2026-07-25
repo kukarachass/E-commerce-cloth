@@ -14,9 +14,6 @@ import Link from "next/link"
 import Container from "@/components/layout/Сontainer"
 import BurgerButton from "@/components/layout/header/adaptive/BurgerButton"
 import SearchButton from "@/components/layout/header/adaptive/SearchButton"
-import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
-import {isAdmin} from "@/lib/admin/rbac";
-import useIsAdmin from "@/hooks/useIsAdmin";
 
 interface Props {
     className?: string

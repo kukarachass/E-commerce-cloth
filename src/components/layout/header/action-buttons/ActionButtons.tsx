@@ -2,11 +2,8 @@
 
 import {useRouter} from "next/navigation"
 import {useStickyStore} from "@/store/useStickyStore"
-import {useSearchStore} from "@/store/useSearchOpen"
-import {Player} from "@lordicon/react"
-import {useRef, useState} from "react"
+import {useState} from "react"
 
-import searchJson from "./search.json"
 import accountJson from "./account.json"
 import favJson from "./fav.json"
 import cartJson from "./cart.json"
@@ -16,8 +13,6 @@ import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands";
 import {useGetCart} from "@/hooks/cart/useGetCart";
 import LottieButton from "@/components/layout/header/action-buttons/LottieButton";
 import SearchButton from "@/components/layout/header/adaptive/SearchButton";
-import useIsAdmin from "@/hooks/useIsAdmin";
-import AdminSvg from "@/components/ui/icons/AdminSvg";
 
 export default function ActionButtons() {
     const isSticky = useStickyStore(state => state.isSticky)

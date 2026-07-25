@@ -3,6 +3,8 @@ import {headers} from "next/headers";
 import {auth} from "@/lib/auth";
 import {isAdmin} from "@/lib/admin/rbac";
 import Link from "next/link";
+import "@/app/(shop)/globals.css";
+
 
 export default async function AdminLayout({
                                               children,
@@ -16,8 +18,8 @@ export default async function AdminLayout({
 
     return (
         <html lang="en" className={`h-full antialiased`}>
-        <body className={`min-h-screen flex flex-col`}>
-        <aside className="w-[240px] p-4 border border-r-[#eee]">
+        <body className={`min-h-screen flex`}>
+        <aside className="w-[240px] p-4 border-r border-[#eee]">
             <div className="mb-4 font-normal">extropy admin</div>
             <nav className="grid gap-8">
                 <a href="/admin">Дашборд</a>
