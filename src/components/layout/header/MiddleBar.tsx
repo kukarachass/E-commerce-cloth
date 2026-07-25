@@ -14,6 +14,9 @@ import Link from "next/link"
 import Container from "@/components/layout/Сontainer"
 import BurgerButton from "@/components/layout/header/adaptive/BurgerButton"
 import SearchButton from "@/components/layout/header/adaptive/SearchButton"
+import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
+import {isAdmin} from "@/lib/admin/rbac";
+import useIsAdmin from "@/hooks/useIsAdmin";
 
 interface Props {
     className?: string
@@ -25,6 +28,7 @@ export default function MiddleBar({ className }: Props) {
 
     const setMiddleBarHeight = useMiddleBarHeight(state => state.setMiddleBarHeight)
     const ref = useElementHeight<HTMLDivElement>(setMiddleBarHeight)
+
 
     return (
         <div ref={ref} className={cn(`bg-white z-40 sticky px-4 xl:px-0 top-0 ${className}`, {
@@ -46,7 +50,6 @@ export default function MiddleBar({ className }: Props) {
                 </Link>
                 <ActionButtons />
             </Container>
-
             <AnimatePresence>
                 {searchOpen && <SearchDropdown />}
             </AnimatePresence>
