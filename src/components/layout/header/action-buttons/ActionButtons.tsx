@@ -16,6 +16,8 @@ import useFavouriteBrands from "@/hooks/fav/useFavouriteBrands";
 import {useGetCart} from "@/hooks/cart/useGetCart";
 import LottieButton from "@/components/layout/header/action-buttons/LottieButton";
 import SearchButton from "@/components/layout/header/adaptive/SearchButton";
+import useIsAdmin from "@/hooks/useIsAdmin";
+import AdminSvg from "@/components/ui/icons/AdminSvg";
 
 export default function ActionButtons() {
     const isSticky = useStickyStore(state => state.isSticky)

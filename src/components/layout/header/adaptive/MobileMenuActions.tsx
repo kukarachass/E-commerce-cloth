@@ -29,7 +29,7 @@ export default function MobileMenuActions({ onClose }: Props) {
     return (
         <div className="border-t border-neutral-100 px-3 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
             <Link
-                href="/account/my-profile"
+                href="/src/app/(shop)/account/my-profile"
                 onClick={onClose}
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-[14px] font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
             >
