@@ -12,7 +12,7 @@ import {
     date,
     check,
     pgEnum,
-    AnyPgColumn, uniqueIndex,
+    AnyPgColumn, uniqueIndex, jsonb,
 } from "drizzle-orm/pg-core"
 import { relations, sql } from "drizzle-orm"
 
@@ -40,6 +40,7 @@ export const user = pgTable("user", {
     stripeCustomerId: text("stripe_customer_id").unique(), // cus_... ; nullable — создаём лениво при первой оплате
     createdAt:      timestamp("created_at").defaultNow().notNull(),
     updatedAt:      timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
+    role: text("role").notNull().default("customer"),  // "customer" | "admin"
 })
 
 // Better Auth таблицы — не трогать
@@ -84,6 +85,52 @@ export const verification = pgTable("verification", {
 }, (t) => [
     index("verification_identifier_idx").on(t.identifier),
 ])
+
+export const auditActionEnum = pgEnum("audit_action", [
+    "create",
+    "update",
+    "delete",
+    "restore",
+    "login",
+    "export",
+]);
+
+export const auditLog = pgTable(
+    "audit_log",
+    {
+        id: uuid("id").primaryKey().defaultRandom(),
+
+        actorId: text("actor_id").references(() => user.id, {
+            onDelete: "set null",
+        }),
+        /** дублируем email строкой — чтобы лог остался читаемым, даже если юзера удалят */
+        actorEmail: text("actor_email"),
+
+        action: auditActionEnum("action").notNull(),
+
+        /** имя таблицы/ресурса: "products", "orders" */
+        entityType: text("entity_type").notNull(),
+        /** id записи как строка (потому что где-то uuid, где-то text) */
+        entityId: text("entity_id"),
+
+        /** состояние ДО и ПОСЛЕ — для диффа в UI */
+        before: jsonb("before"),
+        after: jsonb("after"),
+
+        ipAddress: text("ip_address"),
+        userAgent: text("user_agent"),
+
+        createdAt: timestamp("created_at", { withTimezone: true })
+            .notNull()
+            .defaultNow(),
+    },
+    (t) => [
+        index("audit_entity_idx").on(t.entityType, t.entityId),
+        index("audit_actor_idx").on(t.actorId),
+        index("audit_created_idx").on(t.createdAt),
+    ],
+);
+
 
 
 // ============================================================
