@@ -1,13 +1,13 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { and, eq, ne } from "drizzle-orm";
-import { db } from "@/db";
-import { product, productSize, productImage } from "@/db/schema";
-import { requireAdmin } from "@/lib/admin/rbac";
-import { logAudit } from "@/lib/admin/audit";
-import { productFormSchema } from "@/lib/admin/validation/product";
+import {revalidatePath} from "next/cache";
+import {redirect} from "next/navigation";
+import {and, eq, ne} from "drizzle-orm";
+import {db} from "@/db";
+import {product, productSize, productImage} from "@/db/schema";
+import {requireAdmin} from "@/lib/admin/rbac";
+import {logAudit} from "@/lib/admin/audit";
+import {productFormSchema} from "@/lib/admin/validation/product";
 
 export type ActionState = {
     ok: boolean;
@@ -20,15 +20,15 @@ export async function createProduct(
     formData: FormData,
 ): Promise<ActionState> {
 
-    const { session } = await requireAdmin();
+    const {session} = await requireAdmin();
 
     const raw = {
         name: formData.get("name"),
         slug: formData.get("slug"),
         shortDescription: formData.get("shortDescription"),
         description: formData.get("description"),
-        originalPrice: formData.get("originalPrice"),
-        discountPrice: formData.get("discountPrice"),
+        oldPrice: formData.get("originalPrice"),
+        price: formData.get("discountPrice"),
         material: formData.get("material"),
         careInstructions: formData.get("careInstructions"),
         gender: formData.get("gender"),
@@ -41,37 +41,41 @@ export async function createProduct(
 
     const parsed = productFormSchema.safeParse(raw);
     if (!parsed.success) {
-        return { ok: false, errors: parsed.error.flatten().fieldErrors };
+        return {ok: false, errors: parsed.error.flatten().fieldErrors};
     }
     const data = parsed.data;
 
-    // 3. Проверка уникальности slug — до вставки, чтобы дать понятную ошибку
+// Нормализация цен: запятую в точку, старая цена по умолчанию = текущей
+    const price = data.price.replace(",", ".");
+    const oldPrice = data.oldPrice ? data.oldPrice.replace(",", ".") : price;
+
+    const discount =
+        Number(oldPrice) > Number(price)
+            ? Math.round((1 - Number(price) / Number(oldPrice)) * 100)
+            : 0;
+
+// slug: если пустой — генерим из названия
+    const slug = data.slug?.trim() || slugify(data.name);
+
+// Проверка уникальности — уже по финальному slug
     const existing = await db.query.product.findFirst({
-        where: eq(product.slug, data.slug),
-        columns: { id: true },
+        where: eq(product.slug, slug),
+        columns: {id: true},
     });
     if (existing) {
-        return { ok: false, errors: { slug: ["Такой slug уже занят"] } };
+        return {ok: false, errors: {slug: ["Такой slug уже занят"]}};
     }
-
-    // 4. ЗАПИСЬ — всё в одной транзакции
-    const discount =
-        Number(data.originalPrice) > 0
-            ? Math.round(
-                (1 - Number(data.discountPrice) / Number(data.originalPrice)) * 100,
-            )
-            : 0;
 
     const newId = await db.transaction(async (tx) => {
         const [created] = await tx
             .insert(product)
             .values({
                 name: data.name,
-                slug: data.slug,
+                slug,                        // ← локальная, не data.slug
                 shortDescription: data.shortDescription || null,
                 description: data.description || null,
-                originalPrice: data.originalPrice,
-                discountPrice: data.discountPrice,
+                originalPrice: oldPrice,     // ← строка гарантированно есть
+                discountPrice: price,
                 discount,
                 material: data.material || null,
                 careInstructions: data.careInstructions || null,
@@ -80,11 +84,11 @@ export async function createProduct(
                 categoryId: data.categoryId,
                 isActive: data.isActive,
             })
-            .returning({ id: product.id });
+            .returning({id: product.id});
 
         if (data.sizes.length) {
             await tx.insert(productSize).values(
-                data.sizes.map((s) => ({ ...s, productId: created.id })),
+                data.sizes.map((s) => ({...s, productId: created.id})),
             );
         }
 
@@ -105,7 +109,7 @@ export async function createProduct(
             action: "create",
             entityType: "product",
             entityId: created.id,
-            after: { ...data, discount },
+            after: {...data, discount},
         });
 
         return created.id;
@@ -113,5 +117,9 @@ export async function createProduct(
 
     // 5. Сброс кэша и переход
     revalidatePath("/admin/products");
-    redirect(`/admin/products/${newId}`);
+    return { ok: true, message: `Товар «${data.name}» создан` };
+}
+
+function slugify(s: string) {
+    return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
