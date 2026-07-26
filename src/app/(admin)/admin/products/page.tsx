@@ -18,7 +18,7 @@ export default async function ProductsPage({ searchParams }: {
         <div className="w-full">
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-xl">Товары <span className="text-gray-400">({total})</span></h1>
-                <Link href="/admin/products/new" className="px-4 py-2 bg-black text-white rounded-md">
+                <Link href="/admin/new" className="px-4 py-2 bg-black text-white rounded-md">
                     Добавить товар
                 </Link>
             </div>
