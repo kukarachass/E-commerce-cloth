@@ -1,22 +1,35 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import {useActionState, useEffect, useRef, useState} from "react";
 import { createProduct, type ActionState } from "@/lib/admin/actions/products";
+import {CategoryGroup} from "@/lib/admin/queries/categories";
+import {toast} from "sonner";
 
 type Option = { id: string; name: string };
 type SizeRow = { size: string; sizeSystem: string; stockAmount: number };
 
 export default function ProductForm({
                                         brands,
-                                        categories,
+                                        categoryGroups,
                                     }: {
     brands: Option[];
-    categories: Option[];
+    categoryGroups: CategoryGroup[];
 }) {
     const [state, formAction, pending] = useActionState<ActionState, FormData>(
         createProduct,
         { ok: false },
     );
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if (state.ok) {
+            formRef.current?.reset();
+            setSizes([{ size: "", sizeSystem: "EU", stockAmount: 0 }]);
+            setImages([]);
+            toast.success("Product has been added.");
+        }
+    }, [state.ok, state]);
+
 
     const [sizes, setSizes] = useState<SizeRow[]>([
         { size: "", sizeSystem: "EU", stockAmount: 0 },
@@ -27,7 +40,7 @@ export default function ProductForm({
     const err = (f: string) => state.errors?.[f]?.[0];
 
     return (
-        <form action={formAction} className="max-w-2xl grid gap-4">
+        <form ref={formRef} action={formAction} className="max-w-2xl grid gap-4">
             <Field label="Название" error={err("name")}>
                 <input
                     name="name"
@@ -61,7 +74,6 @@ export default function ProductForm({
                     <select name="gender" className="border rounded-md px-3 py-2 w-full">
                         <option value="women">Women</option>
                         <option value="men">Men</option>
-                        <option value="unisex">Unisex</option>
                     </select>
                 </Field>
                 <Field label="Бренд" error={err("brandId")}>
@@ -71,9 +83,17 @@ export default function ProductForm({
                     </select>
                 </Field>
                 <Field label="Категория" error={err("categoryId")}>
-                    <select name="categoryId" className="border rounded-md px-3 py-2 w-full">
-                        <option value="">—</option>
-                        {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    <select name="categoryId" defaultValue="" className="border rounded-md px-3 py-2 w-full">
+                        <option value="">— выберите категорию —</option>
+                        {categoryGroups.map((g) => (
+                            <optgroup key={g.gender} label={g.label}>
+                                {g.items.map((c) => (
+                                    <option key={c.id} value={c.id}>
+                                        {"\u00A0".repeat((c.level - 1) * 3)}{c.level > 1 ? "└ " : ""}{c.name}
+                                    </option>
+                                ))}
+                            </optgroup>
+                        ))}
                     </select>
                 </Field>
             </div>
