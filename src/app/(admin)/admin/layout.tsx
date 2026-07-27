@@ -4,6 +4,7 @@ import {auth} from "@/lib/auth";
 import {isAdmin} from "@/lib/admin/rbac";
 import Link from "next/link";
 import "@/app/(shop)/globals.css";
+import {Toaster} from "sonner";
 
 
 export default async function AdminLayout({
@@ -29,6 +30,8 @@ export default async function AdminLayout({
             <Link href={"/women"}>
                 Back to store
             </Link>
+            <Toaster position="bottom-center" theme={"dark"}/>
+
         </aside>
         <main className="flex p-6">{children}</main>
         </body>
