@@ -13,12 +13,7 @@ export type OrderListParams = {
     fulfillment?: OrderFulfillmentStatus;
 };
 
-export async function getOrderList({
-                                       page = 1,
-                                       search,
-                                       payment,
-                                       fulfillment,
-                                   }: OrderListParams) {
+export async function getOrderList({page = 1, search, payment, fulfillment }: OrderListParams) {
     const conditions = [];
 
     if (search) conditions.push(ilike(order.email, `%${search}%`));
@@ -53,4 +48,16 @@ export async function getOrderList({
     ]);
 
     return { rows, total, page, totalPages: Math.ceil(total / PER_PAGE) };
+}
+export async function getOrderDetail(id: string) {
+    const row = await db.query.order.findFirst({
+        where: eq(order.id, id),
+        with: {
+            items: true,
+            payments: { orderBy: (p, { desc }) => [desc(p.createdAt)] },
+            user: { columns: { id: true, name: true, email: true } },
+            returns: { with: { items: true } },
+        },
+    });
+    return row ?? null;
 }
