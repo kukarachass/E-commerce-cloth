@@ -1,5 +1,5 @@
 import {InferSelectModel} from "drizzle-orm";
-import {order, orderItem} from "@/db/schema";
+import {order, orderFulfillmentStatusEnum, orderItem, orderPaymentStatusEnum, paymentStatusEnum} from "@/db/schema";
 import {ProductWithDetails} from "@/types/product-details";
 import {getOrders} from "@/actions/order/getOrders";
 import {ReturnableOrder} from "@/types/returns";
@@ -9,6 +9,19 @@ export type IOrderItem = InferSelectModel<typeof orderItem>
 export type IOrderItemWithProduct = IOrderItem & {
     product: ProductWithDetails;
 }
+
+export type OrderPaymentStatus = (typeof orderPaymentStatusEnum.enumValues)[number];
+export type OrderFulfillmentStatus = (typeof orderFulfillmentStatusEnum.enumValues)[number];
+export type PaymentStatus = (typeof paymentStatusEnum.enumValues)[number];
+export function parseEnumParam<T extends string>(
+    value: string | string[] | undefined,
+    allowed: readonly T[],
+): T | undefined {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (!v || v === "all") return undefined;
+    return allowed.find((a) => a === v);
+}
+
 
 export type IOrderWithReturns = Awaited<ReturnType<typeof getOrders>>[number]
 export type AddressSnapshot = {
