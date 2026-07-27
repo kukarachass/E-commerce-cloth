@@ -1,3 +1,6 @@
+"use server";
+
+
 import {ActionState} from "@/lib/admin/actions/createProduct";
 import {requireAdmin} from "@/lib/admin/rbac";
 import {db} from "@/db";
