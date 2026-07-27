@@ -1,8 +1,4 @@
 import {productFormSchema, ProductFormValues} from "@/lib/admin/validation/product";
-import slugify from "@/lib/slugify";
-import {db} from "@/db";
-import {eq} from "drizzle-orm";
-import {product} from "@/db/schema";
 import {z} from "zod";
 
 type FormErrors = z.inferFlattenedErrors<typeof productFormSchema>["fieldErrors"];
@@ -10,7 +6,7 @@ type FormErrors = z.inferFlattenedErrors<typeof productFormSchema>["fieldErrors"
 // Делаем интерфейс результата более гибким (дискриминантное объединение)
 export type FuncRes =
     | { ok: false; errors: FormErrors }
-    | { ok: true; data: ProductFormValues; slug: string; discount: number; price: string; oldPrice: string };
+    | { ok: true; data: ProductFormValues; discount: number; price: string; oldPrice: string };
 
 
 interface Props{
@@ -23,8 +19,8 @@ export default async function validateAndNormalizeProduct({ formData }: Props): 
         slug: formData.get("slug"),
         shortDescription: formData.get("shortDescription"),
         description: formData.get("description"),
-        oldPrice: formData.get("originalPrice"),
-        price: formData.get("discountPrice"),
+        oldPrice: formData.get("oldPrice"),
+        price: formData.get("price"),
         material: formData.get("material"),
         careInstructions: formData.get("careInstructions"),
         gender: formData.get("gender"),
@@ -50,17 +46,5 @@ export default async function validateAndNormalizeProduct({ formData }: Props): 
             ? Math.round((1 - Number(price) / Number(oldPrice)) * 100)
             : 0;
 
-// slug: если пустой — генерим из названия
-    const slug = data.slug?.trim() || slugify(data.name);
-
-// Проверка уникальности — уже по финальному slug
-    const existing = await db.query.product.findFirst({
-        where: eq(product.slug, slug),
-        columns: {id: true},
-    });
-    if (existing) {
-        return {ok: false, errors: {slug: ["Такой slug уже занят"]}};
-    }
-
-    return { ok: true, data, slug, discount, price, oldPrice}
+    return { ok: true, data, discount, price, oldPrice}
 }
