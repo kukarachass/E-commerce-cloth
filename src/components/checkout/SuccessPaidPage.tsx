@@ -76,7 +76,7 @@ export default function SuccessPaidPage({ order }: { order: IOrder }) {
                 </div>
 
                 <div className="flex flex-col gap-3">
-                    <Link href="/src/app/(shop)/account/my-orders">
+                    <Link href="/account/my-orders">
                         <ButtonPrimary className="w-full" variant="primary">
                             View order in My Account
                         </ButtonPrimary>
