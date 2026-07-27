@@ -1,6 +1,6 @@
 import { requireAdmin } from "@/lib/admin/rbac";
 import { db } from "@/db";
-import { brand, category } from "@/db/schema";
+import { brand } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import ProductForm from "@/app/(admin)/admin/_components/products/ProductForm";
 import {getCategoryGroups} from "@/lib/admin/queries/categories";
@@ -17,7 +17,7 @@ export default async function NewProductPage() {
     return (
         <div>
             <h1 className="text-xl mb-6">Новый товар</h1>
-            <ProductForm brands={brands} categoryGroups={categoryGroups} />
+            <ProductForm mode={"create"} brands={brands} categoryGroups={categoryGroups} />
         </div>
     );
 }
