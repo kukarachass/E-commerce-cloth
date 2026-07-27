@@ -5,7 +5,7 @@ import { db } from "@/db"
 import { order, orderItem, payment, productSize, returnItem, returnRequest } from "@/db/schema"
 import { stripe } from "@/lib/stripe/stripe"
 import { getServerSession } from "@/lib/get-session"
-import isAdmin from "@/lib/auth/isAdmin";
+import {isAdmin} from "@/lib/admin/rbac";
 
 type Decision = { returnItemId: string; decision: "approve" | "reject" }
 type ProcessResult =
@@ -15,7 +15,7 @@ type ProcessResult =
 export async function processReturn(returnRequestId: string, decisions: Decision[]): Promise<ProcessResult> {
     // 1. только админ
     const session = await getServerSession()
-    if (!session?.user.id || !(await isAdmin(session.user.id))) {
+    if (!session?.user.id || !(await isAdmin())) {
         return { ok: false, error: "FORBIDDEN" }
     }
 
