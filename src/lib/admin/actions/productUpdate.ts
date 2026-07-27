@@ -1,12 +1,15 @@
+"use server";
+
+
 import {ActionState} from "@/lib/admin/actions/createProduct";
 import {requireAdmin} from "@/lib/admin/rbac";
 import {db} from "@/db";
-import {eq} from "drizzle-orm";
+import {and, eq, ne} from "drizzle-orm";
 import {product, productImage, productSize} from "@/db/schema";
 import {logAudit} from "@/lib/admin/audit";
 import {revalidatePath} from "next/cache";
 import validateAndNormalizeProduct from "@/lib/admin/validateAndNormalizeProduct";
-
+import slugify from "@/lib/slugify";
 
 export async function updateProduct(
     _prev: ActionState,
@@ -28,8 +31,19 @@ export async function updateProduct(
     if(!result.ok){
         return { ok: false, errors: result.errors };
     }
+    const { data, discount, price, oldPrice} = result;
 
-    const { data, slug, discount, price, oldPrice} = result;
+    // slug: если пустой — генерим из названия
+    const slug = data.slug?.trim() || slugify(data.name);
+
+// Проверка уникальности — уже по финальному slug
+    const existing = await db.query.product.findFirst({
+        where: and(eq(product.slug, slug), ne(product.id, id)),
+        columns: {id: true},
+    });
+    if (existing) {
+        return {ok: false, errors: {slug: ["Такой slug уже занят"]}};
+    }
 
     await db.transaction(async (tx) => {
         await tx
@@ -118,5 +132,5 @@ export async function updateProduct(
     revalidatePath(`/admin/products/${id}`);
     revalidatePath(`/product/${slug}`);
 
-    return { ok: true, message: "Изменения сохранены" };
+    return { ok: true, message: "Изменения сохранены",};
 }

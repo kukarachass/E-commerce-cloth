@@ -6,6 +6,8 @@ import {product, productSize, productImage} from "@/db/schema";
 import {requireAdmin} from "@/lib/admin/rbac";
 import {logAudit} from "@/lib/admin/audit";
 import validateAndNormalizeProduct from "@/lib/admin/validateAndNormalizeProduct";
+import slugify from "@/lib/slugify";
+import {eq} from "drizzle-orm";
 
 export type ActionState = {
     ok: boolean;
@@ -25,7 +27,19 @@ export async function createProduct(
         return { ok: false, errors: result.errors };
     }
 
-    const { data, slug, discount, price, oldPrice} = result;
+    const { data, discount, price, oldPrice} = result;
+
+    // slug: если пустой — генерим из названия
+    const slug = data.slug?.trim() || slugify(data.name);
+
+// Проверка уникальности — уже по финальному slug
+    const existing = await db.query.product.findFirst({
+        where: eq(product.slug, slug),
+        columns: {id: true},
+    });
+    if (existing) {
+        return {ok: false, errors: {slug: ["Такой slug уже занят"]}};
+    }
 
     await db.transaction(async (tx) => {
         const [created] = await tx
