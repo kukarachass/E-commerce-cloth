@@ -18,6 +18,9 @@ export default function ProductCard({ product }: IProductCardProps) {
         ? Math.round(((retailPrice - salePrice) / retailPrice) * 100)
         : 0;
 
+    const mainImage = product.images?.find((i) => i.isMain) ?? product.images?.[0];
+
+
     return (
         <div
             onClick={() => router.push(`/product/${product.slug}`)}
@@ -25,13 +28,13 @@ export default function ProductCard({ product }: IProductCardProps) {
         >
             {/* ── Image ── */}
             <div className="relative w-[170px] h-[270px] overflow-hidden bg-neutral-100 rounded-[8px]">
-                <Image
-                    src={product.images[0].url}
-                    alt={product.name}
-                    fill
-                    sizes="170px"
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                />
+                {mainImage ? (
+                    <Image src={mainImage.url} alt={product.name} fill sizes="170px" className="..." />
+                ) : (
+                    <div className="w-full h-full flex items-center justify-center text-neutral-300 text-xs">
+                        No photo
+                    </div>
+                )}
 
                 <AddToFavButton className="absolute top-2 right-2" id={product.id} type="product" />
 

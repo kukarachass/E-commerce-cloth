@@ -4,6 +4,7 @@ import {auth} from "@/lib/auth";
 import {isAdmin} from "@/lib/admin/rbac";
 import Link from "next/link";
 import "@/app/(shop)/globals.css";
+import {Toaster} from "sonner";
 
 
 export default async function AdminLayout({
@@ -25,10 +26,13 @@ export default async function AdminLayout({
                 <a href="/admin">Дашборд</a>
                 <a href="/admin/products">Товары</a>
                 <a href="/admin/orders">Заказы</a>
+                <a href="/admin/returns">Возвраты</a>
             </nav>
             <Link href={"/women"}>
                 Back to store
             </Link>
+            <Toaster position="bottom-center" theme={"dark"}/>
+
         </aside>
         <main className="flex p-6">{children}</main>
         </body>
