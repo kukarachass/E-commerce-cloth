@@ -1,13 +1,13 @@
 "use server";
 
 import {revalidatePath} from "next/cache";
-import {redirect} from "next/navigation";
-import {and, eq, ne} from "drizzle-orm";
 import {db} from "@/db";
 import {product, productSize, productImage} from "@/db/schema";
 import {requireAdmin} from "@/lib/admin/rbac";
 import {logAudit} from "@/lib/admin/audit";
-import {productFormSchema} from "@/lib/admin/validation/product";
+import validateAndNormalizeProduct from "@/lib/admin/validateAndNormalizeProduct";
+import slugify from "@/lib/slugify";
+import {eq} from "drizzle-orm";
 
 export type ActionState = {
     ok: boolean;
@@ -22,39 +22,14 @@ export async function createProduct(
 
     const {session} = await requireAdmin();
 
-    const raw = {
-        name: formData.get("name"),
-        slug: formData.get("slug"),
-        shortDescription: formData.get("shortDescription"),
-        description: formData.get("description"),
-        oldPrice: formData.get("originalPrice"),
-        price: formData.get("discountPrice"),
-        material: formData.get("material"),
-        careInstructions: formData.get("careInstructions"),
-        gender: formData.get("gender"),
-        brandId: formData.get("brandId"),
-        categoryId: formData.get("categoryId"),
-        isActive: formData.get("isActive") === "on",
-        sizes: JSON.parse((formData.get("sizes") as string) || "[]"),
-        images: JSON.parse((formData.get("images") as string) || "[]"),
-    };
-
-    const parsed = productFormSchema.safeParse(raw);
-    if (!parsed.success) {
-        return {ok: false, errors: parsed.error.flatten().fieldErrors};
+    const result = await validateAndNormalizeProduct({ formData});
+    if(!result.ok){
+        return { ok: false, errors: result.errors };
     }
-    const data = parsed.data;
 
-// Нормализация цен: запятую в точку, старая цена по умолчанию = текущей
-    const price = data.price.replace(",", ".");
-    const oldPrice = data.oldPrice ? data.oldPrice.replace(",", ".") : price;
+    const { data, discount, price, oldPrice} = result;
 
-    const discount =
-        Number(oldPrice) > Number(price)
-            ? Math.round((1 - Number(price) / Number(oldPrice)) * 100)
-            : 0;
-
-// slug: если пустой — генерим из названия
+    // slug: если пустой — генерим из названия
     const slug = data.slug?.trim() || slugify(data.name);
 
 // Проверка уникальности — уже по финальному slug
@@ -66,7 +41,7 @@ export async function createProduct(
         return {ok: false, errors: {slug: ["Такой slug уже занят"]}};
     }
 
-    const newId = await db.transaction(async (tx) => {
+    await db.transaction(async (tx) => {
         const [created] = await tx
             .insert(product)
             .values({
@@ -120,6 +95,3 @@ export async function createProduct(
     return { ok: true, message: `Товар «${data.name}» создан` };
 }
 
-function slugify(s: string) {
-    return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-}

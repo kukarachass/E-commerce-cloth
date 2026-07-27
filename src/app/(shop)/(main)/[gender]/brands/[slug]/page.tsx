@@ -44,7 +44,7 @@ export default async function BrandPage({params, searchParams}: Props) {
             : undefined,
     })
 
-    const brandsProductIds = products.map(p => p.id)
+    const brandsProductIds = products.products.map(p => p.id)
     const categoryItems = await getCategoriesByProductIds(brandsProductIds)
 
     const [brands, sizes, price, colors, patterns, styles, discounts] = await Promise.all([
@@ -96,13 +96,13 @@ export default async function BrandPage({params, searchParams}: Props) {
                     patterns={patterns}
                     styles={styles}
                     discounts={discounts}
-                    products={products}
+                    products={products.products}
                     category={""}
                     title={brand.name}
                     items={categoryItems ?? []}
 
                 >
-                    <CatalogContainer variant={'catalog'} products={products}/>
+                    <CatalogContainer totalPages={products.total} currentPage={products.page} products={products.products}/>
                 </CatalogLayout>
             </div>
         </Container>

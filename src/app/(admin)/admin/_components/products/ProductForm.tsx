@@ -1,186 +1,233 @@
 "use client";
 
-import {useActionState, useEffect, useRef, useState} from "react";
-import { createProduct, type ActionState } from "@/lib/admin/actions/products";
-import {CategoryGroup} from "@/lib/admin/queries/categories";
-import {toast} from "sonner";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import type { CategoryGroup } from "@/lib/admin/queries/categories";
+import { updateProduct } from "@/lib/admin/actions/productUpdate";
+import { createProduct, type ActionState } from "@/lib/admin/actions/createProduct";
+import slugify from "@/lib/slugify";
+import FormField from "@/app/(admin)/admin/_components/product-form/FormField";
+import ImagesFormSection from "@/app/(admin)/admin/_components/product-form/ImagesFormSection";
+import SizeFormSection from "@/app/(admin)/admin/_components/product-form/SizeFormSection";
 
 type Option = { id: string; name: string };
-type SizeRow = { size: string; sizeSystem: string; stockAmount: number };
+export type SizeRow = { size: string; sizeSystem: string; stockAmount: number };
+export type ImageRow = { url: string; isMain: boolean };
+type Mode = "create" | "edit";
+
+/** Значения для режима редактирования. В режиме создания не передаются. */
+export type ProductFormDefaults = {
+    id: string;
+    name: string;
+    slug: string;
+    shortDescription: string;
+    description: string;
+    price: string;
+    oldPrice: string;
+    material: string;
+    careInstructions: string;
+    gender: string;
+    brandId: string;
+    categoryId: string;
+    isActive: boolean;
+    sizes: SizeRow[];
+    images: ImageRow[];
+};
+
+interface ProductFormProps {
+    brands: Option[];
+    categoryGroups: CategoryGroup[];
+    mode: Mode;
+    defaults?: ProductFormDefaults;
+}
+
+
+
+const emptySize: SizeRow = { size: "", sizeSystem: "EU", stockAmount: 0 };
 
 export default function ProductForm({
                                         brands,
                                         categoryGroups,
-                                    }: {
-    brands: Option[];
-    categoryGroups: CategoryGroup[];
-}) {
+                                        mode,
+                                        defaults,
+                                    }: ProductFormProps) {
     const [state, formAction, pending] = useActionState<ActionState, FormData>(
-        createProduct,
+        mode === "edit" ? updateProduct : createProduct,
         { ok: false },
     );
+
     const formRef = useRef<HTMLFormElement>(null);
 
+    const [sizes, setSizes] = useState<SizeRow[]>(
+        defaults?.sizes?.length ? defaults.sizes : [emptySize],
+    );
+    const [images, setImages] = useState<ImageRow[]>(defaults?.images ?? []);
+    const [name, setName] = useState(defaults?.name ?? "");
+
     useEffect(() => {
-        if (state.ok) {
+        if (!state.ok) return;
+        toast.success(state.message ?? "Сохранено");
+        // Очищаем форму только при создании. При редактировании
+        // человек остаётся на том же товаре и продолжает работать.
+        if (mode === "create") {
             formRef.current?.reset();
-            setSizes([{ size: "", sizeSystem: "EU", stockAmount: 0 }]);
+            setSizes([emptySize]);
             setImages([]);
-            toast.success("Product has been added.");
+            setName("");
         }
-    }, [state.ok, state]);
-
-
-    const [sizes, setSizes] = useState<SizeRow[]>([
-        { size: "", sizeSystem: "EU", stockAmount: 0 },
-    ]);
-    const [images, setImages] = useState<{ url: string; isMain: boolean }[]>([]);
-    const [name, setName] = useState("");
+    }, [state, mode]);
 
     const err = (f: string) => state.errors?.[f]?.[0];
 
     return (
         <form ref={formRef} action={formAction} className="max-w-2xl grid gap-4">
-            <Field label="Название" error={err("name")}>
+            {mode === "edit" && defaults && (
+                <input type="hidden" name="id" value={defaults.id} />
+            )}
+
+            {state.message && !state.ok && (
+                <p className="text-red-600 text-sm">{state.message}</p>
+            )}
+
+            <FormField label="Название" error={err("name")}>
                 <input
                     name="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="border rounded-md px-3 py-2 w-full"
                 />
-            </Field>
+            </FormField>
 
-            <Field label="Slug" error={err("slug")}>
+            <FormField
+                label="Slug"
+                error={err("slug")}
+                hint="Оставь пустым — сгенерируется из названия"
+            >
                 <input
                     name="slug"
-                    defaultValue=""
-                    key={name}
+                    defaultValue={defaults?.slug ?? ""}
                     placeholder={slugify(name)}
                     className="border rounded-md px-3 py-2 w-full"
                 />
-            </Field>
+            </FormField>
 
             <div className="grid grid-cols-2 gap-4">
-                <Field label="Цена без скидки" error={err("originalPrice")}>
-                    <input name="originalPrice" placeholder="99.99" className="border rounded-md px-3 py-2 w-full" />
-                </Field>
-                <Field label="Цена со скидкой" error={err("discountPrice")}>
-                    <input name="discountPrice" placeholder="49.99" className="border rounded-md px-3 py-2 w-full" />
-                </Field>
+                <FormField label="Цена" error={err("price")}>
+                    <input
+                        name="price"
+                        defaultValue={defaults?.price ?? ""}
+                        placeholder="49.99"
+                        inputMode="decimal"
+                        className="border rounded-md px-3 py-2 w-full"
+                    />
+                </FormField>
+                <FormField
+                    label="Старая цена"
+                    error={err("oldPrice")}
+                    hint="Только если есть скидка"
+                >
+                    <input
+                        name="oldPrice"
+                        defaultValue={defaults?.oldPrice ?? ""}
+                        placeholder="99.99"
+                        inputMode="decimal"
+                        className="border rounded-md px-3 py-2 w-full"
+                    />
+                </FormField>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-                <Field label="Пол" error={err("gender")}>
-                    <select name="gender" className="border rounded-md px-3 py-2 w-full">
+                <FormField label="Пол" error={err("gender")}>
+                    <select
+                        name="gender"
+                        defaultValue={defaults?.gender ?? "women"}
+                        className="border rounded-md px-3 py-2 w-full"
+                    >
                         <option value="women">Women</option>
                         <option value="men">Men</option>
                     </select>
-                </Field>
-                <Field label="Бренд" error={err("brandId")}>
-                    <select name="brandId" className="border rounded-md px-3 py-2 w-full">
+                </FormField>
+
+                <FormField label="Бренд" error={err("brandId")}>
+                    <select
+                        name="brandId"
+                        defaultValue={defaults?.brandId ?? ""}
+                        className="border rounded-md px-3 py-2 w-full"
+                    >
                         <option value="">—</option>
-                        {brands.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                        {brands.map((b) => (
+                            <option key={b.id} value={b.id}>{b.name}</option>
+                        ))}
                     </select>
-                </Field>
-                <Field label="Категория" error={err("categoryId")}>
-                    <select name="categoryId" defaultValue="" className="border rounded-md px-3 py-2 w-full">
-                        <option value="">— выберите категорию —</option>
+                </FormField>
+
+                <FormField label="Категория" error={err("categoryId")}>
+                    <select
+                        name="categoryId"
+                        defaultValue={defaults?.categoryId ?? ""}
+                        className="border rounded-md px-3 py-2 w-full"
+                    >
+                        <option value="">— выберите —</option>
                         {categoryGroups.map((g) => (
                             <optgroup key={g.gender} label={g.label}>
                                 {g.items.map((c) => (
                                     <option key={c.id} value={c.id}>
-                                        {"\u00A0".repeat((c.level - 1) * 3)}{c.level > 1 ? "└ " : ""}{c.name}
+                                        {"\u00A0".repeat((c.level - 1) * 3)}
+                                        {c.level > 1 ? "└ " : ""}
+                                        {c.name}
                                     </option>
                                 ))}
                             </optgroup>
                         ))}
                     </select>
-                </Field>
+                </FormField>
             </div>
 
-            <Field label="Материал"><input name="material" className="border rounded-md px-3 py-2 w-full" /></Field>
-            <Field label="Уход"><input name="careInstructions" className="border rounded-md px-3 py-2 w-full" /></Field>
-            <Field label="Краткое описание"><input name="shortDescription" className="border rounded-md px-3 py-2 w-full" /></Field>
-            <Field label="Описание">
-                <textarea name="description" rows={5} className="border rounded-md px-3 py-2 w-full" />
-            </Field>
+            <FormField label="Материал" error={err("material")}>
+                <input
+                    name="material"
+                    defaultValue={defaults?.material ?? ""}
+                    className="border rounded-md px-3 py-2 w-full"
+                />
+            </FormField>
 
-            {/* Размеры */}
-            <div>
-                <div className="mb-2 text-sm text-gray-600">Размеры</div>
-                {err("sizes") && <p className="text-red-600 text-sm mb-2">{err("sizes")}</p>}
-                {sizes.map((s, i) => (
-                    <div key={i} className="flex gap-2 mb-2">
-                        <input
-                            placeholder="M"
-                            value={s.size}
-                            onChange={(e) => setSizes(upd(sizes, i, { size: e.target.value }))}
-                            className="border rounded-md px-3 py-2 w-24"
-                        />
-                        <select
-                            value={s.sizeSystem}
-                            onChange={(e) => setSizes(upd(sizes, i, { sizeSystem: e.target.value }))}
-                            className="border rounded-md px-3 py-2"
-                        >
-                            {["INT","UK","EU","US","FR","IT","DE","Waist","Waist/Length","Other","Years","Size (cm)"]
-                                .map((x) => <option key={x} value={x}>{x}</option>)}
-                        </select>
-                        <input
-                            type="number"
-                            min={0}
-                            value={s.stockAmount}
-                            onChange={(e) => setSizes(upd(sizes, i, { stockAmount: Number(e.target.value) }))}
-                            className="border rounded-md px-3 py-2 w-24"
-                        />
-                        <button type="button" onClick={() => setSizes(sizes.filter((_, x) => x !== i))} className="px-3 text-gray-500">
-                            ✕
-                        </button>
-                    </div>
-                ))}
-                <button
-                    type="button"
-                    onClick={() => setSizes([...sizes, { size: "", sizeSystem: "EU", stockAmount: 0 }])}
-                    className="text-sm text-blue-600"
-                >
-                    + размер
-                </button>
-            </div>
+            <FormField label="Уход" error={err("careInstructions")}>
+                <input
+                    name="careInstructions"
+                    defaultValue={defaults?.careInstructions ?? ""}
+                    className="border rounded-md px-3 py-2 w-full"
+                />
+            </FormField>
 
-            {/* Картинки — пока просто URL, загрузку файлов сделаем отдельно */}
-            <div>
-                <div className="mb-2 text-sm text-gray-600">Картинки (URL)</div>
-                {images.map((img, i) => (
-                    <div key={i} className="flex gap-2 mb-2 items-center">
-                        <input
-                            value={img.url}
-                            onChange={(e) =>
-                                setImages(images.map((x, j) => (j === i ? { ...x, url: e.target.value } : x)))
-                            }
-                            className="border rounded-md px-3 py-2 flex-1"
-                        />
-                        <label className="text-sm flex items-center gap-1">
-                            <input
-                                type="radio"
-                                name="mainImage"
-                                checked={img.isMain}
-                                onChange={() => setImages(images.map((x, j) => ({ ...x, isMain: j === i })))}
-                            />
-                            главная
-                        </label>
-                        <button type="button" onClick={() => setImages(images.filter((_, x) => x !== i))} className="px-2 text-gray-500">✕</button>
-                    </div>
-                ))}
-                <button
-                    type="button"
-                    onClick={() => setImages([...images, { url: "", isMain: images.length === 0 }])}
-                    className="text-sm text-blue-600"
-                >
-                    + картинка
-                </button>
-            </div>
+            <FormField label="Краткое описание" error={err("shortDescription")}>
+                <input
+                    name="shortDescription"
+                    defaultValue={defaults?.shortDescription ?? ""}
+                    className="border rounded-md px-3 py-2 w-full"
+                />
+            </FormField>
+
+            <FormField label="Описание" error={err("description")}>
+                <textarea
+                    name="description"
+                    rows={5}
+                    defaultValue={defaults?.description ?? ""}
+                    className="border rounded-md px-3 py-2 w-full"
+                />
+            </FormField>
+
+            {/* ── Размеры ── */}
+            <SizeFormSection sizes={sizes} setSizes={setSizes} error={err("sizes")}/>
+
+            {/* ── Картинки ── */}
+            <ImagesFormSection images={images} setImages={setImages} error={err("images")} />
 
             <label className="flex items-center gap-2">
-                <input type="checkbox" name="isActive" defaultChecked />
+                <input
+                    type="checkbox"
+                    name="isActive"
+                    defaultChecked={defaults?.isActive ?? true}
+                />
                 Активен
             </label>
 
@@ -193,26 +240,16 @@ export default function ProductForm({
                 disabled={pending}
                 className="px-4 py-2 bg-black text-white rounded-md disabled:opacity-50 justify-self-start"
             >
-                {pending ? "Сохраняю…" : "Создать товар"}
+                {pending
+                    ? "Сохраняю…"
+                    : mode === "edit"
+                        ? "Сохранить изменения"
+                        : "Создать товар"}
             </button>
         </form>
     );
 }
 
-function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
-    return (
-        <label className="grid gap-1">
-            <span className="text-sm text-gray-600">{label}</span>
-            {children}
-            {error && <span className="text-red-600 text-sm">{error}</span>}
-        </label>
-    );
-}
 
-function upd(rows: SizeRow[], i: number, patch: Partial<SizeRow>) {
-    return rows.map((r, j) => (j === i ? { ...r, ...patch } : r));
-}
 
-function slugify(s: string) {
-    return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-}
+
