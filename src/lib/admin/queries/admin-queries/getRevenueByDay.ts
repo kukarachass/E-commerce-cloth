@@ -1,3 +1,5 @@
+"use server"
+
 import {db} from "@/db";
 import {and, eq, gte, sql} from "drizzle-orm";
 import {order} from "@/db/schema";

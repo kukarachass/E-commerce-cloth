@@ -1,3 +1,5 @@
+"use server"
+
 import startOfDay from "@/lib/admin/queries/admin-queries/helpers/startOfDay";
 import {and, count, eq, gte, lte, sql} from "drizzle-orm";
 import {order, product, productSize, returnRequest, user} from "@/db/schema";
