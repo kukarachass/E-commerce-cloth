@@ -6,6 +6,7 @@ import {updateBrand} from "@/lib/admin/actions/brand-actions/updateBrand";
 import {createBrand} from "@/lib/admin/actions/brand-actions/createBrand";
 import {BrandActionState} from "@/lib/admin/actions/brand-actions/types/BrandActionState";
 import ImageUploader, {ImageRow} from "@/app/(admin)/admin/_components/images/ImageUploader";
+import slugify from "@/lib/slugify";
 
 export type BrandDefaults = {
     id: string;
@@ -183,8 +184,4 @@ function Field({
             {error && <span className="text-red-600 text-sm">{error}</span>}
         </label>
     );
-}
-
-function slugify(s: string) {
-    return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 }
