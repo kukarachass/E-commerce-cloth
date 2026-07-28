@@ -14,8 +14,8 @@ export default async function AdminLayout({
 }) {
     const session = await auth.api.getSession({headers: await headers()});
 
-    if (!session) redirect("/login");        // не залогинен → на обычный вход сайта
-    if (!(await isAdmin())) redirect("/");   // залогинен, но не админ → на витрину
+    if (!session) redirect("/auth?method=sign-up");
+    if (!(await isAdmin())) redirect("/");
 
     return (
         <html lang="en" className={`h-full antialiased`}>
