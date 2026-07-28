@@ -18,8 +18,6 @@ export async function changeFulfillmentStatus(
     const { session } = await requireAdmin();
 
     return db.transaction(async (tx) => {
-        // Блокируем строку заказа: два админа не смогут одновременно
-        // отменить и отправить один заказ
         const [current] = await tx
             .select({
                 id: order.id,
