@@ -26,7 +26,7 @@ export default function MyOrdersPage() {
 
     return (
         <>
-            <div className="flex flex-col gap-6 px-4 xl:px-0">
+            <div className="flex flex-col gap-6 px-4 xl:px-0 min-h-screen">
                 <div>
                     <h1 className="text-[20px] font-semibold text-neutral-900 tracking-tight">Orders</h1>
                     <p className="text-[13px] text-neutral-400 mt-0.5">
