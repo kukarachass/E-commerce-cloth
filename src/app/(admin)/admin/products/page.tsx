@@ -23,7 +23,6 @@ export default async function ProductsPage({ searchParams }: {
                 </Link>
             </div>
 
-            {/* Поиск и фильтр — обычная HTML-форма с method=get */}
             <form className="flex gap-2 mb-4">
                 <input
                     name="search"

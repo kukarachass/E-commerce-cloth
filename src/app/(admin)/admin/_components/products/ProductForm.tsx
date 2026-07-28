@@ -9,6 +9,7 @@ import slugify from "@/lib/slugify";
 import FormField from "@/app/(admin)/admin/_components/product-form/FormField";
 import ImagesFormSection from "@/app/(admin)/admin/_components/product-form/ImagesFormSection";
 import SizeFormSection from "@/app/(admin)/admin/_components/product-form/SizeFormSection";
+import ImageUploader from "@/app/(admin)/admin/_components/images/ImageUploader";
 
 type Option = { id: string; name: string };
 export type SizeRow = { size: string; sizeSystem: string; stockAmount: number };
@@ -220,7 +221,7 @@ export default function ProductForm({
             <SizeFormSection sizes={sizes} setSizes={setSizes} error={err("sizes")}/>
 
             {/* ── Картинки ── */}
-            <ImagesFormSection images={images} setImages={setImages} error={err("images")} />
+            <ImageUploader images={images} onChange={setImages} error={err("images")} />
 
             <label className="flex items-center gap-2">
                 <input

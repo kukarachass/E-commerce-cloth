@@ -36,7 +36,7 @@ export async function updateProduct(
     // slug: если пустой — генерим из названия
     const slug = data.slug?.trim() || slugify(data.name);
 
-// Проверка уникальности — уже по финальному slug
+// проверка уникальности по финальному слагу
     const existing = await db.query.product.findFirst({
         where: and(eq(product.slug, slug), ne(product.id, id)),
         columns: {id: true},

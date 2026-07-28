@@ -29,10 +29,8 @@ export async function createProduct(
 
     const { data, discount, price, oldPrice} = result;
 
-    // slug: если пустой — генерим из названия
     const slug = data.slug?.trim() || slugify(data.name);
 
-// Проверка уникальности — уже по финальному slug
     const existing = await db.query.product.findFirst({
         where: eq(product.slug, slug),
         columns: {id: true},
@@ -46,10 +44,10 @@ export async function createProduct(
             .insert(product)
             .values({
                 name: data.name,
-                slug,                        // ← локальная, не data.slug
+                slug,
                 shortDescription: data.shortDescription || null,
                 description: data.description || null,
-                originalPrice: oldPrice,     // ← строка гарантированно есть
+                originalPrice: oldPrice,
                 discountPrice: price,
                 discount,
                 material: data.material || null,
