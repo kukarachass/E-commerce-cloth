@@ -9,7 +9,7 @@ import {logAudit} from "@/lib/admin/audit";
 import {revalidatePath} from "next/cache";
 import {BrandActionState} from "@/lib/admin/actions/brand-actions/types/BrandActionState";
 import slugify from "@/lib/slugify";
-import readForm from "@/lib/admin/actions/brand-actions/helpers/readForm";
+import readBrandForm from "@/lib/admin/actions/brand-actions/helpers/readBrandForm";
 
 export async function createBrand(
     _prev: BrandActionState,
@@ -17,7 +17,7 @@ export async function createBrand(
 ): Promise<BrandActionState> {
     const { session } = await requireAdmin();
 
-    const parsed = brandFormSchema.safeParse(readForm(fd));
+    const parsed = brandFormSchema.safeParse(readBrandForm(fd));
     if (!parsed.success) {
         return { ok: false, errors: parsed.error.flatten().fieldErrors };
     }

@@ -9,7 +9,7 @@ import {logAudit} from "@/lib/admin/audit";
 import {revalidatePath} from "next/cache";
 import {BrandActionState} from "@/lib/admin/actions/brand-actions/types/BrandActionState";
 import slugify from "@/lib/slugify";
-import readForm from "@/lib/admin/actions/brand-actions/helpers/readForm";
+import readBrandForm from "@/lib/admin/actions/brand-actions/helpers/readBrandForm";
 
 export async function updateBrand(
     _prev: BrandActionState,
@@ -23,7 +23,7 @@ export async function updateBrand(
     const before = await db.query.brand.findFirst({ where: eq(brand.id, id) });
     if (!before) return { ok: false, message: "Бренд не найден" };
 
-    const parsed = brandFormSchema.safeParse(readForm(fd));
+    const parsed = brandFormSchema.safeParse(readBrandForm(fd));
     if (!parsed.success) {
         return { ok: false, errors: parsed.error.flatten().fieldErrors };
     }
