@@ -20,7 +20,7 @@ export default function ProductDescriptionSections({product}: {product: ProductW
             key: "product-info"
         },
         {
-            title: "Otrium offers",
+            title: "Offers",
             key: "otrium-offers"
         },
         {

@@ -18,6 +18,7 @@ export default async function ProductPage({ params }: Props) {
 
     const completeTheLookProducts = await getCompleteTheLook({ gender, categoryId })
 
+
     return (
         <div className="max-w-[1200px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-0 pb-10">
             <div className="flex flex-col">
@@ -30,7 +31,6 @@ export default async function ProductPage({ params }: Props) {
                         <ProductImageGallery alt={product.name} images={product.images} />
                     </div>
                     <div className="flex-1 min-w-0">
-                        <span className="font-bold text-red-500">{product.id}</span>
                         <ProductInfo product={product} />
                     </div>
                 </div>
