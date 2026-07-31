@@ -10,9 +10,10 @@ import {revalidatePath} from "next/cache";
 import {BrandActionState} from "@/lib/admin/actions/brand-actions/types/BrandActionState";
 import slugify from "@/lib/slugify";
 import readBrandForm from "@/lib/admin/actions/brand-actions/helpers/readBrandForm";
+import {FormActionState} from "@/lib/admin/admin-types/FormActionState";
 
 export async function createBrand(
-    _prev: BrandActionState,
+    _prev: FormActionState,
     fd: FormData,
 ): Promise<BrandActionState> {
     const { session } = await requireAdmin();
