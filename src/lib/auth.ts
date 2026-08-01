@@ -5,6 +5,8 @@ import * as schema from '@/db/schema'
 import {createAuthMiddleware} from "@better-auth/core/api";
 import {GetOrCreateCart} from "@/actions/cart/get-or-create-cart";
 import {nextCookies} from "better-auth/next-js";
+import { admin as adminPlugin } from "better-auth/plugins"
+import { ac, admin as adminRole, customer } from "@/lib/permissions"
 
 export const auth = betterAuth({
     baseURL: process.env.BETTER_AUTH_URL,
@@ -27,47 +29,15 @@ export const auth = betterAuth({
     },
     user: {
         additionalFields: {
-            lastName: {
-                type: "string",
-                required: false,
-            },
-            dateOfBirth: {
-                type: "string",
-                required: false,
-            },
-            gender: {
-                type: "string",
-                required: false,
-            },
-            phoneNumber: {
-                type: "string",
-                required: false,
-            },
-            street: {
-                type: "string",
-                required: false,
-            },
-            houseNumber: {
-                type: "string",
-                required: false,
-            },
-            houseAddition: {
-                type: "string",
-                required: false,
-            },
-            postcode: {
-                type: "string",
-                required: false,
-            },
-            city: {
-                type: "string",
-                required: false,
-            },
-            role: {
-                type: "string",
-                defaultValue: "customer",
-                input: false,   // ← самая важная строчка во всём файле
-            },
+            lastName:      { type: "string", required: false },
+            dateOfBirth:   { type: "string", required: false },
+            gender:        { type: "string", required: false },
+            phoneNumber:   { type: "string", required: false },
+            street:        { type: "string", required: false },
+            houseNumber:   { type: "string", required: false },
+            houseAddition: { type: "string", required: false },
+            postcode:      { type: "string", required: false },
+            city:          { type: "string", required: false },
         }
     },
     hooks: {
@@ -97,6 +67,14 @@ export const auth = betterAuth({
         })
     },
     plugins: [
+        adminPlugin({
+            ac,
+            roles: { admin: adminRole, customer },
+            defaultRole: "customer",
+            adminRoles: ["admin"],
+            bannedUserMessage: "Ваш аккаунт заблокирован. Свяжитесь с поддержкой.",
+        }),
         nextCookies(),
+
     ]
 })

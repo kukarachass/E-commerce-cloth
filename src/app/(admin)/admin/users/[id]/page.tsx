@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/rbac";
 import getUserById from "@/lib/admin/queries/users-queries/getUserById";
 import Link from "next/link";
+import UserActions from "@/app/(admin)/admin/_components/users/UsersActions";
 
 export default async function UserPage(
     { params }: { params: Promise<{ id: string }> }
@@ -27,6 +28,49 @@ export default async function UserPage(
                     <p>Email подтверждён: {user.emailVerified ? "да" : "нет"}</p>
                     <p>Регистрация: {new Date(user.createdAt).toLocaleDateString()}</p>
                 </div>
+
+                {user.banned && (
+                    <p className="text-red-600 text-sm mt-2">
+                        Заблокирован: {user.banReason ?? "без причины"}
+                        {user.banExpires
+                            ? ` (до ${new Date(user.banExpires).toLocaleDateString()})`
+                            : " (бессрочно)"}
+                    </p>
+                )}
+            </div>
+
+            <UserActions
+                userId={user.id}
+                isBanned={!!user.banned}
+                role={user.role}
+                emailVerified={user.emailVerified}
+            />
+
+            {/* активные сессии */}
+            <div>
+                <h2 className="font-semibold mb-2">Сессии ({user.sessions.length})</h2>
+                {user.sessions.length === 0 ? (
+                    <p className="text-gray-400 text-sm">Активных сессий нет</p>
+                ) : (
+                    <table className="w-full text-sm border">
+                        <thead className="bg-gray-100 border-b">
+                        <tr>
+                            <th className="py-2 px-3 text-left">IP</th>
+                            <th className="py-2 px-3 text-left">Устройство</th>
+                            <th className="py-2 px-3 text-left">Истекает</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {user.sessions.map((s) => (
+                            <tr key={s.id} className="border-b">
+                                <td className="py-2 px-3">{s.ipAddress ?? "—"}</td>
+                                <td className="py-2 px-3 truncate max-w-xs">{s.userAgent ?? "—"}</td>
+                                <td className="py-2 px-3">{new Date(s.expiresAt).toLocaleString()}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                )}
             </div>
 
             {/* КОРЗИНА */}

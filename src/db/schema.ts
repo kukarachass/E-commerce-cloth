@@ -41,6 +41,11 @@ export const user = pgTable("user", {
     createdAt:      timestamp("created_at").defaultNow().notNull(),
     updatedAt:      timestamp("updated_at").defaultNow().$onUpdate(() => new Date()).notNull(),
     role: text("role").notNull().default("customer"),  // "customer" | "admin"
+
+    // --- admin plugin ---
+    banned:     boolean("banned").default(false),
+    banReason:  text("ban_reason"),
+    banExpires: timestamp("ban_expires"),
 })
 
 // Better Auth таблицы — не трогать
@@ -53,6 +58,9 @@ export const session = pgTable("session", {
     ipAddress:  text("ip_address"),
     userAgent:  text("user_agent"),
     userId:     text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
+
+    impersonatedBy: text("impersonated_by"),
+
 }, (t) => [
     index("session_user_idx").on(t.userId),
 ])
