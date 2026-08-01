@@ -1,8 +1,7 @@
 "use client"
 
 import Arrow from "@/components/ui/icons/Arrow";
-import {useState, useRef} from "react";
-import {IProduct} from "@/components/product/IProduct";
+import {useState} from "react";
 import {KlarnaSvg, MastercardSvg, PaypalSvg, VisaSvg} from "@/components/ui/icons/CardProvidersSvgs";
 import {ProductWithDetails} from "@/types/product-details";
 
