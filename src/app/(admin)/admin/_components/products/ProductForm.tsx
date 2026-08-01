@@ -3,8 +3,8 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import type { CategoryGroup } from "@/lib/admin/queries/categories";
-import { updateProduct } from "@/lib/admin/actions/productUpdate";
-import { createProduct, type ActionState } from "@/lib/admin/actions/createProduct";
+import { updateProduct } from "@/lib/admin/actions/product-actions/productUpdate";
+import { createProduct, type ActionState } from "@/lib/admin/actions/product-actions/createProduct";
 import slugify from "@/lib/slugify";
 import FormField from "@/app/(admin)/admin/_components/product-form/FormField";
 import ImagesFormSection from "@/app/(admin)/admin/_components/product-form/ImagesFormSection";

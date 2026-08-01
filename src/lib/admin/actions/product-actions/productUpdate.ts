@@ -1,7 +1,7 @@
 "use server";
 
 
-import {ActionState} from "@/lib/admin/actions/createProduct";
+import {ActionState} from "@/lib/admin/actions/product-actions/createProduct";
 import {requireAdmin} from "@/lib/admin/rbac";
 import {db} from "@/db";
 import {and, eq, ne} from "drizzle-orm";

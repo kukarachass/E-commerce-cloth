@@ -22,11 +22,14 @@ export default async function AdminLayout({
         <body className={`min-h-screen flex`}>
         <aside className="w-[240px] p-4 border-r border-[#eee]">
             <div className="mb-4 font-normal">extropy admin</div>
-            <nav className="grid gap-8">
+            <nav className="grid gap-8 mb-4">
                 <a href="/admin">Дашборд</a>
                 <a href="/admin/products">Товары</a>
                 <a href="/admin/orders">Заказы</a>
                 <a href="/admin/returns">Возвраты</a>
+                <a href="/admin/brands">Бренды</a>
+                <a href="/admin/categories">Категории</a>
+                <a href="/admin/collections">Коллекции</a>
             </nav>
             <Link href={"/women"}>
                 Back to store

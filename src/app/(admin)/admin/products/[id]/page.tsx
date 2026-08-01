@@ -5,7 +5,7 @@ import { db } from "@/db";
 import { brand } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import ProductForm from "@/app/(admin)/admin/_components/products/ProductForm";
-import {getProductForEdit} from "@/lib/admin/actions/getProductForEdit";
+import {getProductForEdit} from "@/lib/admin/actions/product-actions/getProductForEdit";
 
 export default async function EditProductPage({
                                                   params,
