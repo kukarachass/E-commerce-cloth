@@ -2,21 +2,24 @@ import "server-only";
 import { db } from "@/db";
 import { product, brand, productImage } from "@/db/schema";
 import { and, eq, ilike, desc, sql, count } from "drizzle-orm";
+import {Gender} from "@/hooks/useGender";
 
 export type ProductListParams = {
     page?: number;
     search?: string;
     status?: "active" | "inactive" | "all";
+    gender?: Gender;
 };
 
 const PER_PAGE = 20;
 
-export async function getProductList({page = 1, search, status = "all" }: ProductListParams) {
+export async function getProductList({page = 1, search, status = "all", gender}: ProductListParams) {
     const conditions = [];
 
     if (search) conditions.push(ilike(product.name, `%${search}%`));
     if (status === "active") conditions.push(eq(product.isActive, true));
     if (status === "inactive") conditions.push(eq(product.isActive, false));
+    if(gender) conditions.push(eq(product.gender, gender));
 
     const where = conditions.length ? and(...conditions) : undefined;
 

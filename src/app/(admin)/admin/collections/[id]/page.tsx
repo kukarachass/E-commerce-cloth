@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/rbac";
 import { getCollectionById } from "@/lib/admin/queries/collections";
 import CollectionForm from "@/app/(admin)/admin/_components/collection/CollectionForm";
+import Link from "next/link";
 
 interface EditCollectionPageProps {
     params: Promise<{ id: string }>;
@@ -19,6 +20,7 @@ export default async function EditCollectionPage({
     return (
         <div>
             <h1 className="text-xl mb-6">{collection.title}</h1>
+            <Link href={`/admin/collections/${id}/products`}>add product to collection</Link>
             <CollectionForm
                 mode="edit"
                 defaults={{
