@@ -30,6 +30,7 @@ export default async function AdminLayout({
                 <a href="/admin/brands">Бренды</a>
                 <a href="/admin/categories">Категории</a>
                 <a href="/admin/collections">Коллекции</a>
+                <a href="/admin/users">Пользователи</a>
             </nav>
             <Link href={"/women"}>
                 Back to store
