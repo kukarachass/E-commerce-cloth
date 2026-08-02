@@ -1,156 +1,182 @@
-import Link from "next/link";
+import { RotateCcw } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/rbac";
 import { getReturnList } from "@/lib/admin/queries/returns";
-import FilterTab from "@/app/(admin)/admin/_components/returns/FilterTab";
 
-const STATUS_LABELS = { open: "Открыта", closed: "Закрыта" } as const;
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Card from "@/app/(admin)/admin/_components/ui/Card";
+import DataTable, { type Column } from "@/app/(admin)/admin/_components/ui/DataTable";
+import SegmentedTabs from "@/app/(admin)/admin/_components/ui/SegmentedTabs";
+import Pagination from "@/app/(admin)/admin/_components/ui/Pagination";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import Avatar from "@/app/(admin)/admin/_components/ui/Avatar";
+import EmptyState from "@/app/(admin)/admin/_components/ui/EmptyState";
+import { euroFromCents, formatDate, timeAgo } from "@/app/(admin)/admin/_lib/format";
+import { RETURN_STATUS_LABELS } from "@/app/(admin)/admin/_lib/labels";
+import { buildUrl, first, type SearchParams } from "@/app/(admin)/admin/_lib/query";
 
-const dateFmt = new Intl.DateTimeFormat("nl-NL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-});
+type ReturnRow = Awaited<ReturnType<typeof getReturnList>>["rows"][number];
 
-type SearchParams = { [key: string]: string | string[] | undefined };
-
-function first(v: string | string[] | undefined) {
-    return Array.isArray(v) ? v[0] : v;
-}
-
-function parseStatus(v: string | string[] | undefined) {
-    const s = first(v);
-    return s === "open" || s === "closed" ? s : undefined;
+function parseStatus(value: string | undefined) {
+    return value === "open" || value === "closed" ? value : undefined;
 }
 
 export default async function ReturnsPage({
-                                              searchParams,
-                                          }: {
+    searchParams,
+}: {
     searchParams: Promise<SearchParams>;
 }) {
     await requireAdmin();
 
     const sp = await searchParams;
-    const status = parseStatus(sp.status);
+    const status = parseStatus(first(sp.status));
     const page = Number(first(sp.page)) || 1;
 
     const { rows, total, totalPages } = await getReturnList({ page, status });
 
-    return (
-        <div className="w-full">
-            <h1 className="text-xl mb-6">
-                Возвраты <span className="text-gray-400">({total})</span>
-            </h1>
+    const columns: Column<ReturnRow>[] = [
+        {
+            key: "request",
+            header: "Request",
+            width: "150px",
+            mobile: "title",
+            cell: (r) => (
+                <span className="min-w-0">
+                    <span className="block truncate font-mono text-[13px] font-semibold text-ink">
+                        #{r.id.slice(0, 8)}
+                    </span>
+                    <span className="block text-xs text-ink-faint">
+                        {r.itemCount} {r.itemCount === 1 ? "item" : "items"}
+                    </span>
+                </span>
+            ),
+        },
+        {
+            key: "customer",
+            header: "Customer",
+            width: "minmax(0,1.8fr)",
+            label: "Customer",
+            cell: (r) => (
+                <span className="flex min-w-0 items-center gap-2.5">
+                    <Avatar name={r.customerName} email={r.email} size="sm" />
+                    <span className="min-w-0">
+                        <span className="block truncate font-medium text-ink">
+                            {r.customerName ?? "Guest"}
+                        </span>
+                        <span className="block truncate text-xs text-ink-faint">
+                            {r.email}
+                        </span>
+                    </span>
+                </span>
+            ),
+        },
+        {
+            key: "order",
+            header: "Order",
+            width: "130px",
+            label: "Order",
+            cell: (r) => (
+                <span className="font-mono text-xs text-ink-soft">
+                    #{r.orderId.slice(0, 8)}
+                </span>
+            ),
+        },
+        {
+            key: "status",
+            header: "Status",
+            width: "120px",
+            label: "Status",
+            cell: (r) => (
+                <Badge tone={r.status === "open" ? "caution" : "positive"} dot>
+                    {RETURN_STATUS_LABELS[r.status]}
+                </Badge>
+            ),
+        },
+        {
+            key: "date",
+            header: "Opened",
+            width: "130px",
+            label: "Opened",
+            cell: (r) => (
+                <span className="text-xs text-ink-soft">
+                    {formatDate(r.createdAt)}
+                    <span className="block text-ink-faint">{timeAgo(r.createdAt)}</span>
+                </span>
+            ),
+        },
+        {
+            key: "refunded",
+            header: "Refunded",
+            width: "120px",
+            align: "right",
+            label: "Refunded",
+            mobile: "trailing",
+            cell: (r) =>
+                r.refundedAmount > 0 ? (
+                    <span className="tnum font-semibold text-ink">
+                        {euroFromCents(r.refundedAmount)}
+                    </span>
+                ) : (
+                    <span className="text-xs text-ink-faint">—</span>
+                ),
+        },
+    ];
 
-            {/* Фильтр по статусу — обычные ссылки, без формы */}
-            <div className="flex gap-2 mb-4 text-sm">
-                <FilterTab href="/admin/returns" active={!status}>
-                    Все
-                </FilterTab>
-                <FilterTab href="/admin/returns?status=open" active={status === "open"}>
-                    Открытые
-                </FilterTab>
-                <FilterTab
-                    href="/admin/returns?status=closed"
-                    active={status === "closed"}
-                >
-                    Закрытые
-                </FilterTab>
+    return (
+        <>
+            <PageHeader
+                title="Returns"
+                count={total}
+                description="Review requests, take items back to stock, then refund."
+            />
+
+            <div className="mb-4">
+                <SegmentedTabs
+                    items={[
+                        {
+                            href: "/admin/returns",
+                            label: "All",
+                            active: !status,
+                        },
+                        {
+                            href: "/admin/returns?status=open",
+                            label: "Open",
+                            active: status === "open",
+                        },
+                        {
+                            href: "/admin/returns?status=closed",
+                            label: "Closed",
+                            active: status === "closed",
+                        },
+                    ]}
+                />
             </div>
 
-            <table className="w-full text-left text-sm">
-                <thead className="text-gray-500 border-b">
-                <tr>
-                    <th className="py-2 font-normal">Заявка</th>
-                    <th className="py-2 font-normal">Заказ</th>
-                    <th className="py-2 font-normal">Клиент</th>
-                    <th className="py-2 font-normal">Позиций</th>
-                    <th className="py-2 font-normal">Возвращено</th>
-                    <th className="py-2 font-normal">Статус</th>
-                    <th className="py-2 font-normal">Дата</th>
-                </tr>
-                </thead>
-                <tbody>
-                {rows.map((r) => (
-                    <tr key={r.id} className="border-b hover:bg-gray-50">
-                        <td className="py-2">
-                            <Link
-                                href={`/admin/returns/${r.id}`}
-                                className="text-blue-600 font-mono"
-                            >
-                                #{r.id.slice(0, 8)}
-                            </Link>
-                        </td>
-                        <td className="py-2">
-                            <Link
-                                href={`/admin/orders/${r.orderId}`}
-                                className="text-gray-600 font-mono hover:underline"
-                            >
-                                #{r.orderId.slice(0, 8)}
-                            </Link>
-                        </td>
-                        <td className="py-2">
-                            <div>{r.customerName ?? "Гость"}</div>
-                            <div className="text-gray-400 text-xs">{r.email}</div>
-                        </td>
-                        <td className="py-2">{r.itemCount}</td>
-                        <td className="py-2">
-                            {r.refundedAmount > 0
-                                ? `€${(r.refundedAmount / 100).toFixed(2)}`
-                                : "—"}
-                        </td>
-                        <td className="py-2">
-                <span
-                    className={
-                        r.status === "open" ? "text-amber-600" : "text-gray-500"
+            <Card padded={false} className="p-2 sm:p-3">
+                <DataTable
+                    columns={columns}
+                    rows={rows}
+                    getKey={(r) => r.id}
+                    href={(r) => `/admin/returns/${r.id}`}
+                    empty={
+                        <EmptyState
+                            icon={RotateCcw}
+                            title={
+                                status === "open"
+                                    ? "No open requests"
+                                    : "No return requests here"
+                            }
+                            description="Requests appear as soon as a customer starts a return."
+                        />
                     }
-                >
-                  {STATUS_LABELS[r.status]}
-                </span>
-                        </td>
-                        <td className="py-2 text-gray-500">{dateFmt.format(r.createdAt)}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                />
+            </Card>
 
-            {rows.length === 0 && (
-                <p className="text-gray-500 py-8 text-center">Заявок не найдено</p>
-            )}
-
-            {totalPages > 1 && (
-                <div className="flex gap-2 mt-6 items-center">
-                    {page > 1 && (
-                        <Link
-                            href={buildUrl(status, page - 1)}
-                            className="px-3 py-1 border rounded-md"
-                        >
-                            Назад
-                        </Link>
-                    )}
-                    <span className="text-gray-500 text-sm">
-            Страница {page} из {totalPages}
-          </span>
-                    {page < totalPages && (
-                        <Link
-                            href={buildUrl(status, page + 1)}
-                            className="px-3 py-1 border rounded-md"
-                        >
-                            Вперёд
-                        </Link>
-                    )}
-                </div>
-            )}
-        </div>
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                buildHref={(p) => buildUrl("/admin/returns", { status, page: p })}
+            />
+        </>
     );
-}
-
-
-
-function buildUrl(status: "open" | "closed" | undefined, page: number) {
-    const p = new URLSearchParams();
-    if (status) p.set("status", status);
-    p.set("page", String(page));
-    return `/admin/returns?${p}`;
 }

@@ -2,113 +2,143 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { Check, PackageCheck, X } from "lucide-react";
 import type { ReturnItemStatus } from "@/lib/admin/returns/rules";
-import {decideReturnItem} from "@/lib/admin/actions/return-actions/decideReturnItem";
-import {restockReturnItem} from "@/lib/admin/actions/return-actions/restockReturnItem";
-import {refundReturn} from "@/lib/admin/actions/return-actions/refundReturn";
+import { decideReturnItem } from "@/lib/admin/actions/return-actions/decideReturnItem";
+import { restockReturnItem } from "@/lib/admin/actions/return-actions/restockReturnItem";
+import { refundReturn } from "@/lib/admin/actions/return-actions/refundReturn";
+import Button from "@/app/(admin)/admin/_components/ui/Button";
+import { euroFromCents } from "@/app/(admin)/admin/_lib/format";
 
-/* ── Кнопки решения по одной позиции ─────────────────────── */
+type ActionResult = { ok: boolean; message?: string };
+
+function useAction() {
+    const [pending, start] = useTransition();
+
+    const run = (fn: () => Promise<ActionResult>) =>
+        start(async () => {
+            const res = await fn();
+            if (res.ok) toast.success(res.message ?? "Done");
+            else toast.error(res.message ?? "Action failed");
+        });
+
+    return { pending, run };
+}
+
+/* ── решение по одной позиции ──────────────────────────────── */
+
 export function ItemDecision({
-                                 itemId,
-                                 status,
-                                 restocked,
-                             }: {
+    itemId,
+    status,
+    restocked,
+}: {
     itemId: string;
     status: ReturnItemStatus;
     restocked: boolean;
 }) {
-    const [pending, start] = useTransition();
-
-    const run = (fn: () => Promise<{ ok: boolean; message?: string }>) =>
-        start(async () => {
-            const res = await fn();
-            res.ok
-                ? toast.success(res.message ?? "Готово")
-                : toast.error(res.message ?? "Не удалось");
-        });
+    const { pending, run } = useAction();
 
     const decide = (to: ReturnItemStatus) => {
-        if (to === "rejected" && !confirm("Отклонить возврат? Это решение окончательное.")) return;
+        if (
+            to === "rejected" &&
+            !confirm("Reject this item? The decision is final.")
+        ) {
+            return;
+        }
         run(() => decideReturnItem(itemId, to));
     };
 
-    return (
-        <div className="flex flex-wrap gap-2 items-center">
-            {status === "requested" && (
-                <>
-                    <button
-                        disabled={pending}
-                        onClick={() => decide("approved")}
-                        className="px-3 py-1.5 text-xs bg-black text-white rounded-md disabled:opacity-50"
-                    >
-                        Одобрить
-                    </button>
-                    <button
-                        disabled={pending}
-                        onClick={() => decide("rejected")}
-                        className="px-3 py-1.5 text-xs border border-red-300 text-red-600 rounded-md hover:bg-red-50 disabled:opacity-50"
-                    >
-                        Отклонить
-                    </button>
-                </>
-            )}
-
-            {status === "approved" && !restocked && (
-                <button
+    if (status === "requested") {
+        return (
+            <div className="flex flex-wrap items-center gap-2">
+                <Button
+                    size="sm"
+                    variant="primary"
                     disabled={pending}
-                    onClick={() => run(() => restockReturnItem(itemId))}
-                    className="px-3 py-1.5 text-xs border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                    onClick={() => decide("approved")}
                 >
-                    Принять на склад
-                </button>
-            )}
+                    <Check className="h-3.5 w-3.5" />
+                    Approve
+                </Button>
+                <Button
+                    size="sm"
+                    variant="danger"
+                    disabled={pending}
+                    onClick={() => decide("rejected")}
+                >
+                    <X className="h-3.5 w-3.5" />
+                    Reject
+                </Button>
+            </div>
+        );
+    }
 
-            {status === "approved" && restocked && (
-                <span className="text-xs text-green-600">✓ на складе</span>
-            )}
-        </div>
-    );
+    if (status === "approved" && !restocked) {
+        return (
+            <Button
+                size="sm"
+                variant="outline"
+                disabled={pending}
+                onClick={() => run(() => restockReturnItem(itemId))}
+            >
+                <PackageCheck className="h-3.5 w-3.5" />
+                Take back to stock
+            </Button>
+        );
+    }
+
+    if (status === "approved" && restocked) {
+        return (
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-positive">
+                <PackageCheck className="h-3.5 w-3.5" />
+                Back in stock
+            </span>
+        );
+    }
+
+    return null;
 }
 
-/* ── Кнопка возврата денег по всей заявке ────────────────── */
+/* ── возврат денег по всей заявке ──────────────────────────── */
+
 export function RefundButton({
-                                 requestId,
-                                 amountCents,
-                                 blockedReason,
-                             }: {
+    requestId,
+    amountCents,
+    blockedReason,
+}: {
     requestId: string;
     amountCents: number;
     blockedReason?: string;
 }) {
-    const [pending, start] = useTransition();
+    const { pending, run } = useAction();
 
     if (blockedReason) {
-        return <p className="text-sm text-gray-400">{blockedReason}</p>;
+        return (
+            <p className="rounded-field bg-sunk px-3.5 py-2.5 text-xs text-ink-soft">
+                {blockedReason}
+            </p>
+        );
     }
 
-    const run = () => {
+    const confirmAndRun = () => {
         if (
             !confirm(
-                `Вернуть €${(amountCents / 100).toFixed(2)} через Stripe? Отменить будет нельзя.`,
+                `Refund ${euroFromCents(amountCents)} through Stripe? This cannot be undone.`,
             )
-        )
+        ) {
             return;
-
-        start(async () => {
-            const res = await refundReturn(requestId);
-            res.ok
-                ? toast.success(res.message ?? "Возврат выполнен")
-                : toast.error(res.message ?? "Не удалось");
-        });
+        }
+        run(() => refundReturn(requestId));
     };
 
     return (
-        <button
+        <Button
+            variant="accent"
             disabled={pending}
-            onClick={run}
-            className="px-4 py-2 bg-black text-white rounded-md text-sm disabled:opacity-50"
+            onClick={confirmAndRun}
+            className="w-full"
         >
-            {pending ? "Возвращаю…" : `Вернуть €${(amountCents / 100).toFixed(2)}`}
-        </button>
+            {pending ? "Refunding…" : `Refund ${euroFromCents(amountCents)}`}
+        </Button>
     );
 }

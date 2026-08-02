@@ -65,7 +65,9 @@ export default function Pagination({
             <p className="tnum text-xs text-ink-faint">
                 {from !== null && to !== null && total !== undefined
                     ? `Showing ${from}–${to} of ${fmtCount(total)}`
-                    : `Page ${page} of ${totalPages}`}
+                    : total !== undefined
+                      ? `${fmtCount(total)} records · page ${page} of ${totalPages}`
+                      : `Page ${page} of ${totalPages}`}
             </p>
 
             <div className="flex items-center gap-1.5">
