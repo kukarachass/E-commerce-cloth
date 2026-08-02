@@ -1,0 +1,191 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────
+   Extropy Admin — design tokens
+   Warm-neutral canvas, floating white panels, crimson accent.
+   ────────────────────────────────────────────────────────────── */
+
+@theme {
+    /* surfaces */
+    --color-canvas: #e7e4e1;
+    --color-canvas-deep: #dcd8d4;
+    --color-panel: #fbfaf9;
+    --color-card: #ffffff;
+    --color-sunk: #f3f1ef;
+    --color-ink-panel: #121110;
+
+    /* text */
+    --color-ink: #16130f;
+    --color-ink-soft: #6d6660;
+    --color-ink-faint: #a59e98;
+
+    /* lines */
+    --color-line: #eceae7;
+    --color-line-strong: #e0dcd8;
+
+    /* accent */
+    --color-accent: #e4265c;
+    --color-accent-deep: #c11549;
+    --color-accent-soft: #fde8ef;
+
+    /* semantic */
+    --color-positive: #1f8a5c;
+    --color-positive-soft: #e4f4ec;
+    --color-caution: #b26a00;
+    --color-caution-soft: #fdf0dc;
+    --color-critical: #cf2020;
+    --color-critical-soft: #fdeaea;
+    --color-info: #3352c9;
+    --color-info-soft: #e9edfd;
+
+    /* type */
+    --font-sans: var(--font-admin-sans), ui-sans-serif, system-ui, sans-serif;
+
+    /* radii */
+    --radius-panel: 30px;
+    --radius-card: 22px;
+    --radius-field: 14px;
+
+    /* motion */
+    --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@layer base {
+    * {
+        border-color: var(--color-line);
+    }
+
+    html {
+        background: var(--color-canvas);
+        color: var(--color-ink);
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    /* numbers in tables/metrics must never dance */
+    .tnum,
+    table,
+    input[type="number"] {
+        font-variant-numeric: tabular-nums;
+    }
+
+    ::selection {
+        background: var(--color-accent);
+        color: #fff;
+    }
+}
+
+@layer utilities {
+    /* soft elevation used by every floating card */
+    .shadow-card {
+        box-shadow:
+            0 1px 2px rgb(22 19 15 / 0.04),
+            0 10px 30px -18px rgb(22 19 15 / 0.28);
+    }
+
+    .shadow-float {
+        box-shadow:
+            0 2px 4px rgb(22 19 15 / 0.05),
+            0 18px 44px -20px rgb(22 19 15 / 0.35);
+    }
+
+    .shadow-pop {
+        box-shadow:
+            0 2px 6px rgb(22 19 15 / 0.06),
+            0 28px 60px -24px rgb(22 19 15 / 0.45);
+    }
+
+    /* diagonal hatch — comparison series in charts, "empty" slots */
+    .hatch {
+        background-image: repeating-linear-gradient(
+            -45deg,
+            rgb(22 19 15 / 0.07) 0 1.5px,
+            transparent 1.5px 7px
+        );
+    }
+
+    .hatch-accent {
+        background-image: repeating-linear-gradient(
+            -45deg,
+            rgb(228 38 92 / 0.16) 0 1.5px,
+            transparent 1.5px 7px
+        );
+    }
+
+    /* pastel wash used on the highlighted dashboard card */
+    .wash-aurora {
+        background:
+            radial-gradient(120% 120% at 0% 0%, #fdeef4 0%, transparent 55%),
+            radial-gradient(120% 120% at 100% 20%, #eef0fd 0%, transparent 60%),
+            radial-gradient(140% 140% at 60% 120%, #fdf3e9 0%, transparent 60%),
+            #ffffff;
+    }
+
+    .scrollbar-slim {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-line-strong) transparent;
+    }
+
+    .scrollbar-slim::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-slim::-webkit-scrollbar-thumb {
+        background: var(--color-line-strong);
+        border-radius: 999px;
+    }
+
+    .scrollbar-slim::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}
+
+/* entrance for panels / drawers */
+@keyframes admin-rise {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@keyframes admin-fade {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes admin-slide-left {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: none;
+    }
+}
+
+.animate-rise {
+    animation: admin-rise 0.45s var(--ease-out-soft) both;
+}
+
+.animate-fade {
+    animation: admin-fade 0.25s var(--ease-out-soft) both;
+}
+
+.animate-slide-left {
+    animation: admin-slide-left 0.3s var(--ease-out-soft) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .animate-rise,
+    .animate-fade,
+    .animate-slide-left {
+        animation: none;
+    }
+}
