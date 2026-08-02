@@ -1,32 +1,58 @@
 import Link from "next/link";
-import {CategoryTreeNode} from "@/lib/admin/queries/categories-operations/cat-types";
+import { ChevronRight } from "lucide-react";
+import type { CategoryTreeNode } from "@/lib/admin/queries/categories-operations/cat-types";
+import cn from "@/app/(admin)/admin/_lib/cn";
 
+/**
+ * Узел дерева категорий. Вложенность рисуется настоящими отступами и
+ * направляющими линиями, а не одним «└» в тексте — так глаз считывает
+ * структуру каталога сразу.
+ */
 export default function CategoryNode({ node }: { node: CategoryTreeNode }) {
-    return (
-        <>
-            <div
-                className="flex items-center gap-3 px-3 py-2 hover:bg-gray-50 text-sm"
-                style={{ paddingLeft: `${(node.level - 1) * 24 + 12}px` }}
-            >
-                {node.level > 1 && <span className="text-gray-300">└</span>}
+    const root = node.level === 1;
 
-                <Link
-                    href={`/admin/categories/${node.id}`}
-                    className="flex-1 hover:underline"
+    return (
+        <li>
+            <Link
+                href={`/admin/categories/${node.id}`}
+                className="group flex items-center gap-3 rounded-xl px-2.5 py-2.5 transition-colors hover:bg-sunk"
+            >
+                <span
+                    className={cn(
+                        "h-2 w-2 shrink-0 rounded-full",
+                        root ? "bg-accent" : "bg-line-strong",
+                    )}
+                />
+
+                <span
+                    className={cn(
+                        "min-w-0 flex-1 truncate",
+                        root
+                            ? "text-sm font-semibold text-ink"
+                            : "text-sm text-ink-soft",
+                    )}
                 >
                     {node.name}
-                </Link>
+                </span>
 
-                <span className="text-gray-400 text-xs">/{node.slug}</span>
+                <span className="hidden shrink-0 truncate font-mono text-[11px] text-ink-faint sm:block">
+                    /{node.slug}
+                </span>
 
-                <span className="text-gray-500 text-xs w-20 text-right">
-          {node.productCount > 0 ? `${node.productCount} тов.` : "—"}
-        </span>
-            </div>
+                <span className="tnum w-20 shrink-0 text-right text-xs text-ink-faint">
+                    {node.productCount > 0 ? `${node.productCount} items` : "—"}
+                </span>
 
-            {node.children.map((child) => (
-                <CategoryNode key={child.id} node={child} />
-            ))}
-        </>
+                <ChevronRight className="h-4 w-4 shrink-0 text-ink-faint opacity-0 transition-opacity group-hover:opacity-100" />
+            </Link>
+
+            {node.children.length > 0 && (
+                <ul className="ml-[9px] border-l border-line-strong pl-4">
+                    {node.children.map((child) => (
+                        <CategoryNode key={child.id} node={child} />
+                    ))}
+                </ul>
+            )}
+        </li>
     );
 }

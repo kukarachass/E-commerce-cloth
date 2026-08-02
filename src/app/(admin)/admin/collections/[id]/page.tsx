@@ -1,16 +1,18 @@
 import { notFound } from "next/navigation";
+import { PackagePlus } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/rbac";
 import { getCollectionById } from "@/lib/admin/queries/collections";
 import CollectionForm from "@/app/(admin)/admin/_components/collection/CollectionForm";
-import Link from "next/link";
-
-interface EditCollectionPageProps {
-    params: Promise<{ id: string }>;
-}
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import { LinkButton } from "@/app/(admin)/admin/_components/ui/Button";
+import { GENDER_LABELS } from "@/app/(admin)/admin/_lib/labels";
 
 export default async function EditCollectionPage({
-                                                     params,
-                                                 }: EditCollectionPageProps) {
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
     await requireAdmin();
     const { id } = await params;
 
@@ -18,9 +20,32 @@ export default async function EditCollectionPage({
     if (!collection) notFound();
 
     return (
-        <div>
-            <h1 className="text-xl mb-6">{collection.title}</h1>
-            <Link href={`/admin/collections/${id}/products`}>add product to collection</Link>
+        <>
+            <PageHeader
+                back={{ href: "/admin/collections", label: "All collections" }}
+                title={collection.title}
+                description={`/${collection.slug}`}
+                meta={
+                    <>
+                        <Badge tone={collection.isActive ? "positive" : "neutral"} dot>
+                            {collection.isActive ? "Active" : "Hidden"}
+                        </Badge>
+                        <Badge tone="neutral">
+                            {GENDER_LABELS[collection.gender] ?? collection.gender}
+                        </Badge>
+                    </>
+                }
+                actions={
+                    <LinkButton
+                        href={`/admin/collections/${id}/products`}
+                        variant="primary"
+                    >
+                        <PackagePlus className="h-4 w-4" />
+                        Manage products
+                    </LinkButton>
+                }
+            />
+
             <CollectionForm
                 mode="edit"
                 defaults={{
@@ -33,6 +58,6 @@ export default async function EditCollectionPage({
                     isActive: collection.isActive,
                 }}
             />
-        </div>
+        </>
     );
 }

@@ -2,18 +2,36 @@
 
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
+import { ImagePlus, Loader2, Star, X } from "lucide-react";
 import { uploadProductImage } from "@/lib/admin/actions/media";
+import cn from "@/app/(admin)/admin/_lib/cn";
 
 export type ImageRow = { url: string; isMain: boolean };
 
+/**
+ * Загрузка картинок с превью и выбором главной.
+ *
+ * `name` управляет скрытым полем формы: товару нужен массив images,
+ * бренду и коллекции — одна ссылка под своим именем, поэтому там
+ * передают null и кладут своё поле рядом.
+ */
 export default function ImageUploader({
-                                          images,
-                                          onChange,
-                                          error,
-                                      }: {
+    images,
+    onChange,
+    error,
+    name = "images",
+    label = "Images",
+    hint = "JPEG, PNG, WebP, AVIF · up to 5 MB",
+    single,
+}: {
     images: ImageRow[];
     onChange: (next: ImageRow[]) => void;
     error?: string;
+    name?: string | null;
+    label?: string;
+    hint?: string;
+    /** режим одной картинки: логотип, баннер */
+    single?: boolean;
 }) {
     const inputRef = useRef<HTMLInputElement>(null);
     const [pending, start] = useTransition();
@@ -42,66 +60,87 @@ export default function ImageUploader({
 
             if (uploaded.length) {
                 onChange([...images, ...uploaded]);
-                toast.success(`Загружено: ${uploaded.length}`);
+                toast.success(
+                    `Uploaded ${uploaded.length} image${uploaded.length === 1 ? "" : "s"}`,
+                );
             }
             if (inputRef.current) inputRef.current.value = "";
         });
     };
 
-    const remove = (i: number) => {
-        const next = images.filter((_, j) => j !== i);
-        // Если удалили главную — назначаем главной первую оставшуюся
-        if (images[i].isMain && next.length) next[0].isMain = true;
+    const remove = (index: number) => {
+        const next = images.filter((_, i) => i !== index);
+        // сняли главную — назначаем главной первую оставшуюся
+        if (images[index].isMain && next.length) next[0] = { ...next[0], isMain: true };
         onChange(next);
     };
 
-    const setMain = (i: number) =>
-        onChange(images.map((img, j) => ({ ...img, isMain: j === i })));
+    const setMain = (index: number) =>
+        onChange(images.map((img, i) => ({ ...img, isMain: i === index })));
 
     return (
-        <div>
-            <div className="mb-2 text-sm text-gray-600">Картинки</div>
-            {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+        <div className="grid gap-2">
+            <div className="flex items-baseline justify-between gap-3">
+                <span className="text-xs font-medium text-ink-soft">{label}</span>
+                {images.length > 0 && !single && (
+                    <span className="tnum text-[11px] text-ink-faint">
+                        {images.length} uploaded
+                    </span>
+                )}
+            </div>
+
+            {error && <p className="text-xs text-critical">{error}</p>}
 
             {images.length > 0 && (
-                <div className="flex flex-wrap gap-3 mb-3">
+                <ul className="flex flex-wrap gap-2.5">
                     {images.map((img, i) => (
-                        <div
+                        <li
                             key={img.url}
-                            className={
-                                "relative w-24 h-32 rounded-md overflow-hidden border-2 " +
-                                (img.isMain ? "border-black" : "border-transparent")
-                            }
+                            className={cn(
+                                "group relative h-32 w-24 overflow-hidden rounded-field bg-sunk",
+                                img.isMain && !single
+                                    ? "ring-2 ring-accent"
+                                    : "ring-1 ring-line-strong",
+                            )}
                         >
-                            <img src={img.url} alt="" className="w-full h-full object-cover" />
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                                src={img.url}
+                                alt=""
+                                className="h-full w-full object-cover"
+                            />
 
                             <button
                                 type="button"
                                 onClick={() => remove(i)}
-                                className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white text-xs leading-none"
+                                aria-label="Remove image"
+                                className="absolute top-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-full bg-ink/65 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
                             >
-                                ✕
+                                <X className="h-3.5 w-3.5" />
                             </button>
 
-                            {img.isMain ? (
-                                <span className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[10px] text-center py-0.5">
-                  главная
-                </span>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => setMain(i)}
-                                    className="absolute bottom-0 inset-x-0 bg-white/80 text-[10px] py-0.5 opacity-0 hover:opacity-100 transition"
-                                >
-                                    сделать главной
-                                </button>
-                            )}
-                        </div>
+                            {!single &&
+                                (img.isMain ? (
+                                    <span className="absolute inset-x-0 bottom-0 flex items-center justify-center gap-1 bg-accent py-1 text-[10px] font-semibold text-white">
+                                        <Star className="h-3 w-3 fill-current" />
+                                        Main
+                                    </span>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMain(i)}
+                                        className="absolute inset-x-0 bottom-0 bg-card/90 py-1 text-[10px] font-medium text-ink opacity-0 transition-opacity group-hover:opacity-100"
+                                    >
+                                        Set as main
+                                    </button>
+                                ))}
+                        </li>
                     ))}
-                </div>
+                </ul>
             )}
 
-            <div
+            <button
+                type="button"
                 onClick={() => inputRef.current?.click()}
                 onDragOver={(e) => {
                     e.preventDefault();
@@ -113,29 +152,38 @@ export default function ImageUploader({
                     setDragging(false);
                     upload(e.dataTransfer.files);
                 }}
-                className={
-                    "border-2 border-dashed rounded-md p-6 text-center cursor-pointer text-sm transition " +
-                    (dragging ? "border-black bg-gray-50" : "border-gray-300") +
-                    (pending ? " opacity-50 pointer-events-none" : "")
-                }
+                disabled={pending}
+                className={cn(
+                    "flex flex-col items-center justify-center gap-1.5 rounded-field border-2 border-dashed px-4 py-6 text-center transition-colors",
+                    dragging
+                        ? "border-accent bg-accent-soft"
+                        : "border-line-strong hover:border-ink/25 hover:bg-sunk/60",
+                    pending && "pointer-events-none opacity-60",
+                )}
             >
-                {pending ? "Загружаю…" : "Перетащи файлы сюда или нажми для выбора"}
-                <div className="text-xs text-gray-400 mt-1">
-                    JPEG, PNG, WebP, AVIF · до 5 МБ
-                </div>
-            </div>
+                {pending ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-ink-faint" />
+                ) : (
+                    <ImagePlus className="h-5 w-5 text-ink-faint" strokeWidth={1.7} />
+                )}
+                <span className="text-sm font-medium text-ink">
+                    {pending ? "Uploading…" : "Drop files or click to upload"}
+                </span>
+                <span className="text-xs text-ink-faint">{hint}</span>
+            </button>
 
             <input
                 ref={inputRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/avif"
-                multiple
+                multiple={!single}
                 hidden
                 onChange={(e) => upload(e.target.files)}
             />
 
-            {/* На сервер уезжает тот же JSON, что и раньше — экшены менять не надо */}
-            <input type="hidden" name="images" value={JSON.stringify(images)} />
+            {name && (
+                <input type="hidden" name={name} value={JSON.stringify(images)} />
+            )}
         </div>
     );
 }

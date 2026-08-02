@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, ExternalLink, Plus } from "lucide-react";
@@ -22,12 +22,9 @@ export default function SidebarNav({
 }) {
     const pathname = usePathname();
     const activeGroup = groupOf(pathname);
+    // раздел с текущей страницей раскрыт по умолчанию; ручное переключение
+    // хранится здесь и живёт до перезагрузки вкладки
     const [open, setOpen] = useState<Record<string, boolean>>({});
-
-    // при переходе в другой раздел раскрываем его и не трогаем ручные открытия
-    useEffect(() => {
-        setOpen((prev) => ({ ...prev, [activeGroup.id]: true }));
-    }, [activeGroup.id]);
 
     return (
         <nav className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pb-4 scrollbar-slim">

@@ -104,8 +104,6 @@ export default function CommandSearch({ className }: { className?: string }) {
         ];
     }, [query]);
 
-    useEffect(() => setCursor(0), [query]);
-
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -148,7 +146,10 @@ export default function CommandSearch({ className }: { className?: string }) {
                 <input
                     ref={inputRef}
                     value={query}
-                    onChange={(e) => setQuery(e.target.value)}
+                    onChange={(e) => {
+                        setQuery(e.target.value);
+                        setCursor(0);
+                    }}
                     onFocus={() => setOpen(true)}
                     onKeyDown={(e) => {
                         if (e.key === "ArrowDown") {

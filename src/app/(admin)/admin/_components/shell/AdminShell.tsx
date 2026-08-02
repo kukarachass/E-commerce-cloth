@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import type { NavCounts } from "@/lib/admin/queries/admin-queries/getNavCounts";
 import IconRail from "./IconRail";
@@ -24,10 +23,9 @@ export default function AdminShell({
     counts: NavCounts;
     children: React.ReactNode;
 }) {
-    const pathname = usePathname();
+    // выдвижную панель закрывает сам переход по ссылке (onNavigate),
+    // поэтому синхронизация с pathname не нужна
     const [menuOpen, setMenuOpen] = useState(false);
-
-    useEffect(() => setMenuOpen(false), [pathname]);
 
     useEffect(() => {
         document.body.style.overflow = menuOpen ? "hidden" : "";
