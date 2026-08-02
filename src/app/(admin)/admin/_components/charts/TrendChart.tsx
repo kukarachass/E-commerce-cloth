@@ -138,10 +138,16 @@ export default function TrendChart({
                     strokeDasharray="5 5"
                 />
 
-                <path d={area} fill="url(#trend-fill)" />
-                <path d={area} fill="url(#trend-hatch)" opacity="0.5" />
+                {/* заливка проявляется, линия прочерчивается —
+                    pathLength="1" делает длину предсказуемой для keyframes */}
+                <g className="animate-fade" style={{ animationDelay: "0.35s" }}>
+                    <path d={area} fill="url(#trend-fill)" />
+                    <path d={area} fill="url(#trend-hatch)" opacity="0.5" />
+                </g>
                 <path
                     d={path}
+                    pathLength={1}
+                    className="animate-draw"
                     fill="none"
                     stroke={accent}
                     strokeWidth="2.5"

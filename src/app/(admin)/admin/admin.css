@@ -7,7 +7,7 @@
 
 @theme {
     /* surfaces */
-    --color-canvas: #e3dfda;
+    --color-canvas: #fdfcfc;
     --color-canvas-deep: #d6d1cb;
     --color-panel: #fcfbfa;
     --color-card: #ffffff;
@@ -140,11 +140,15 @@
     }
 }
 
-/* entrance for panels / drawers */
+/* ── движение ─────────────────────────────────────────────────
+   Всё появление собрано здесь: компоненты только вешают класс,
+   а тайминги и кривые живут в одном месте.
+   ───────────────────────────────────────────────────────────── */
+
 @keyframes admin-rise {
     from {
         opacity: 0;
-        transform: translateY(8px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -170,8 +174,72 @@
     }
 }
 
+@keyframes admin-pop {
+    from {
+        opacity: 0;
+        transform: translateY(6px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* цифра «набирает вес»: лёгкий подъём с расширением трекинга */
+@keyframes admin-figure-in {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+        letter-spacing: 0.02em;
+    }
+    to {
+        opacity: 1;
+        transform: none;
+        letter-spacing: -0.03em;
+    }
+}
+
+/* линия графика прочерчивается: работает благодаря pathLength="1" */
+@keyframes admin-draw {
+    from {
+        stroke-dashoffset: 1;
+    }
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* сегмент кольца отрастает до своей доли */
+@keyframes admin-arc {
+    from {
+        stroke-dasharray: 0 var(--arc-total);
+    }
+    to {
+        stroke-dasharray: var(--arc-dash) var(--arc-gap);
+    }
+}
+
+/* заполнение горизонтальных индикаторов */
+@keyframes admin-grow-x {
+    from {
+        transform: scaleX(0);
+    }
+    to {
+        transform: none;
+    }
+}
+
+@keyframes admin-shimmer {
+    from {
+        background-position: 200% 0;
+    }
+    to {
+        background-position: -200% 0;
+    }
+}
+
 .animate-rise {
-    animation: admin-rise 0.45s var(--ease-out-soft) both;
+    animation: admin-rise 0.5s var(--ease-out-soft) both;
 }
 
 .animate-fade {
@@ -182,10 +250,121 @@
     animation: admin-slide-left 0.3s var(--ease-out-soft) both;
 }
 
+.animate-pop {
+    animation: admin-pop 0.45s var(--ease-out-soft) both;
+}
+
+.animate-figure {
+    animation: admin-figure-in 0.7s var(--ease-out-soft) both;
+    animation-delay: 0.12s;
+}
+
+.animate-draw {
+    stroke-dasharray: 1;
+    animation: admin-draw 1.1s var(--ease-out-soft) both;
+    animation-delay: 0.15s;
+}
+
+.animate-arc {
+    animation: admin-arc 0.9s var(--ease-out-soft) both;
+}
+
+.animate-grow-x {
+    transform-origin: left;
+    animation: admin-grow-x 0.8s var(--ease-out-soft) both;
+    animation-delay: 0.2s;
+}
+
+/**
+ * Каскад: прямые дети появляются друг за другом.
+ * После шестого элемента задержку не растим — низ страницы не должен
+ * ждать своей очереди дольше трети секунды на каждом переходе.
+ */
+.stagger > * {
+    animation: admin-rise 0.42s var(--ease-out-soft) both;
+}
+
+.stagger > *:nth-child(1) {
+    animation-delay: 0s;
+}
+.stagger > *:nth-child(2) {
+    animation-delay: 0.05s;
+}
+.stagger > *:nth-child(3) {
+    animation-delay: 0.1s;
+}
+.stagger > *:nth-child(4) {
+    animation-delay: 0.15s;
+}
+.stagger > *:nth-child(5) {
+    animation-delay: 0.2s;
+}
+.stagger > *:nth-child(6) {
+    animation-delay: 0.24s;
+}
+.stagger > *:nth-child(n + 7) {
+    animation-delay: 0.28s;
+}
+
+/* быстрый каскад для плотных списков внутри карточки */
+.stagger-tight > * {
+    animation: admin-fade 0.4s var(--ease-out-soft) both;
+}
+
+.stagger-tight > *:nth-child(1) {
+    animation-delay: 0.05s;
+}
+.stagger-tight > *:nth-child(2) {
+    animation-delay: 0.09s;
+}
+.stagger-tight > *:nth-child(3) {
+    animation-delay: 0.13s;
+}
+.stagger-tight > *:nth-child(4) {
+    animation-delay: 0.17s;
+}
+.stagger-tight > *:nth-child(5) {
+    animation-delay: 0.21s;
+}
+.stagger-tight > *:nth-child(6) {
+    animation-delay: 0.25s;
+}
+.stagger-tight > *:nth-child(n + 7) {
+    animation-delay: 0.29s;
+}
+
+/* каркас загрузки */
+.skeleton {
+    background-color: var(--color-sunk);
+    background-image: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgb(255 255 255 / 0.75) 50%,
+        transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: admin-shimmer 1.6s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .animate-rise,
     .animate-fade,
-    .animate-slide-left {
+    .animate-slide-left,
+    .animate-pop,
+    .animate-figure,
+    .animate-draw,
+    .animate-arc,
+    .animate-grow-x,
+    .stagger > *,
+    .stagger-tight > * {
         animation: none;
+    }
+
+    .skeleton {
+        animation: none;
+    }
+
+    .animate-draw {
+        stroke-dasharray: none;
     }
 }

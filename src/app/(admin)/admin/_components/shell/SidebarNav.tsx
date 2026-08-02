@@ -37,7 +37,7 @@ export default function SidebarNav({
                             onClick={() =>
                                 setOpen((prev) => ({ ...prev, [group.id]: !expanded }))
                             }
-                            className="group/head flex w-full items-center gap-2 px-3 pb-1.5 text-[10px] font-semibold tracking-[0.14em] text-ink-faint uppercase transition-colors hover:text-ink-soft"
+                            className="group/head flex w-full items-center gap-2 px-3 pb-1.5 text-[10px] font-semibold tracking-[0.14em] text-ink-faint uppercase transition-colors hover:text-ink-soft "
                         >
                             <span>{group.label}</span>
                             <span className="h-px flex-1 bg-line-strong" />
@@ -99,10 +99,10 @@ function NavRow({
                 href={item.href}
                 onClick={onNavigate}
                 className={cn(
-                    "flex h-10 items-center gap-2.5 rounded-full px-3 text-sm transition-all duration-200",
+                    "flex h-10 items-center gap-2.5 rounded-md px-3 text-sm transition-all duration-200 ",
                     active
                         ? "bg-card font-semibold text-accent shadow-card"
-                        : "text-ink-soft hover:bg-card/70 hover:text-ink",
+                        : "text-ink-soft hover:bg-card hover:text-ink ",
                 )}
             >
                 <Icon

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { X } from "lucide-react";
 import type { NavCounts } from "@/lib/admin/queries/admin-queries/getNavCounts";
 import IconRail from "./IconRail";
@@ -23,6 +24,9 @@ export default function AdminShell({
     counts: NavCounts;
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
+    const mainRef = useRef<HTMLElement>(null);
+
     // выдвижную панель закрывает сам переход по ссылке (onNavigate),
     // поэтому синхронизация с pathname не нужна
     const [menuOpen, setMenuOpen] = useState(false);
@@ -33,6 +37,12 @@ export default function AdminShell({
             document.body.style.overflow = "";
         };
     }, [menuOpen]);
+
+    // рабочая область скроллится сама, поэтому новая страница иначе
+    // открывалась бы на той же высоте, что и предыдущая
+    useEffect(() => {
+        mainRef.current?.scrollTo({ top: 0 });
+    }, [pathname]);
 
     return (
         <div className="flex min-h-dvh gap-3 p-2 sm:p-3 lg:h-dvh lg:overflow-hidden">
@@ -52,9 +62,15 @@ export default function AdminShell({
 
                     <main
                         id="admin-main"
+                        ref={mainRef}
                         className="min-w-0 flex-1 rounded-panel bg-panel p-4 shadow-card sm:p-6 lg:overflow-x-hidden lg:overflow-y-auto scrollbar-slim"
                     >
-                        <div className="animate-rise mx-auto w-full max-w-[1240px]">
+                        {/* key по пути перезапускает каскад на каждом переходе:
+                            блоки страницы проявляются друг за другом */}
+                        <div
+                            key={pathname}
+                            className="stagger mx-auto w-full max-w-[1240px]"
+                        >
                             {children}
                         </div>
                     </main>

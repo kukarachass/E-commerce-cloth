@@ -122,7 +122,7 @@ export default async function DashboardPage() {
                 }
             />
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="stagger grid grid-cols-1 gap-3">
                 {/* ── выручка ─────────────────────────────────────── */}
                 <Card variant="aurora" className="p-5 sm:p-6">
                     <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
@@ -135,7 +135,7 @@ export default async function DashboardPage() {
                             <div className="mt-3 flex flex-wrap items-center gap-3">
                                 <Money
                                     value={stats.month.revenue}
-                                    className="text-[40px] leading-none font-semibold tracking-[-0.03em] text-ink sm:text-[52px]"
+                                    className="animate-figure text-[40px] leading-none font-semibold tracking-[-0.03em] text-ink sm:text-[52px]"
                                 />
                                 <TrendPill value={stats.revenueTrend} />
                             </div>
@@ -233,7 +233,7 @@ export default async function DashboardPage() {
                         </div>
                     </Card>
                 ) : (
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="stagger grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         <AlertTile
                             icon={Timer}
                             tone="accent"
@@ -334,7 +334,7 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ul className="-mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
+                            <ul className="stagger-tight -mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
                                 {toFulfill.map((o) => (
                                     <li key={o.id}>
                                         <ListRow
@@ -378,7 +378,7 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ul className="-mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
+                            <ul className="stagger-tight -mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
                                 {lowStock.rows.map((s, i) => (
                                     <li key={`${s.productId}-${i}`}>
                                         <ListRow
@@ -425,7 +425,7 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ul className="-mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
+                            <ul className="stagger-tight -mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
                                 {topProducts.map((p, i) => (
                                     <li key={p.productId}>
                                         <ListRow
@@ -472,7 +472,7 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ol className="relative grid grid-cols-1 gap-4 pl-5">
+                            <ol className="stagger-tight relative grid grid-cols-1 gap-4 pl-5">
                                 <span className="absolute top-2 bottom-2 left-[7px] w-px bg-line" />
                                 {activity.map((row) => (
                                     <li key={row.id} className="relative">

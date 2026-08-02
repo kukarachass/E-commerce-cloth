@@ -47,10 +47,13 @@ export default function Donut({
                 />
 
                 {total > 0 &&
-                    slices.map((slice) => {
+                    slices.map((slice, i) => {
                         if (slice.value <= 0) return null;
                         const length = (slice.value / total) * circumference;
                         const dash = Math.max(length - gap, 0.5);
+
+                        // сегменты отрастают по очереди: конечные значения
+                        // отдаём в CSS-переменных, их подхватывает keyframe
                         const el = (
                             <circle
                                 key={slice.label}
@@ -61,8 +64,16 @@ export default function Donut({
                                 strokeWidth={thickness}
                                 stroke={slice.color}
                                 strokeLinecap="round"
-                                strokeDasharray={`${dash} ${circumference - dash}`}
                                 strokeDashoffset={-offset}
+                                className="animate-arc"
+                                style={
+                                    {
+                                        "--arc-total": circumference,
+                                        "--arc-dash": dash,
+                                        "--arc-gap": circumference - dash,
+                                        animationDelay: `${0.1 + i * 0.12}s`,
+                                    } as React.CSSProperties
+                                }
                             />
                         );
                         offset += length;

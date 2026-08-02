@@ -176,7 +176,10 @@ export function ShareBar({
             )}
         >
             <span
-                className={cn("block h-full rounded-full transition-[width]", fill)}
+                className={cn(
+                    "animate-grow-x block h-full rounded-full transition-[width]",
+                    fill,
+                )}
                 style={{ width: `${pct}%` }}
             />
         </span>
