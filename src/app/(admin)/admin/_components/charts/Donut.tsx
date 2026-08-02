@@ -71,7 +71,7 @@ export default function Donut({
             </svg>
 
             {center && (
-                <div className="absolute inset-0 grid place-items-center text-center">
+                <div className="absolute inset-0 grid grid-cols-1 place-items-center text-center">
                     {center}
                 </div>
             )}

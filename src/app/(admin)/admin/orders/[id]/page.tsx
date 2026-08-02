@@ -84,9 +84,9 @@ export default async function OrderDetailPage({
                 }
             />
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 {/* ── основная колонка ───────────────────────────── */}
-                <div className="grid content-start gap-3">
+                <div className="grid grid-cols-1 content-start gap-3">
                     <Card>
                         <CardHeader
                             title="Fulfilment"
@@ -112,7 +112,7 @@ export default async function OrderDetailPage({
                             hint="Prices are snapshots taken at checkout"
                         />
 
-                        <ul className="grid">
+                        <ul className="grid grid-cols-1">
                             {order.items.map((item) => {
                                 const snap = (item.productSnapshot ?? {}) as Snapshot;
                                 return (
@@ -120,7 +120,7 @@ export default async function OrderDetailPage({
                                         key={item.id}
                                         className="flex items-center gap-3.5 border-b border-line py-3 first:pt-0 last:border-0 last:pb-0"
                                     >
-                                        <span className="hatch grid h-14 w-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-sunk">
+                                        <span className="hatch grid grid-cols-1 h-14 w-11 shrink-0 place-items-center overflow-hidden rounded-lg bg-sunk">
                                             {snap.image ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img
@@ -181,7 +181,7 @@ export default async function OrderDetailPage({
                                 }
                             />
 
-                            <div className="grid gap-2 sm:grid-cols-3">
+                            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                                 <MiniStat
                                     label="Method"
                                     value={lastPayment.paymentMethod ?? "—"}
@@ -220,7 +220,7 @@ export default async function OrderDetailPage({
                 </div>
 
                 {/* ── боковая колонка ────────────────────────────── */}
-                <div className="grid content-start gap-3">
+                <div className="grid grid-cols-1 content-start gap-3">
                     <Card>
                         <CardHeader title="Customer" />
                         <div className="flex items-center gap-3">
@@ -300,7 +300,7 @@ export default async function OrderDetailPage({
                                     />
                                 }
                             />
-                            <ul className="grid gap-2">
+                            <ul className="grid grid-cols-1 gap-2">
                                 {order.returns.map((r) => (
                                     <li key={r.id}>
                                         <Link

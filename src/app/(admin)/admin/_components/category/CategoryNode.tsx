@@ -35,7 +35,7 @@ export default function CategoryNode({ node }: { node: CategoryTreeNode }) {
                     {node.name}
                 </span>
 
-                <span className="hidden shrink-0 truncate font-mono text-[11px] text-ink-faint sm:block">
+                <span className="hidden min-w-0 truncate font-mono text-[11px] text-ink-faint sm:block">
                     /{node.slug}
                 </span>
 

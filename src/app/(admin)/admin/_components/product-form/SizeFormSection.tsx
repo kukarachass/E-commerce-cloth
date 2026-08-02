@@ -40,7 +40,7 @@ export default function SizeFormSection({
     const totalStock = sizes.reduce((sum, s) => sum + (s.stockAmount || 0), 0);
 
     return (
-        <div className="grid gap-2.5">
+        <div className="grid grid-cols-1 gap-2.5">
             <div className="flex items-center justify-between gap-3">
                 <span className="text-xs font-medium text-ink-soft">
                     Sizes &amp; stock
@@ -52,7 +52,7 @@ export default function SizeFormSection({
 
             {error && <p className="text-xs text-critical">{error}</p>}
 
-            <ul className="grid gap-2">
+            <ul className="grid grid-cols-1 gap-2">
                 {sizes.map((row, i) => (
                     <li
                         key={i}
@@ -103,7 +103,7 @@ export default function SizeFormSection({
                             type="button"
                             aria-label="Remove size"
                             onClick={() => setSizes(sizes.filter((_, j) => j !== i))}
-                            className="grid h-11 w-11 place-items-center rounded-full text-ink-faint transition-colors hover:bg-critical-soft hover:text-critical"
+                            className="grid grid-cols-1 h-11 w-11 place-items-center rounded-full text-ink-faint transition-colors hover:bg-critical-soft hover:text-critical"
                         >
                             <Trash2 className="h-4 w-4" strokeWidth={1.8} />
                         </button>

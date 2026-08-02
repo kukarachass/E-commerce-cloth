@@ -6,12 +6,12 @@ import { usePathname } from "next/navigation";
 import { ChevronDown, ExternalLink, Plus } from "lucide-react";
 import cn from "@/app/(admin)/admin/_lib/cn";
 import type { NavCounts } from "@/lib/admin/queries/admin-queries/getNavCounts";
-import { NAV_GROUPS, groupOf, isItemActive, type NavItem } from "./nav";
+import { NAV_GROUPS, isItemActive, type NavItem } from "./nav";
 
 /**
- * Полное дерево разделов. Группа с текущей страницей раскрыта всегда,
- * остальные админ волен открывать сам — состояние живёт только в сессии
- * вкладки, чтобы не тащить ещё один источник правды.
+ * Полное дерево разделов: всё видно сразу, ничего не спрятано за вторым
+ * кликом. Свернуть лишнюю группу можно вручную — это состояние живёт только
+ * в сессии вкладки, чтобы не заводить ещё один источник правды.
  */
 export default function SidebarNav({
     counts,
@@ -21,15 +21,14 @@ export default function SidebarNav({
     onNavigate?: () => void;
 }) {
     const pathname = usePathname();
-    const activeGroup = groupOf(pathname);
-    // раздел с текущей страницей раскрыт по умолчанию; ручное переключение
-    // хранится здесь и живёт до перезагрузки вкладки
+    // все разделы раскрыты по умолчанию: навигация не должна ничего прятать.
+    // Свёрнутое состояние живёт до перезагрузки вкладки
     const [open, setOpen] = useState<Record<string, boolean>>({});
 
     return (
         <nav className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto pb-4 scrollbar-slim">
             {NAV_GROUPS.map((group) => {
-                const expanded = open[group.id] ?? group.id === activeGroup.id;
+                const expanded = open[group.id] ?? true;
 
                 return (
                     <div key={group.id}>
@@ -51,7 +50,7 @@ export default function SidebarNav({
                         </button>
 
                         {expanded && (
-                            <ul className="grid gap-0.5">
+                            <ul className="grid grid-cols-1 gap-0.5">
                                 {group.items.map((item) => (
                                     <NavRow
                                         key={item.href}

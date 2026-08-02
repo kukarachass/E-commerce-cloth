@@ -113,9 +113,9 @@ export default function ProductForm({
                 <input type="hidden" name="id" value={defaults.id} />
             )}
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
                 {/* ── поля ───────────────────────────────────────── */}
-                <Card className="grid gap-7 p-5 sm:p-6">
+                <Card className="grid grid-cols-1 gap-7 p-5 sm:p-6">
                     <FormError message={!state.ok ? state.message : undefined} />
 
                     <FormSection
@@ -174,7 +174,7 @@ export default function ProductForm({
                             ) : undefined
                         }
                     >
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <Field label="Price" error={err("price")}>
                                 <Input
                                     name="price"
@@ -203,7 +203,7 @@ export default function ProductForm({
                         title="Placement"
                         description="Where the product shows up in the catalog."
                     >
-                        <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                             <Field label="Audience" error={err("gender")}>
                                 <Select
                                     name="gender"
@@ -257,7 +257,7 @@ export default function ProductForm({
                         title="Product care"
                         description="Fabric and washing instructions."
                     >
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <Field label="Material" error={err("material")}>
                                 <Input
                                     name="material"
@@ -304,7 +304,7 @@ export default function ProductForm({
                 </Card>
 
                 {/* ── сводка ─────────────────────────────────────── */}
-                <div className="grid content-start gap-3 xl:sticky xl:top-0">
+                <div className="grid grid-cols-1 content-start gap-3 xl:sticky xl:top-0">
                     <Card>
                         <CardHeader title="Visibility" />
                         <Switch
@@ -318,7 +318,7 @@ export default function ProductForm({
                     <Card>
                         <CardHeader title="Storefront preview" />
 
-                        <div className="hatch grid h-44 place-items-center overflow-hidden rounded-field bg-sunk">
+                        <div className="hatch grid grid-cols-1 h-44 place-items-center overflow-hidden rounded-field bg-sunk">
                             {cover ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img

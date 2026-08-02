@@ -7,9 +7,9 @@
 
 @theme {
     /* surfaces */
-    --color-canvas: #e7e4e1;
-    --color-canvas-deep: #dcd8d4;
-    --color-panel: #fbfaf9;
+    --color-canvas: #e3dfda;
+    --color-canvas-deep: #d6d1cb;
+    --color-panel: #fcfbfa;
     --color-card: #ffffff;
     --color-sunk: #f3f1ef;
     --color-ink-panel: #121110;

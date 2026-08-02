@@ -83,7 +83,7 @@ export default function DataTable<T>({
                 {href && <span />}
             </div>
 
-            <ul className="grid gap-2 lg:gap-0">
+            <ul className="grid grid-cols-1 gap-2 lg:gap-0">
                 {rows.map((row) => {
                     const key = getKey(row);
                     const target = href?.(row);
@@ -113,7 +113,7 @@ export default function DataTable<T>({
                             </div>
 
                             {/* узкий экран: карточка */}
-                            <div className="grid gap-3 lg:hidden">
+                            <div className="grid grid-cols-1 gap-3 lg:hidden">
                                 <div className="flex items-start justify-between gap-3">
                                     <div className="min-w-0 flex-1 space-y-1">
                                         {titleCols.map((c) => (
@@ -122,7 +122,7 @@ export default function DataTable<T>({
                                             </div>
                                         ))}
                                     </div>
-                                    <div className="flex shrink-0 flex-col items-end gap-1.5 text-sm">
+                                    <div className="flex max-w-[55%] shrink-0 flex-col items-end gap-1.5 text-sm">
                                         {trailingCols.map((c) => (
                                             <div key={c.key}>{c.cell(row)}</div>
                                         ))}

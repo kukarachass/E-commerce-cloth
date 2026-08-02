@@ -102,16 +102,16 @@ export default async function ReturnDetailPage({
                 }
             />
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 {/* ── позиции ────────────────────────────────────── */}
-                <div className="grid content-start gap-3">
+                <div className="grid grid-cols-1 content-start gap-3">
                     <Card>
                         <CardHeader
                             title="Requested items"
                             hint="Approve, then take the item back to stock, then refund"
                         />
 
-                        <ul className="grid">
+                        <ul className="grid grid-cols-1">
                             {request.items.map((item) => {
                                 const snap = (item.orderItem?.productSnapshot ??
                                     {}) as Snapshot;
@@ -119,9 +119,9 @@ export default async function ReturnDetailPage({
                                 return (
                                     <li
                                         key={item.id}
-                                        className="grid gap-3 border-b border-line py-4 first:pt-0 last:border-0 last:pb-0 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start"
+                                        className="grid grid-cols-1 gap-3 border-b border-line py-4 first:pt-0 last:border-0 last:pb-0 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start"
                                     >
-                                        <span className="hatch grid h-16 w-13 shrink-0 place-items-center overflow-hidden rounded-lg bg-sunk">
+                                        <span className="hatch grid grid-cols-1 h-16 w-13 shrink-0 place-items-center overflow-hidden rounded-lg bg-sunk">
                                             {snap.image ? (
                                                 // eslint-disable-next-line @next/next/no-img-element
                                                 <img
@@ -169,7 +169,7 @@ export default async function ReturnDetailPage({
                     {(request.customerNote || request.adminNote) && (
                         <Card>
                             <CardHeader title="Notes" />
-                            <div className="grid gap-3">
+                            <div className="grid grid-cols-1 gap-3">
                                 {request.customerNote && (
                                     <div className="rounded-field bg-sunk px-3.5 py-3">
                                         <p className="mb-1 flex items-center gap-1.5 text-[10px] font-semibold tracking-[0.1em] text-ink-faint uppercase">
@@ -196,7 +196,7 @@ export default async function ReturnDetailPage({
                 </div>
 
                 {/* ── деньги и клиент ────────────────────────────── */}
-                <div className="grid content-start gap-3">
+                <div className="grid grid-cols-1 content-start gap-3">
                     <Card variant={blockedReason ? "plain" : "aurora"}>
                         <CardHeader
                             title="Refund"

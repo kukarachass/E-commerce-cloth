@@ -50,9 +50,9 @@ export default function UserActions({
                 hint="Every action is written to the activity log"
             />
 
-            <div className="grid gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 {/* доступ */}
-                <div className="grid gap-2 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <Button
                         variant="outline"
                         disabled={pending}
@@ -108,7 +108,9 @@ export default function UserActions({
                             Lift the ban
                         </Button>
                     ) : (
-                        <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_150px_auto]">
+                        // узкая колонка: поля идут в столбик, иначе поле
+                        // причины схлопывается до пары букв
+                        <div className="grid grid-cols-1 gap-2">
                             <Input
                                 value={reason}
                                 onChange={(e) => setReason(e.target.value)}

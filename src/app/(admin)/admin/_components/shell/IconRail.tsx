@@ -18,7 +18,7 @@ export default function IconRail() {
         <aside className="hidden w-[68px] shrink-0 flex-col items-center gap-3 py-3 lg:flex">
             <Link
                 href="/admin"
-                className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-ink-panel text-[15px] font-bold text-white shadow-float transition-transform duration-200 hover:scale-105"
+                className="grid grid-cols-1 h-11 w-11 shrink-0 place-items-center rounded-full bg-ink-panel text-[15px] font-bold text-white shadow-float transition-transform duration-200 hover:scale-105"
                 aria-label="Extropy admin home"
             >
                 E
@@ -61,7 +61,7 @@ export default function IconRail() {
                 href="/women"
                 title="Open storefront"
                 aria-label="Open storefront"
-                className="grid h-11 w-11 place-items-center rounded-full bg-card text-ink-soft shadow-card transition-colors hover:text-ink"
+                className="grid grid-cols-1 h-11 w-11 place-items-center rounded-full bg-card text-ink-soft shadow-card transition-colors hover:text-ink"
             >
                 <Store className="h-[18px] w-[18px]" strokeWidth={1.8} />
             </Link>

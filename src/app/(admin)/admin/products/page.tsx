@@ -87,7 +87,7 @@ export default async function ProductsPage({
             label: "Price",
             mobile: "trailing",
             cell: (p) => (
-                <span className="flex items-center gap-2">
+                <span className="flex flex-wrap items-center justify-end gap-x-2 gap-y-1 lg:justify-start">
                     <span className="tnum font-semibold text-ink">
                         {euro(p.discountPrice)}
                     </span>

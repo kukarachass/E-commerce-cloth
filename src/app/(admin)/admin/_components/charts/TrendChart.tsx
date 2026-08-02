@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import cn from "@/app/(admin)/admin/_lib/cn";
+import { count, euroShort } from "@/app/(admin)/admin/_lib/format";
 import { buildPoints, niceMax, smoothPath } from "./chart-math";
 
 export type TrendSeriesPoint = {
@@ -10,6 +11,12 @@ export type TrendSeriesPoint = {
     /** вторая метрика, показывается в подсказке (например, число заказов) */
     secondary?: number;
 };
+
+/** Форматтер живёт внутри: функции нельзя передать из серверного компонента */
+const FORMATTERS = {
+    currency: euroShort,
+    number: count,
+} as const;
 
 const W = 720;
 const H = 200;
@@ -21,19 +28,21 @@ const H = 200;
  */
 export default function TrendChart({
     data,
-    formatValue,
-    formatSecondary,
+    format = "currency",
+    secondaryLabel,
     className,
     accent = "#e4265c",
 }: {
     data: TrendSeriesPoint[];
-    formatValue: (value: number) => string;
-    formatSecondary?: (value: number) => string;
+    format?: keyof typeof FORMATTERS;
+    /** подпись второй метрики в подсказке, например «orders» */
+    secondaryLabel?: string;
     className?: string;
     accent?: string;
 }) {
     const [hover, setHover] = useState<number | null>(null);
     const svgRef = useRef<SVGSVGElement>(null);
+    const formatValue = FORMATTERS[format];
 
     const { points, path, area, max, avgY } = useMemo(() => {
         const values = data.map((d) => d.value);
@@ -171,13 +180,10 @@ export default function TrendChart({
                 )}
             </svg>
 
-            {/* подписи оси Y поверх графика, без резервирования колонки */}
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex flex-col justify-between py-0 text-[10px] text-ink-faint">
-                <span className="tnum -translate-y-1/2 rounded bg-card/80 px-1">
-                    {formatValue(max)}
-                </span>
-                <span className="tnum translate-y-1/2 rounded bg-card/80 px-1">0</span>
-            </div>
+            {/* потолок оси подписываем прямо на верхней линии сетки */}
+            <span className="tnum pointer-events-none absolute top-0 right-0 -translate-y-1/2 rounded bg-card px-1 text-[10px] text-ink-faint">
+                {formatValue(max)}
+            </span>
 
             {/* подсказка */}
             {active && activePoint && (
@@ -195,17 +201,23 @@ export default function TrendChart({
                         <div className="tnum text-sm font-semibold">
                             {formatValue(active.value)}
                         </div>
-                        {active.secondary !== undefined && formatSecondary && (
+                        {active.secondary !== undefined && (
                             <div className="tnum text-[11px] text-white/60">
-                                {formatSecondary(active.secondary)}
+                                {count(active.secondary)} {secondaryLabel}
                             </div>
                         )}
                     </div>
                 </div>
             )}
 
-            {/* ось X: показываем не все дни, иначе подписи слипнутся */}
-            <div className="mt-2 flex justify-between text-[10px] text-ink-faint">
+            {/* ось X: показываем не все дни, иначе подписи слипнутся.
+                grid с minmax(0,1fr) — чтобы подписи не распирали карточку */}
+            <div
+                className="mt-2 grid grid-cols-1 text-[10px] text-ink-faint"
+                style={{
+                    gridTemplateColumns: `repeat(${data.length}, minmax(0,1fr))`,
+                }}
+            >
                 {data.map((d, i) => {
                     const every = Math.ceil(data.length / 7);
                     const show = i % every === 0 || i === data.length - 1;
@@ -213,7 +225,7 @@ export default function TrendChart({
                         <span
                             key={d.label + i}
                             className={cn(
-                                "tnum flex-1 text-center transition-colors",
+                                "tnum overflow-visible text-center whitespace-nowrap transition-colors",
                                 !show && "opacity-0",
                                 hover === i && "font-semibold text-ink opacity-100",
                             )}

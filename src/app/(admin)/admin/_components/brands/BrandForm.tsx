@@ -80,8 +80,8 @@ export default function BrandForm({
                 <input type="hidden" name="id" value={defaults.id} />
             )}
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
-                <Card className="grid gap-7 p-5 sm:p-6">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+                <Card className="grid grid-cols-1 gap-7 p-5 sm:p-6">
                     <FormError message={!state.ok ? state.message : undefined} />
 
                     <FormSection
@@ -171,7 +171,7 @@ export default function BrandForm({
                                                 onClick={() =>
                                                     setTags(tags.filter((t) => t !== tag))
                                                 }
-                                                className="grid h-4 w-4 place-items-center rounded-full text-ink-faint transition-colors hover:bg-critical hover:text-white"
+                                                className="grid grid-cols-1 h-4 w-4 place-items-center rounded-full text-ink-faint transition-colors hover:bg-critical hover:text-white"
                                             >
                                                 <X className="h-2.5 w-2.5" />
                                             </button>
@@ -203,7 +203,7 @@ export default function BrandForm({
                     </FormSection>
                 </Card>
 
-                <div className="grid content-start gap-3 xl:sticky xl:top-0">
+                <div className="grid grid-cols-1 content-start gap-3 xl:sticky xl:top-0">
                     <Card>
                         <CardHeader title="Visibility" />
                         <Switch
@@ -216,7 +216,7 @@ export default function BrandForm({
 
                     <Card>
                         <CardHeader title="Preview" />
-                        <div className="hatch grid h-32 place-items-center overflow-hidden rounded-field bg-sunk">
+                        <div className="hatch grid grid-cols-1 h-32 place-items-center overflow-hidden rounded-field bg-sunk">
                             {logo[0]?.url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img

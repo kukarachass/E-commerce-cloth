@@ -91,7 +91,7 @@ export default async function UserPage({
                 </div>
             )}
 
-            <div className="mb-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                 <StatCard
                     label="Lifetime spend"
                     value={euro(lifetimeSpend)}
@@ -118,9 +118,9 @@ export default async function UserPage({
                 />
             </div>
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
                 {/* ── история ────────────────────────────────────── */}
-                <div className="grid content-start gap-3">
+                <div className="grid grid-cols-1 content-start gap-3">
                     <Card>
                         <CardHeader
                             title={`Orders · ${user.orders.length}`}
@@ -135,7 +135,7 @@ export default async function UserPage({
                                 compact
                             />
                         ) : (
-                            <ul className="grid gap-2.5">
+                            <ul className="grid grid-cols-1 gap-2.5">
                                 {user.orders.map((order) => (
                                     <li key={order.id}>
                                         <Link
@@ -159,7 +159,7 @@ export default async function UserPage({
                                                 </span>
                                             </div>
 
-                                            <ul className="mt-2.5 grid gap-1 border-t border-line pt-2.5">
+                                            <ul className="mt-2.5 grid grid-cols-1 gap-1 border-t border-line pt-2.5">
                                                 {order.items.map((item) => {
                                                     const snapshot = item.productSnapshot as {
                                                         name?: string;
@@ -210,7 +210,7 @@ export default async function UserPage({
                                 compact
                             />
                         ) : (
-                            <ul className="grid">
+                            <ul className="grid grid-cols-1">
                                 {cartItems.map((item) => (
                                     <li
                                         key={item.id}
@@ -236,7 +236,7 @@ export default async function UserPage({
                 </div>
 
                 {/* ── профиль и управление ───────────────────────── */}
-                <div className="grid content-start gap-3">
+                <div className="grid grid-cols-1 content-start gap-3">
                     <Card>
                         <div className="flex items-center gap-3.5">
                             <Avatar
@@ -305,7 +305,7 @@ export default async function UserPage({
                                 compact
                             />
                         ) : (
-                            <ul className="grid gap-2">
+                            <ul className="grid grid-cols-1 gap-2">
                                 {user.sessions.map((s) => (
                                     <li
                                         key={s.id}

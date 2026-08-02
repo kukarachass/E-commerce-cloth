@@ -25,7 +25,7 @@ export default function Card({
     return (
         <section
             className={cn(
-                "rounded-card",
+                "min-w-0 rounded-card",
                 VARIANTS[variant],
                 padded && "p-4 sm:p-5",
                 className,

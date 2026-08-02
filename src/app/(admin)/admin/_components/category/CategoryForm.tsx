@@ -74,8 +74,8 @@ export default function CategoryForm({
                 <input type="hidden" name="id" value={defaults.id} />
             )}
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
-                <Card className="grid gap-7 p-5 sm:p-6">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+                <Card className="grid grid-cols-1 gap-7 p-5 sm:p-6">
                     <FormError message={!state.ok ? state.message : undefined} />
 
                     <FormSection
@@ -92,7 +92,7 @@ export default function CategoryForm({
                             />
                         </Field>
 
-                        <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <Field label="Audience" error={err("gender")}>
                                 <Select
                                     name="gender"
@@ -156,7 +156,7 @@ export default function CategoryForm({
                     </FormSection>
                 </Card>
 
-                <div className="grid content-start gap-3 xl:sticky xl:top-0">
+                <div className="grid grid-cols-1 content-start gap-3 xl:sticky xl:top-0">
                     <Card>
                         <CardHeader
                             title="Placement"

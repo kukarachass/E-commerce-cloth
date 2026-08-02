@@ -111,13 +111,13 @@ export default function AuditRow({ row }: { row: AuditRowData }) {
             </button>
 
             {open && (
-                <div className="mb-3 grid gap-3 rounded-card bg-sunk p-3.5">
+                <div className="mb-3 grid grid-cols-1 gap-3 rounded-card bg-sunk p-3.5">
                     {diff.length > 0 && (
-                        <div className="grid gap-1.5">
+                        <div className="grid grid-cols-1 gap-1.5">
                             {diff.map((d) => (
                                 <div
                                     key={d.key}
-                                    className="grid gap-1 rounded-xl bg-card px-3 py-2 sm:grid-cols-[160px_minmax(0,1fr)_minmax(0,1fr)] sm:items-baseline sm:gap-3"
+                                    className="grid grid-cols-1 gap-1 rounded-xl bg-card px-3 py-2 sm:grid-cols-[160px_minmax(0,1fr)_minmax(0,1fr)] sm:items-baseline sm:gap-3"
                                 >
                                     <span className="text-xs font-medium text-ink">
                                         {humanizeKey(d.key)}

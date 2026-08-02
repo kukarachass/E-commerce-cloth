@@ -111,7 +111,7 @@ export default function FilterBar({
                 {dirty && resetHref && (
                     <Link
                         href={resetHref}
-                        className="grid h-10 w-10 place-items-center rounded-full text-ink-faint transition-colors hover:bg-card hover:text-ink"
+                        className="grid grid-cols-1 h-10 w-10 place-items-center rounded-full text-ink-faint transition-colors hover:bg-card hover:text-ink"
                         aria-label="Reset filters"
                     >
                         <X className="h-4 w-4" />

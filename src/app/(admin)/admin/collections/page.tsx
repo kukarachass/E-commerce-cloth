@@ -38,7 +38,7 @@ export default async function CollectionsPage({
             mobile: "title",
             cell: (c) => (
                 <span className="flex min-w-0 items-center gap-3">
-                    <span className="hatch grid h-11 w-20 shrink-0 place-items-center overflow-hidden rounded-lg bg-sunk">
+                    <span className="hatch grid grid-cols-1 h-11 w-20 shrink-0 place-items-center overflow-hidden rounded-lg bg-sunk">
                         {c.banner ? (
                             // eslint-disable-next-line @next/next/no-img-element
                             <img

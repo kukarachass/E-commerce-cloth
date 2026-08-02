@@ -184,7 +184,7 @@ export function FormSection({
     aside?: ReactNode;
 }) {
     return (
-        <section className="grid gap-4 border-b border-line pb-7 last:border-0 last:pb-0 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
+        <section className="grid grid-cols-1 gap-4 border-b border-line pb-7 last:border-0 last:pb-0 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8">
             <div className="lg:pt-1">
                 <h2 className="text-sm font-semibold text-ink">{title}</h2>
                 {description && (
@@ -194,7 +194,7 @@ export function FormSection({
                 )}
                 {aside && <div className="mt-3">{aside}</div>}
             </div>
-            <div className="grid content-start gap-4">{children}</div>
+            <div className="grid grid-cols-1 content-start gap-4">{children}</div>
         </section>
     );
 }

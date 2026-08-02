@@ -149,7 +149,7 @@ export default function ProductPicker({
                                             className="h-full w-full object-cover"
                                         />
                                     ) : (
-                                        <span className="grid h-full place-items-center">
+                                        <span className="grid grid-cols-1 h-full place-items-center">
                                             <ImageIcon className="h-5 w-5 text-ink-faint" />
                                         </span>
                                     )}

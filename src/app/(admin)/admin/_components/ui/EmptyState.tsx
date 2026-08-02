@@ -26,7 +26,7 @@ export default function EmptyState({
             )}
         >
             {Icon && (
-                <span className="hatch mb-1 grid h-12 w-12 place-items-center rounded-full bg-sunk text-ink-faint">
+                <span className="hatch mb-1 grid grid-cols-1 h-12 w-12 place-items-center rounded-full bg-sunk text-ink-faint">
                     <Icon className="h-5 w-5" strokeWidth={1.6} />
                 </span>
             )}

@@ -70,8 +70,8 @@ export default function CollectionForm({
                 <input type="hidden" name="id" value={defaults.id} />
             )}
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
-                <Card className="grid gap-7 p-5 sm:p-6">
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+                <Card className="grid grid-cols-1 gap-7 p-5 sm:p-6">
                     <FormError message={!state.ok ? state.message : undefined} />
 
                     <FormSection
@@ -145,7 +145,7 @@ export default function CollectionForm({
                     </FormSection>
                 </Card>
 
-                <div className="grid content-start gap-3 xl:sticky xl:top-0">
+                <div className="grid grid-cols-1 content-start gap-3 xl:sticky xl:top-0">
                     <Card>
                         <CardHeader title="Visibility" />
                         <Switch
@@ -158,7 +158,7 @@ export default function CollectionForm({
 
                     <Card>
                         <CardHeader title="Preview" />
-                        <div className="hatch grid h-28 place-items-center overflow-hidden rounded-field bg-sunk">
+                        <div className="hatch grid grid-cols-1 h-28 place-items-center overflow-hidden rounded-field bg-sunk">
                             {banner[0]?.url ? (
                                 // eslint-disable-next-line @next/next/no-img-element
                                 <img

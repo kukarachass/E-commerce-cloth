@@ -74,7 +74,7 @@ export default function AdminShell({
                     <div className="animate-slide-left absolute inset-y-0 left-0 flex w-[280px] max-w-[85vw] flex-col gap-4 bg-canvas p-4 shadow-pop">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
-                                <span className="grid h-10 w-10 place-items-center rounded-full bg-ink-panel text-sm font-bold text-white">
+                                <span className="grid grid-cols-1 h-10 w-10 place-items-center rounded-full bg-ink-panel text-sm font-bold text-white">
                                     E
                                 </span>
                                 <div className="leading-tight">
@@ -91,7 +91,7 @@ export default function AdminShell({
                                 type="button"
                                 onClick={() => setMenuOpen(false)}
                                 aria-label="Close navigation"
-                                className="grid h-9 w-9 place-items-center rounded-full bg-card text-ink-soft shadow-card"
+                                className="grid grid-cols-1 h-9 w-9 place-items-center rounded-full bg-card text-ink-soft shadow-card"
                             >
                                 <X className="h-4 w-4" />
                             </button>

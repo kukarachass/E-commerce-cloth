@@ -34,7 +34,7 @@ export default function Topbar({
                     type="button"
                     onClick={onOpenMenu}
                     aria-label="Open navigation"
-                    className="grid h-11 w-11 place-items-center rounded-full bg-card text-ink shadow-card lg:hidden"
+                    className="grid grid-cols-1 h-11 w-11 place-items-center rounded-full bg-card text-ink shadow-card lg:hidden"
                 >
                     <Menu className="h-[18px] w-[18px]" strokeWidth={1.8} />
                 </button>
@@ -57,11 +57,11 @@ export default function Topbar({
                 <Link
                     href="/admin/orders?fulfillment=unfulfilled&payment=paid"
                     aria-label={`Attention needed: ${alerts}`}
-                    className="relative grid h-11 w-11 place-items-center rounded-full bg-card text-ink-soft shadow-card transition-colors hover:text-ink"
+                    className="relative hidden h-11 w-11 place-items-center rounded-full bg-card text-ink-soft shadow-card transition-colors hover:text-ink sm:grid"
                 >
                     <Bell className="h-[18px] w-[18px]" strokeWidth={1.8} />
                     {alerts > 0 && (
-                        <span className="tnum absolute -top-0.5 -right-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold text-white ring-2 ring-canvas">
+                        <span className="tnum absolute -top-0.5 -right-0.5 grid grid-cols-1 h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-semibold text-white ring-2 ring-canvas">
                             {alerts > 9 ? "9+" : alerts}
                         </span>
                     )}

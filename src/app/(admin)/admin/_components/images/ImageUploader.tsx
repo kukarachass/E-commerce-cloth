@@ -79,7 +79,7 @@ export default function ImageUploader({
         onChange(images.map((img, i) => ({ ...img, isMain: i === index })));
 
     return (
-        <div className="grid gap-2">
+        <div className="grid grid-cols-1 gap-2">
             <div className="flex items-baseline justify-between gap-3">
                 <span className="text-xs font-medium text-ink-soft">{label}</span>
                 {images.length > 0 && !single && (
@@ -114,7 +114,7 @@ export default function ImageUploader({
                                 type="button"
                                 onClick={() => remove(i)}
                                 aria-label="Remove image"
-                                className="absolute top-1.5 right-1.5 grid h-6 w-6 place-items-center rounded-full bg-ink/65 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
+                                className="absolute top-1.5 right-1.5 grid grid-cols-1 h-6 w-6 place-items-center rounded-full bg-ink/65 text-white opacity-0 backdrop-blur-sm transition-opacity group-hover:opacity-100"
                             >
                                 <X className="h-3.5 w-3.5" />
                             </button>

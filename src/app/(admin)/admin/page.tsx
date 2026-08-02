@@ -122,10 +122,10 @@ export default async function DashboardPage() {
                 }
             />
 
-            <div className="grid gap-3">
+            <div className="grid grid-cols-1 gap-3">
                 {/* ── выручка ─────────────────────────────────────── */}
                 <Card variant="aurora" className="p-5 sm:p-6">
-                    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
+                    <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_auto] xl:items-start">
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 text-xs font-medium text-ink-soft">
                                 <Wallet className="h-4 w-4" strokeWidth={1.8} />
@@ -167,7 +167,7 @@ export default async function DashboardPage() {
                             </div>
                         </div>
 
-                        <div className="grid gap-2 sm:grid-cols-2 xl:w-[320px]">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 xl:w-[320px]">
                             <div className="rounded-card bg-ink-panel p-4 text-white shadow-float">
                                 <div className="flex items-center justify-between text-xs text-white/55">
                                     Best day · 14d
@@ -220,7 +220,7 @@ export default async function DashboardPage() {
                 {/* ── требует внимания ────────────────────────────── */}
                 {allClear ? (
                     <Card className="flex items-center gap-3.5">
-                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-positive-soft text-positive">
+                        <span className="grid grid-cols-1 h-11 w-11 shrink-0 place-items-center rounded-full bg-positive-soft text-positive">
                             <CheckCircle2 className="h-5 w-5" strokeWidth={1.9} />
                         </span>
                         <div>
@@ -233,7 +233,7 @@ export default async function DashboardPage() {
                         </div>
                     </Card>
                 ) : (
-                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
                         <AlertTile
                             icon={Timer}
                             tone="accent"
@@ -262,7 +262,7 @@ export default async function DashboardPage() {
                 )}
 
                 {/* ── график + воронка ────────────────────────────── */}
-                <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+                <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
                     <Card>
                         <CardHeader
                             title="Revenue, last 14 days"
@@ -273,11 +273,7 @@ export default async function DashboardPage() {
                                 </Badge>
                             }
                         />
-                        <TrendChart
-                            data={chartData}
-                            formatValue={(v) => euroShort(v)}
-                            className="mt-2"
-                        />
+                        <TrendChart data={chartData} className="mt-2" />
                     </Card>
 
                     <Card>
@@ -315,7 +311,7 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* ── очереди ─────────────────────────────────────── */}
-                <div className="grid gap-3 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                     <Card>
                         <CardHeader
                             title="Packing queue"
@@ -338,7 +334,7 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ul className="-mx-2.5 grid">
+                            <ul className="-mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
                                 {toFulfill.map((o) => (
                                     <li key={o.id}>
                                         <ListRow
@@ -382,13 +378,13 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ul className="-mx-2.5 grid">
+                            <ul className="-mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
                                 {lowStock.rows.map((s, i) => (
                                     <li key={`${s.productId}-${i}`}>
                                         <ListRow
                                             href={`/admin/products/${s.productId}`}
                                             leading={
-                                                <span className="tnum grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sunk text-[11px] font-semibold text-ink-soft">
+                                                <span className="tnum inline-flex h-8 max-w-[76px] shrink-0 items-center justify-center overflow-hidden rounded-full bg-sunk px-2 text-[11px] font-semibold text-ink-soft">
                                                     {s.size}
                                                 </span>
                                             }
@@ -414,7 +410,7 @@ export default async function DashboardPage() {
                 </div>
 
                 {/* ── топ товаров + лента ─────────────────────────── */}
-                <div className="grid gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+                <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
                     <Card>
                         <CardHeader
                             title="Best sellers"
@@ -429,13 +425,13 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ul className="-mx-2.5 grid">
+                            <ul className="-mx-2.5 grid grid-cols-1 [&>li]:min-w-0">
                                 {topProducts.map((p, i) => (
                                     <li key={p.productId}>
                                         <ListRow
                                             href={`/admin/products/${p.productId}`}
                                             leading={
-                                                <span className="tnum grid h-8 w-8 shrink-0 place-items-center rounded-full bg-ink-panel text-[11px] font-semibold text-white">
+                                                <span className="tnum grid grid-cols-1 h-8 w-8 shrink-0 place-items-center rounded-full bg-ink-panel text-[11px] font-semibold text-white">
                                                     {i + 1}
                                                 </span>
                                             }
@@ -476,7 +472,7 @@ export default async function DashboardPage() {
                                 compact
                             />
                         ) : (
-                            <ol className="relative grid gap-4 pl-5">
+                            <ol className="relative grid grid-cols-1 gap-4 pl-5">
                                 <span className="absolute top-2 bottom-2 left-[7px] w-px bg-line" />
                                 {activity.map((row) => (
                                     <li key={row.id} className="relative">

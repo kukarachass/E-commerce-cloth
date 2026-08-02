@@ -99,7 +99,7 @@ export default async function AuditPage({
                         description="Adjust the filters — the log only keeps admin actions."
                     />
                 ) : (
-                    <ul className="grid">
+                    <ul className="grid grid-cols-1">
                         {rows.map((row) => (
                             <AuditRow key={row.id} row={row} />
                         ))}

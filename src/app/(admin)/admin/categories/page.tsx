@@ -57,7 +57,7 @@ export default async function CategoriesPage() {
                 }
             />
 
-            <div className="mb-3 grid gap-3 sm:grid-cols-3">
+            <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <StatCard
                     label="Top-level sections"
                     value={roots.length}
@@ -97,14 +97,16 @@ export default async function CategoriesPage() {
                     />
                 </Card>
             ) : (
-                <div className="grid gap-3 lg:grid-cols-2">
+                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
                     {[...byGender].map(([gender, items]) => (
                         <Card key={gender}>
                             <CardHeader
                                 title={GENDER_LABELS[gender] ?? gender}
                                 hint={`${countNodes(items)} categories`}
                             />
-                            <ul className="-mx-2.5 grid">
+                            {/* дерево бывает на сотни узлов — держим его в своей
+                                прокрутке, чтобы страница не превращалась в километр */}
+                            <ul className="-mx-2.5 grid grid-cols-1 max-h-[520px] overflow-y-auto pr-1 scrollbar-slim">
                                 {items.map((node) => (
                                     <CategoryNode key={node.id} node={node} />
                                 ))}
