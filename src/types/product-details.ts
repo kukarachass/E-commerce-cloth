@@ -8,4 +8,6 @@ export type ProductWithDetails = InferSelectModel<typeof product> & {
     brand: InferSelectModel<typeof brand>
 }
 
+export type IProduct = InferSelectModel<typeof product>
+
 export type productImages = InferSelectModel<typeof productImage>

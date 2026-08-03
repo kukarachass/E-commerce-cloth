@@ -29,7 +29,7 @@ export async function updateProfile(data: Omit<UpdateProfileValues | UpdateProfi
         return { error: z.treeifyError(parsed.error) }
     }
 
-    const { name, lastName, street, houseNumber, houseAddition, postcode, city } = parsed.data
+    const { name, lastName, street, houseNumber, houseAddition, postcode, city, phoneNumber } = parsed.data
 
 
     const dateOfBirth = "dateOfBirth" in parsed.data
@@ -46,6 +46,7 @@ export async function updateProfile(data: Omit<UpdateProfileValues | UpdateProfi
             .set({
                 name,
                 lastName,
+                phoneNumber,
                 ...(dateOfBirth !== undefined && { dateOfBirth }),
                 ...(gender !== undefined && { gender }),
             })

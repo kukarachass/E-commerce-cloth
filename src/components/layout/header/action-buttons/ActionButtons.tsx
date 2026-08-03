@@ -2,11 +2,8 @@
 
 import {useRouter} from "next/navigation"
 import {useStickyStore} from "@/store/useStickyStore"
-import {useSearchStore} from "@/store/useSearchOpen"
-import {Player} from "@lordicon/react"
-import {useRef, useState} from "react"
+import {useState} from "react"
 
-import searchJson from "./search.json"
 import accountJson from "./account.json"
 import favJson from "./fav.json"
 import cartJson from "./cart.json"

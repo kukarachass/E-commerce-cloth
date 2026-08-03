@@ -26,6 +26,7 @@ export default function MiddleBar({ className }: Props) {
     const setMiddleBarHeight = useMiddleBarHeight(state => state.setMiddleBarHeight)
     const ref = useElementHeight<HTMLDivElement>(setMiddleBarHeight)
 
+
     return (
         <div ref={ref} className={cn(`bg-white z-40 sticky px-4 xl:px-0 top-0 ${className}`, {
             ["shadow-[0_2px_8px_rgba(0,0,0,0.08)]"]: isSticky
@@ -46,7 +47,6 @@ export default function MiddleBar({ className }: Props) {
                 </Link>
                 <ActionButtons />
             </Container>
-
             <AnimatePresence>
                 {searchOpen && <SearchDropdown />}
             </AnimatePresence>

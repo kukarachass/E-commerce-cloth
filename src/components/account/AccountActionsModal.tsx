@@ -9,6 +9,8 @@ import LogOutButton from "@/components/account/nav-items/LogOutButton";
 import {authClient} from "@/lib/auth-client";
 import ButtonPrimary from "@/components/ui/buttons/ButtonPrimary";
 import {useRouter} from "next/navigation";
+import AdminSvg from "@/components/ui/icons/AdminSvg";
+import Link from "next/link";
 
 interface Props {
     onChange?: () => void;
@@ -18,6 +20,7 @@ export default function AccountActionsModal({ onChange }: Props) {
     const ref = useRef<HTMLDivElement>(null)
     const router = useRouter()
     const { data: session, isPending } = authClient.useSession()
+    const isAdmin = session?.user.role === "admin"
 
     useEffect(() => {
         const handleClick = (e: MouseEvent) => {
@@ -43,6 +46,12 @@ export default function AccountActionsModal({ onChange }: Props) {
             <ReturnsButton />
             <MyProfileButton />
             <CustomerServiceButton />
+            {isAdmin && (
+                <Link href={"/admin"} className="p-4 flex items-center gap-4 border-b border-gray-200 cursor-pointer hover:bg-gray-100 transition-all duration-200">
+                    <AdminSvg/>
+                    <span>Admin Panel</span>
+                </Link>
+            )}
             {session && (
                 <LogOutButton />
             )}

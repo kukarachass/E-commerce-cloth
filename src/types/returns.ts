@@ -29,3 +29,5 @@ export type ItemReturnState = {
 
 export type ReturnHistoryOrder = Awaited<ReturnType<typeof getReturnHistory>>[number]
 export type ReturnHistoryItem = ReturnHistoryOrder["items"][number]
+export type ReturnActionState = { ok: boolean; message?: string };
+

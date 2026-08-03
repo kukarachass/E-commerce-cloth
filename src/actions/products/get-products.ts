@@ -228,6 +228,5 @@ export async function getProducts({
 
     const totalPages = Math.ceil(total / PER_PAGE)
 
-
     return { products, total, page: currentPage, perPage: PER_PAGE, totalPages}
 }

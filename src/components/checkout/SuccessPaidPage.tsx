@@ -24,7 +24,7 @@ export default function SuccessPaidPage({ order }: { order: IOrder }) {
             <CheckoutStepper step={3} />
             <div className="max-w-[640px] mx-auto py-10 sm:py-16 px-4 flex flex-col gap-8 sm:gap-10">
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 items-center">
                     <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center">
                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                             <path d="M3 9l4.5 4.5L15 5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

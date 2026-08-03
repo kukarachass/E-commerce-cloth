@@ -18,7 +18,7 @@ export default function ProductInfo({ product }: { product: ProductWithDetails }
 
     return (
         <div
-            style={{ top: middleBarHeight }}
+            style={{ top: middleBarHeight + 20 }}
             className="flex flex-col gap-5 lg:gap-6 lg:sticky lg:self-start"
         >
             <div className="flex flex-col gap-2 text-neutral-900">
