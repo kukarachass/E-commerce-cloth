@@ -1,105 +1,148 @@
-import Link from "next/link";
+import { Plus, Tags } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/rbac";
 import { getBrandList } from "@/lib/admin/queries/brands";
 
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Card from "@/app/(admin)/admin/_components/ui/Card";
+import DataTable, {
+    type Column,
+    MediaCell,
+} from "@/app/(admin)/admin/_components/ui/DataTable";
+import FilterBar from "@/app/(admin)/admin/_components/ui/FilterBar";
+import Pagination from "@/app/(admin)/admin/_components/ui/Pagination";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import EmptyState from "@/app/(admin)/admin/_components/ui/EmptyState";
+import { LinkButton } from "@/app/(admin)/admin/_components/ui/Button";
+import { buildUrl, first, type SearchParams } from "@/app/(admin)/admin/_lib/query";
+
+type BrandRow = Awaited<ReturnType<typeof getBrandList>>["rows"][number];
+
 export default async function BrandsPage({
-                                             searchParams,
-                                         }: {
-    searchParams: Promise<{ [k: string]: string | string[] | undefined }>;
+    searchParams,
+}: {
+    searchParams: Promise<SearchParams>;
 }) {
     await requireAdmin();
 
     const sp = await searchParams;
-    const search = Array.isArray(sp.search) ? sp.search[0] : sp.search;
-    const page = Number(Array.isArray(sp.page) ? sp.page[0] : sp.page) || 1;
+    const search = first(sp.search);
+    const page = Number(first(sp.page)) || 1;
 
     const { rows, total, totalPages } = await getBrandList({ page, search });
 
-    return (
-        <div className="w-full">
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-xl">
-                    Бренды <span className="text-gray-400">({total})</span>
-                </h1>
-                <Link href="/admin/brands/new" className="px-4 py-2 bg-black text-white rounded-md">
-                    Добавить бренд
-                </Link>
-            </div>
-
-            <form className="flex gap-2 mb-4">
-                <input
-                    name="search"
-                    defaultValue={search ?? ""}
-                    placeholder="Поиск по названию"
-                    className="border rounded-md px-3 py-2 flex-1"
+    const columns: Column<BrandRow>[] = [
+        {
+            key: "brand",
+            header: "Brand",
+            width: "minmax(0,2fr)",
+            mobile: "title",
+            cell: (b) => (
+                <MediaCell
+                    square
+                    image={b.imageUrl}
+                    fallback={<Tags className="h-4 w-4 text-ink-faint" />}
+                    title={b.name}
+                    subtitle={`/${b.slug}`}
                 />
-                <button className="px-4 py-2 border rounded-md">Найти</button>
-            </form>
-
-            <table className="w-full text-left text-sm">
-                <thead className="text-gray-500 border-b">
-                <tr>
-                    <th className="py-2 font-normal">Бренд</th>
-                    <th className="py-2 font-normal">Теги</th>
-                    <th className="py-2 font-normal">Товаров</th>
-                    <th className="py-2 font-normal">Статус</th>
-                    <th />
-                </tr>
-                </thead>
-                <tbody>
-                {rows.map((b) => (
-                    <tr key={b.id} className="border-b hover:bg-gray-50">
-                        <td className="py-2 flex items-center gap-3">
-                            <img src={b.imageUrl} alt="" className="w-10 h-10 object-contain rounded bg-gray-50" />
-                            <div>
-                                <div>{b.name}</div>
-                                <div className="text-gray-400 text-xs">/{b.slug}</div>
-                            </div>
-                        </td>
-                        <td className="py-2">
-                            <div className="flex flex-wrap gap-1">
-                                {b.tags.map((t) => (
-                                    <span key={t} className="px-1.5 py-0.5 bg-gray-100 rounded text-xs">
-                      {t}
+            ),
+        },
+        {
+            key: "tags",
+            header: "Tags",
+            width: "minmax(0,1.6fr)",
+            label: "Tags",
+            cell: (b) =>
+                b.tags.length ? (
+                    <span className="flex flex-wrap gap-1">
+                        {b.tags.slice(0, 3).map((tag) => (
+                            <Badge key={tag} tone="neutral">
+                                {tag}
+                            </Badge>
+                        ))}
+                        {b.tags.length > 3 && (
+                            <Badge tone="neutral">+{b.tags.length - 3}</Badge>
+                        )}
                     </span>
-                                ))}
-                            </div>
-                        </td>
-                        <td className="py-2">{String(b.productCount)}</td>
-                        <td className="py-2">
-                <span className={b.isActive ? "text-green-600" : "text-gray-400"}>
-                  {b.isActive ? "Активен" : "Скрыт"}
-                </span>
-                        </td>
-                        <td className="py-2 text-right">
-                            <Link href={`/admin/brands/${b.id}`} className="text-blue-600">
-                                Изменить
-                            </Link>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                ) : (
+                    <span className="text-xs text-ink-faint">—</span>
+                ),
+        },
+        {
+            key: "products",
+            header: "Products",
+            width: "120px",
+            label: "Products",
+            cell: (b) => (
+                <span className="tnum text-ink-soft">{String(b.productCount)}</span>
+            ),
+        },
+        {
+            key: "status",
+            header: "Status",
+            width: "120px",
+            align: "right",
+            label: "Status",
+            mobile: "trailing",
+            cell: (b) => (
+                <Badge tone={b.isActive ? "positive" : "neutral"} dot>
+                    {b.isActive ? "Active" : "Hidden"}
+                </Badge>
+            ),
+        },
+    ];
 
-            {rows.length === 0 && (
-                <p className="text-gray-500 py-8 text-center">Брендов не найдено</p>
-            )}
+    return (
+        <>
+            <PageHeader
+                title="Brands"
+                count={total}
+                description="Labels behind the products, with their promo copy and tags."
+                actions={
+                    <LinkButton href="/admin/brands/new" variant="primary">
+                        <Plus className="h-4 w-4" />
+                        New brand
+                    </LinkButton>
+                }
+            />
 
-            {totalPages > 1 && (
-                <div className="flex gap-2 mt-6 items-center">
-                    {page > 1 && (
-                        <Link href={`/admin/brands?page=${page - 1}`} className="px-3 py-1 border rounded-md">
-                            Назад
-                        </Link>
-                    )}
-                    <span className="text-gray-500 text-sm">Страница {page} из {totalPages}</span>
-                    {page < totalPages && (
-                        <Link href={`/admin/brands?page=${page + 1}`} className="px-3 py-1 border rounded-md">
-                            Вперёд
-                        </Link>
-                    )}
-                </div>
-            )}
-        </div>
+            <FilterBar
+                searchValue={search}
+                searchPlaceholder="Search by brand name"
+                resetHref="/admin/brands"
+            />
+
+            <Card padded={false} className="p-2 sm:p-3">
+                <DataTable
+                    columns={columns}
+                    rows={rows}
+                    getKey={(b) => b.id}
+                    href={(b) => `/admin/brands/${b.id}`}
+                    empty={
+                        <EmptyState
+                            icon={Tags}
+                            title="No brands found"
+                            description="Create a brand to attach products to it."
+                            action={
+                                <LinkButton
+                                    href="/admin/brands/new"
+                                    variant="primary"
+                                    size="sm"
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    New brand
+                                </LinkButton>
+                            }
+                        />
+                    }
+                />
+            </Card>
+
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                buildHref={(p) => buildUrl("/admin/brands", { search, page: p })}
+            />
+        </>
     );
 }

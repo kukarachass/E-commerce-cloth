@@ -1,20 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import {formatDateTime} from "@/lib/formatDate";
-
-const ACTION_STYLES: Record<string, string> = {
-    create:  "bg-green-100 text-green-700",
-    update:  "bg-blue-100 text-blue-700",
-    delete:  "bg-red-100 text-red-700",
-    restore: "bg-amber-100 text-amber-700",
-    login:   "bg-gray-100 text-gray-600",
-    export:  "bg-purple-100 text-purple-700",
-};
+import { ChevronDown } from "lucide-react";
+import cn from "@/app/(admin)/admin/_lib/cn";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import Avatar from "@/app/(admin)/admin/_components/ui/Avatar";
+import { formatDateTime, timeAgo } from "@/app/(admin)/admin/_lib/format";
+import {
+    AUDIT_ACTION_TONES,
+    humanizeKey,
+} from "@/app/(admin)/admin/_lib/labels";
 
 type Json = Record<string, unknown> | null;
 
-/** Собираем список изменившихся полей: ключи из before и after вместе */
+export type AuditRowData = {
+    id: string;
+    actorEmail: string | null;
+    actorName: string | null;
+    action: string;
+    entityType: string;
+    entityId: string | null;
+    before: unknown;
+    after: unknown;
+    ipAddress: string | null;
+    userAgent: string | null;
+    createdAt: Date;
+};
+
+/** Изменившиеся поля: ключи из before и after вместе */
 function buildDiff(before: Json, after: Json) {
     const keys = new Set([
         ...Object.keys(before ?? {}),
@@ -22,11 +35,7 @@ function buildDiff(before: Json, after: Json) {
     ]);
 
     return [...keys]
-        .map((key) => ({
-            key,
-            from: before?.[key],
-            to: after?.[key],
-        }))
+        .map((key) => ({ key, from: before?.[key], to: after?.[key] }))
         .filter((d) => JSON.stringify(d.from) !== JSON.stringify(d.to));
 }
 
@@ -37,95 +46,100 @@ function render(value: unknown) {
     return String(value);
 }
 
-export default function AuditRow({
-                                     row,
-                                 }: {
-    row: {
-        id: string;
-        actorEmail: string | null;
-        actorName: string | null;
-        action: string;
-        entityType: string;
-        entityId: string | null;
-        before: unknown;
-        after: unknown;
-        ipAddress: string | null;
-        userAgent: string | null;
-        createdAt: Date;
-    };
-}) {
+export default function AuditRow({ row }: { row: AuditRowData }) {
     const [open, setOpen] = useState(false);
 
-    const before = row.before as Json;
-    const after = row.after as Json;
-    const diff = buildDiff(before, after);
-    const hasPayload = diff.length > 0;
+    const diff = buildDiff(row.before as Json, row.after as Json);
+    const expandable = diff.length > 0 || Boolean(row.userAgent);
 
     return (
-        <>
-            <tr
-                className={"border-b " + (hasPayload ? "cursor-pointer hover:bg-gray-50" : "")}
-                onClick={() => hasPayload && setOpen((v) => !v)}
+        <li className="border-b border-line last:border-0">
+            <button
+                type="button"
+                onClick={() => expandable && setOpen((v) => !v)}
+                disabled={!expandable}
+                className={cn(
+                    "grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl px-2.5 py-3 text-left transition-colors",
+                    expandable ? "hover:bg-sunk" : "cursor-default",
+                )}
             >
-                <td className="py-2 px-3 whitespace-nowrap text-gray-500">
-                    {formatDateTime(row.createdAt)}
-                </td>
-                <td className="py-2 px-3">
-                    <div>{row.actorName ?? "—"}</div>
-                    <div className="text-xs text-gray-400">{row.actorEmail ?? "удалён"}</div>
-                </td>
-                <td className="py-2 px-3">
-                    <span
-                        className={
-                            "px-2 py-0.5 rounded text-xs " +
-                            (ACTION_STYLES[row.action] ?? "bg-gray-100 text-gray-600")
-                        }
-                    >
-                        {row.action}
+                <Avatar name={row.actorName} email={row.actorEmail} size="sm" />
+
+                <span className="min-w-0">
+                    <span className="flex flex-wrap items-center gap-2">
+                        <Badge tone={AUDIT_ACTION_TONES[row.action] ?? "neutral"}>
+                            {row.action}
+                        </Badge>
+                        <span className="text-sm font-medium text-ink">
+                            {row.entityType}
+                        </span>
+                        {row.entityId && (
+                            <span className="font-mono text-[11px] text-ink-faint">
+                                {row.entityId.slice(0, 8)}
+                            </span>
+                        )}
+                        {diff.length > 0 && (
+                            <span className="text-[11px] text-accent">
+                                {diff.length} field{diff.length === 1 ? "" : "s"} changed
+                            </span>
+                        )}
                     </span>
-                </td>
-                <td className="py-2 px-3">
-                    <div>{row.entityType}</div>
-                    <div className="text-xs text-gray-400 font-mono">
-                        {row.entityId ? row.entityId.slice(0, 8) : "—"}
-                    </div>
-                </td>
-                <td className="py-2 px-3 text-gray-500">{row.ipAddress ?? "—"}</td>
-                <td className="py-2 px-3 text-gray-400 text-xs">
-                    {hasPayload ? (open ? "свернуть" : `${diff.length} изм.`) : "—"}
-                </td>
-            </tr>
+
+                    <span className="mt-1 block truncate text-xs text-ink-faint">
+                        {row.actorName ?? "—"}
+                        {row.actorEmail ? ` · ${row.actorEmail}` : ""}
+                        {row.ipAddress ? ` · ${row.ipAddress}` : ""}
+                    </span>
+                </span>
+
+                <span className="flex shrink-0 items-center gap-2">
+                    <span className="text-right text-[11px] text-ink-faint">
+                        <span className="block">{timeAgo(row.createdAt)}</span>
+                        <span className="hidden sm:block">
+                            {formatDateTime(row.createdAt)}
+                        </span>
+                    </span>
+                    {expandable && (
+                        <ChevronDown
+                            className={cn(
+                                "h-4 w-4 text-ink-faint transition-transform duration-200",
+                                open && "rotate-180",
+                            )}
+                        />
+                    )}
+                </span>
+            </button>
 
             {open && (
-                <tr className="border-b bg-gray-50">
-                    <td colSpan={6} className="px-3 py-3">
-                        <table className="w-full text-xs">
-                            <thead className="text-gray-400">
-                            <tr>
-                                <th className="text-left py-1 w-48">Поле</th>
-                                <th className="text-left py-1">Было</th>
-                                <th className="text-left py-1">Стало</th>
-                            </tr>
-                            </thead>
-                            <tbody>
+                <div className="mb-3 grid grid-cols-1 gap-3 rounded-card bg-sunk p-3.5">
+                    {diff.length > 0 && (
+                        <div className="grid grid-cols-1 gap-1.5">
                             {diff.map((d) => (
-                                <tr key={d.key} className="align-top">
-                                    <td className="py-1 font-mono">{d.key}</td>
-                                    <td className="py-1 text-red-600 break-all">{render(d.from)}</td>
-                                    <td className="py-1 text-green-700 break-all">{render(d.to)}</td>
-                                </tr>
+                                <div
+                                    key={d.key}
+                                    className="grid grid-cols-1 gap-1 rounded-xl bg-card px-3 py-2 sm:grid-cols-[160px_minmax(0,1fr)_minmax(0,1fr)] sm:items-baseline sm:gap-3"
+                                >
+                                    <span className="text-xs font-medium text-ink">
+                                        {humanizeKey(d.key)}
+                                    </span>
+                                    <span className="min-w-0 text-xs break-all text-critical line-through">
+                                        {render(d.from)}
+                                    </span>
+                                    <span className="min-w-0 text-xs break-all text-positive">
+                                        {render(d.to)}
+                                    </span>
+                                </div>
                             ))}
-                            </tbody>
-                        </table>
+                        </div>
+                    )}
 
-                        {row.userAgent && (
-                            <p className="text-xs text-gray-400 mt-3 break-all">
-                                UA: {row.userAgent}
-                            </p>
-                        )}
-                    </td>
-                </tr>
+                    {row.userAgent && (
+                        <p className="text-[11px] break-all text-ink-faint">
+                            {row.userAgent}
+                        </p>
+                    )}
+                </div>
             )}
-        </>
+        </li>
     );
 }

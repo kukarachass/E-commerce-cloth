@@ -3,15 +3,22 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 import { changeFulfillmentStatus } from "@/lib/admin/actions/orderStatus";
-import { TRANSITION_LABELS } from "@/lib/admin/orders/transitions";
 import type { OrderFulfillmentStatus } from "@/types/IOrder";
+import Button from "@/app/(admin)/admin/_components/ui/Button";
+import { TRANSITION_LABELS } from "@/app/(admin)/admin/_lib/labels";
 
+/** Переходы, которые нельзя откатить — спрашиваем подтверждение */
 const DANGER: OrderFulfillmentStatus[] = ["cancelled", "returned"];
 
+const CONFIRM: Partial<Record<OrderFulfillmentStatus, string>> = {
+    cancelled: "Cancel this order? Reserved stock goes back to inventory.",
+    returned: "Register a return? Items go back to inventory.",
+};
+
 export default function OrderStatusActions({
-                                               orderId,
-                                               actions,
-                                           }: {
+    orderId,
+    actions,
+}: {
     orderId: string;
     actions: OrderFulfillmentStatus[];
 }) {
@@ -19,45 +26,35 @@ export default function OrderStatusActions({
 
     if (actions.length === 0) {
         return (
-            <p className="text-sm text-gray-400">
-                Заказ в финальном статусе — действий нет
+            <p className="text-sm text-ink-faint">
+                This order reached a final state — no transitions left.
             </p>
         );
     }
 
     const run = (to: OrderFulfillmentStatus) => {
-        if (DANGER.includes(to)) {
-            const ok = confirm(
-                to === "cancelled"
-                    ? "Отменить заказ? Товары вернутся на склад."
-                    : "Оформить возврат? Товары вернутся на склад.",
-            );
-            if (!ok) return;
-        }
+        const question = CONFIRM[to];
+        if (question && !confirm(question)) return;
 
         startTransition(async () => {
             const res = await changeFulfillmentStatus(orderId, to);
-            if (res.ok) toast.success(res.message ?? "Готово");
-            else toast.error(res.message ?? "Не удалось");
+            if (res.ok) toast.success(res.message ?? "Done");
+            else toast.error(res.message ?? "Could not update the order");
         });
     };
 
     return (
         <div className="flex flex-wrap gap-2">
             {actions.map((to) => (
-                <button
+                <Button
                     key={to}
                     disabled={pending}
                     onClick={() => run(to)}
-                    className={
-                        "px-4 py-2 rounded-md text-sm disabled:opacity-50 " +
-                        (DANGER.includes(to)
-                            ? "border border-red-300 text-red-600 hover:bg-red-50"
-                            : "bg-black text-white")
-                    }
+                    variant={DANGER.includes(to) ? "danger" : "primary"}
+                    size="sm"
                 >
                     {TRANSITION_LABELS[to]}
-                </button>
+                </Button>
             ))}
         </div>
     );

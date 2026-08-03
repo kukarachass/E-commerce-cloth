@@ -1,75 +1,125 @@
-"use client"
+"use client";
 
+import { Plus, Trash2 } from "lucide-react";
+import type { SizeRow } from "@/app/(admin)/admin/_components/products/ProductForm";
+import Button from "@/app/(admin)/admin/_components/ui/Button";
+import { Input, Select } from "@/app/(admin)/admin/_components/ui/Form";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import cn from "@/app/(admin)/admin/_lib/cn";
 
-import {SizeRow} from "@/app/(admin)/admin/_components/products/ProductForm";
+const SIZE_SYSTEMS = [
+    "INT",
+    "UK",
+    "EU",
+    "US",
+    "FR",
+    "IT",
+    "DE",
+    "Waist",
+    "Waist/Length",
+    "Other",
+    "Years",
+    "Size (cm)",
+];
 
-interface SizeFormSectionProps{
+export const emptySize: SizeRow = { size: "", sizeSystem: "EU", stockAmount: 0 };
+
+function patch(rows: SizeRow[], index: number, next: Partial<SizeRow>) {
+    return rows.map((row, i) => (i === index ? { ...row, ...next } : row));
+}
+
+export default function SizeFormSection({
+    error,
+    sizes,
+    setSizes,
+}: {
     error?: string;
     sizes: SizeRow[];
     setSizes: React.Dispatch<React.SetStateAction<SizeRow[]>>;
-}
+}) {
+    const totalStock = sizes.reduce((sum, s) => sum + (s.stockAmount || 0), 0);
 
+    return (
+        <div className="grid grid-cols-1 gap-2.5">
+            <div className="flex items-center justify-between gap-3">
+                <span className="text-xs font-medium text-ink-soft">
+                    Sizes &amp; stock
+                </span>
+                <Badge tone={totalStock > 0 ? "neutral" : "caution"}>
+                    {totalStock} in stock
+                </Badge>
+            </div>
 
-const SIZE_SYSTEMS = [
-    "INT", "UK", "EU", "US", "FR", "IT", "DE",
-    "Waist", "Waist/Length", "Other", "Years", "Size (cm)",
-];
+            {error && <p className="text-xs text-critical">{error}</p>}
 
-const emptySize: SizeRow = { size: "", sizeSystem: "EU", stockAmount: 0 };
-
-export default function SizeFormSection({ error, sizes, setSizes }: SizeFormSectionProps){
-    return(
-        <div>
-            <div className="mb-2 text-sm text-gray-600">Размеры</div>
-            {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
-
-            {sizes.map((s, i) => (
-                <div key={i} className="flex gap-2 mb-2">
-                    <input
-                        placeholder="M"
-                        value={s.size}
-                        onChange={(e) => setSizes(upd(sizes, i, { size: e.target.value }))}
-                        className="border rounded-md px-3 py-2 w-24"
-                    />
-                    <select
-                        value={s.sizeSystem}
-                        onChange={(e) => setSizes(upd(sizes, i, { sizeSystem: e.target.value }))}
-                        className="border rounded-md px-3 py-2"
+            <ul className="grid grid-cols-1 gap-2">
+                {sizes.map((row, i) => (
+                    <li
+                        key={i}
+                        className={cn(
+                            "grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-field bg-sunk p-2",
+                            "sm:grid-cols-[110px_minmax(0,1fr)_120px_auto] sm:items-center",
+                        )}
                     >
-                        {SIZE_SYSTEMS.map((x) => (
-                            <option key={x} value={x}>{x}</option>
-                        ))}
-                    </select>
-                    <input
-                        type="number"
-                        min={0}
-                        value={s.stockAmount}
-                        onChange={(e) =>
-                            setSizes(upd(sizes, i, { stockAmount: Number(e.target.value) }))
-                        }
-                        className="border rounded-md px-3 py-2 w-24"
-                    />
-                    <button
-                        type="button"
-                        onClick={() => setSizes(sizes.filter((_, x) => x !== i))}
-                        className="px-3 text-gray-500 hover:text-red-600"
-                    >
-                        ✕
-                    </button>
-                </div>
-            ))}
+                        <Input
+                            value={row.size}
+                            placeholder="M"
+                            aria-label="Size"
+                            onChange={(e) =>
+                                setSizes(patch(sizes, i, { size: e.target.value }))
+                            }
+                        />
 
-            <button
-                type="button"
+                        <Select
+                            value={row.sizeSystem}
+                            aria-label="Size system"
+                            className="max-sm:col-span-2"
+                            onChange={(e) =>
+                                setSizes(patch(sizes, i, { sizeSystem: e.target.value }))
+                            }
+                        >
+                            {SIZE_SYSTEMS.map((system) => (
+                                <option key={system} value={system}>
+                                    {system}
+                                </option>
+                            ))}
+                        </Select>
+
+                        <Input
+                            type="number"
+                            min={0}
+                            value={row.stockAmount}
+                            aria-label="Stock amount"
+                            onChange={(e) =>
+                                setSizes(
+                                    patch(sizes, i, {
+                                        stockAmount: Number(e.target.value),
+                                    }),
+                                )
+                            }
+                        />
+
+                        <button
+                            type="button"
+                            aria-label="Remove size"
+                            onClick={() => setSizes(sizes.filter((_, j) => j !== i))}
+                            className="grid grid-cols-1 h-11 w-11 place-items-center rounded-full text-ink-faint transition-colors hover:bg-critical-soft hover:text-critical"
+                        >
+                            <Trash2 className="h-4 w-4" strokeWidth={1.8} />
+                        </button>
+                    </li>
+                ))}
+            </ul>
+
+            <Button
+                variant="soft"
+                size="sm"
+                className="justify-self-start"
                 onClick={() => setSizes([...sizes, emptySize])}
-                className="text-sm text-blue-600"
             >
-                + размер
-            </button>
+                <Plus className="h-3.5 w-3.5" />
+                Add size
+            </Button>
         </div>
-    )
-}
-
-function upd(rows: SizeRow[], i: number, patch: Partial<SizeRow>) {
-    return rows.map((r, j) => (j === i ? { ...r, ...patch } : r));
+    );
 }

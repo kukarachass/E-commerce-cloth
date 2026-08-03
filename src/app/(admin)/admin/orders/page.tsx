@@ -1,208 +1,238 @@
-import Link from "next/link";
+import { Receipt } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/rbac";
 import { getOrderList } from "@/lib/admin/queries/orders";
-import { orderPaymentStatusEnum, orderFulfillmentStatusEnum } from "@/db/schema";
+import {
+    orderFulfillmentStatusEnum,
+    orderPaymentStatusEnum,
+} from "@/db/schema";
 import {
     parseEnumParam,
     type OrderFulfillmentStatus,
     type OrderPaymentStatus,
 } from "@/types/IOrder";
 
-/** Record без "?" — TS не даст собраться, если появится новый статус без перевода */
-const PAYMENT_LABELS: Record<OrderPaymentStatus, string> = {
-    pending: "Ожидает оплаты",
-    paid: "Оплачен",
-    failed: "Ошибка оплаты",
-    expired: "Истёк",
-    refunded: "Возвращён",
-    partially_refunded: "Частичный возврат",
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Card from "@/app/(admin)/admin/_components/ui/Card";
+import DataTable, { type Column } from "@/app/(admin)/admin/_components/ui/DataTable";
+import FilterBar from "@/app/(admin)/admin/_components/ui/FilterBar";
+import SegmentedTabs from "@/app/(admin)/admin/_components/ui/SegmentedTabs";
+import Pagination from "@/app/(admin)/admin/_components/ui/Pagination";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import Avatar from "@/app/(admin)/admin/_components/ui/Avatar";
+import EmptyState from "@/app/(admin)/admin/_components/ui/EmptyState";
+import { euro, formatDate, formatTime } from "@/app/(admin)/admin/_lib/format";
+import {
+    FULFILLMENT_LABELS,
+    FULFILLMENT_TONES,
+    PAYMENT_LABELS,
+    PAYMENT_TONES,
+} from "@/app/(admin)/admin/_lib/labels";
+import { buildUrl, first, type SearchParams } from "@/app/(admin)/admin/_lib/query";
+
+type OrderRow = Awaited<ReturnType<typeof getOrderList>>["rows"][number];
+
+type OrderView = {
+    label: string;
+    params: {
+        payment?: OrderPaymentStatus;
+        fulfillment?: OrderFulfillmentStatus;
+    };
 };
 
-const FULFILLMENT_LABELS: Record<OrderFulfillmentStatus, string> = {
-    unfulfilled: "Не собран",
-    processing: "Собирается",
-    shipped: "Отправлен",
-    delivered: "Доставлен",
-    cancelled: "Отменён",
-    returned: "Возвращён",
-};
-
-const PAYMENT_COLOR: Record<OrderPaymentStatus, string> = {
-    pending: "text-amber-600",
-    paid: "text-green-600",
-    failed: "text-red-600",
-    expired: "text-gray-400",
-    refunded: "text-gray-500",
-    partially_refunded: "text-gray-500",
-};
-
-const dateFmt = new Intl.DateTimeFormat("nl-NL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-});
-
-type SearchParams = { [key: string]: string | string[] | undefined };
+/** Сохранённые срезы — то, что открывают по десять раз в день */
+const VIEWS: OrderView[] = [
+    { label: "All", params: {} },
+    { label: "To pack", params: { fulfillment: "unfulfilled", payment: "paid" } },
+    { label: "Unpaid", params: { payment: "pending" } },
+    { label: "Shipped", params: { fulfillment: "shipped" } },
+    { label: "Returned", params: { fulfillment: "returned" } },
+];
 
 export default async function OrdersPage({
-                                             searchParams,
-                                         }: {
+    searchParams,
+}: {
     searchParams: Promise<SearchParams>;
 }) {
     await requireAdmin();
 
     const sp = await searchParams;
-
     const search = first(sp.search);
     const payment = parseEnumParam(sp.payment, orderPaymentStatusEnum.enumValues);
     const fulfillment = parseEnumParam(
         sp.fulfillment,
         orderFulfillmentStatusEnum.enumValues,
     );
+    const page = Number(first(sp.page)) || 1;
 
-    const { rows, total, page, totalPages } = await getOrderList({
-        page: Number(first(sp.page)) || 1,
+    const { rows, total, totalPages } = await getOrderList({
+        page,
         search,
         payment,
         fulfillment,
     });
 
+    const isActiveView = (params: OrderView["params"]) =>
+        params.payment === payment && params.fulfillment === fulfillment;
+
+    const columns: Column<OrderRow>[] = [
+        {
+            key: "order",
+            header: "Order",
+            width: "150px",
+            mobile: "title",
+            cell: (o) => (
+                <span className="min-w-0">
+                    <span className="block truncate font-mono text-[13px] font-semibold text-ink">
+                        #{o.id.slice(0, 8)}
+                    </span>
+                    <span className="block text-xs text-ink-faint">
+                        {o.itemCount} {Number(o.itemCount) === 1 ? "item" : "items"}
+                    </span>
+                </span>
+            ),
+        },
+        {
+            key: "customer",
+            header: "Customer",
+            width: "minmax(0,1.8fr)",
+            label: "Customer",
+            cell: (o) => (
+                <span className="flex min-w-0 items-center gap-2.5">
+                    <Avatar name={o.customerName} email={o.email} size="sm" />
+                    <span className="min-w-0">
+                        <span className="block truncate font-medium text-ink">
+                            {o.customerName ?? "Guest"}
+                        </span>
+                        <span className="block truncate text-xs text-ink-faint">
+                            {o.email}
+                        </span>
+                    </span>
+                </span>
+            ),
+        },
+        {
+            key: "payment",
+            header: "Payment",
+            width: "150px",
+            label: "Payment",
+            cell: (o) => (
+                <Badge tone={PAYMENT_TONES[o.paymentStatus]} dot>
+                    {PAYMENT_LABELS[o.paymentStatus]}
+                </Badge>
+            ),
+        },
+        {
+            key: "fulfillment",
+            header: "Fulfilment",
+            width: "140px",
+            label: "Fulfilment",
+            cell: (o) => (
+                <Badge tone={FULFILLMENT_TONES[o.fulfillmentStatus]}>
+                    {FULFILLMENT_LABELS[o.fulfillmentStatus]}
+                </Badge>
+            ),
+        },
+        {
+            key: "date",
+            header: "Placed",
+            width: "130px",
+            label: "Placed",
+            cell: (o) => (
+                <span className="text-xs text-ink-soft">
+                    {formatDate(o.createdAt)}
+                    <span className="block text-ink-faint">
+                        {formatTime(o.createdAt)}
+                    </span>
+                </span>
+            ),
+        },
+        {
+            key: "total",
+            header: "Total",
+            width: "110px",
+            align: "right",
+            label: "Total",
+            mobile: "trailing",
+            cell: (o) => (
+                <span className="tnum font-semibold text-ink">
+                    {euro(o.totalAmount)}
+                </span>
+            ),
+        },
+    ];
+
     return (
-        <div className="w-full">
-            <h1 className="text-xl mb-6">
-                Заказы <span className="text-gray-400">({total})</span>
-            </h1>
+        <>
+            <PageHeader
+                title="Orders"
+                count={total}
+                description="Every order from checkout to delivery."
+            />
 
-            <form className="flex gap-2 mb-4">
-                <input
-                    name="search"
-                    defaultValue={search ?? ""}
-                    placeholder="Поиск по email"
-                    className="border rounded-md px-3 py-2 flex-1"
+            <div className="mb-4">
+                <SegmentedTabs
+                    items={VIEWS.map((view) => ({
+                        href: buildUrl("/admin/orders", { search, ...view.params }),
+                        label: view.label,
+                        active: isActiveView(view.params),
+                    }))}
                 />
+            </div>
 
-                <select
-                    name="payment"
-                    defaultValue={payment ?? "all"}
-                    className="border rounded-md px-3 py-2"
-                >
-                    <option value="all">Оплата: все</option>
-                    {orderPaymentStatusEnum.enumValues.map((v) => (
-                        <option key={v} value={v}>
-                            {PAYMENT_LABELS[v]}
-                        </option>
-                    ))}
-                </select>
+            <FilterBar
+                searchValue={search}
+                searchPlaceholder="Search by customer email"
+                resetHref="/admin/orders"
+                selects={[
+                    {
+                        name: "payment",
+                        value: payment ?? "all",
+                        options: [
+                            { value: "all", label: "Payment: any" },
+                            ...orderPaymentStatusEnum.enumValues.map((v) => ({
+                                value: v,
+                                label: PAYMENT_LABELS[v],
+                            })),
+                        ],
+                    },
+                    {
+                        name: "fulfillment",
+                        value: fulfillment ?? "all",
+                        options: [
+                            { value: "all", label: "Fulfilment: any" },
+                            ...orderFulfillmentStatusEnum.enumValues.map((v) => ({
+                                value: v,
+                                label: FULFILLMENT_LABELS[v],
+                            })),
+                        ],
+                    },
+                ]}
+            />
 
-                <select
-                    name="fulfillment"
-                    defaultValue={fulfillment ?? "all"}
-                    className="border rounded-md px-3 py-2"
-                >
-                    <option value="all">Доставка: все</option>
-                    {orderFulfillmentStatusEnum.enumValues.map((v) => (
-                        <option key={v} value={v}>
-                            {FULFILLMENT_LABELS[v]}
-                        </option>
-                    ))}
-                </select>
+            <Card padded={false} className="p-2 sm:p-3">
+                <DataTable
+                    columns={columns}
+                    rows={rows}
+                    getKey={(o) => o.id}
+                    href={(o) => `/admin/orders/${o.id}`}
+                    empty={
+                        <EmptyState
+                            icon={Receipt}
+                            title="No orders match these filters"
+                            description="Clear the filters or pick another saved view."
+                        />
+                    }
+                />
+            </Card>
 
-                <button className="px-4 py-2 border rounded-md">Найти</button>
-            </form>
-
-            <table className="w-full text-left text-sm">
-                <thead className="text-gray-500 border-b">
-                <tr>
-                    <th className="py-2 font-normal">Заказ</th>
-                    <th className="py-2 font-normal">Клиент</th>
-                    <th className="py-2 font-normal">Позиций</th>
-                    <th className="py-2 font-normal">Сумма</th>
-                    <th className="py-2 font-normal">Оплата</th>
-                    <th className="py-2 font-normal">Доставка</th>
-                    <th className="py-2 font-normal">Дата</th>
-                </tr>
-                </thead>
-                <tbody>
-                {rows.map((o) => (
-                    <tr key={o.id} className="border-b hover:bg-gray-50">
-                        <td className="py-2">
-                            <Link
-                                href={`/admin/orders/${o.id}`}
-                                className="text-blue-600 font-mono"
-                            >
-                                #{o.id.slice(0, 8)}
-                            </Link>
-                        </td>
-                        <td className="py-2">
-                            <div>{o.customerName ?? "Гость"}</div>
-                            <div className="text-gray-400 text-xs">{o.email}</div>
-                        </td>
-                        <td className="py-2">{o.itemCount}</td>
-                        <td className="py-2">€{o.totalAmount}</td>
-                        <td className={`py-2 ${PAYMENT_COLOR[o.paymentStatus]}`}>
-                            {PAYMENT_LABELS[o.paymentStatus]}
-                        </td>
-                        <td className="py-2">
-                            {FULFILLMENT_LABELS[o.fulfillmentStatus]}
-                        </td>
-                        <td className="py-2 text-gray-500">
-                            {dateFmt.format(o.createdAt)}
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-
-            {rows.length === 0 && (
-                <p className="text-gray-500 py-8 text-center">Заказов не найдено</p>
-            )}
-
-            {totalPages > 1 && (
-                <div className="flex gap-2 mt-6 items-center">
-                    {page > 1 && (
-                        <Link
-                            href={buildUrl({ search, payment, fulfillment }, page - 1)}
-                            className="px-3 py-1 border rounded-md"
-                        >
-                            Назад
-                        </Link>
-                    )}
-                    <span className="text-gray-500 text-sm">
-            Страница {page} из {totalPages}
-          </span>
-                    {page < totalPages && (
-                        <Link
-                            href={buildUrl({ search, payment, fulfillment }, page + 1)}
-                            className="px-3 py-1 border rounded-md"
-                        >
-                            Вперёд
-                        </Link>
-                    )}
-                </div>
-            )}
-        </div>
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                buildHref={(p) =>
+                    buildUrl("/admin/orders", { search, payment, fulfillment, page: p })
+                }
+            />
+        </>
     );
-}
-
-/** searchParams может отдать массив, если ключ повторился в URL */
-function first(v: string | string[] | undefined): string | undefined {
-    return Array.isArray(v) ? v[0] : v;
-}
-
-function buildUrl(
-    filters: {
-        search?: string;
-        payment?: OrderPaymentStatus;
-        fulfillment?: OrderFulfillmentStatus;
-    },
-    page: number,
-) {
-    const p = new URLSearchParams();
-    if (filters.search) p.set("search", filters.search);
-    if (filters.payment) p.set("payment", filters.payment);
-    if (filters.fulfillment) p.set("fulfillment", filters.fulfillment);
-    p.set("page", String(page));
-    return `/admin/orders?${p}`;
 }

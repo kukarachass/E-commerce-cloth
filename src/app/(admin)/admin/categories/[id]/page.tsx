@@ -1,25 +1,41 @@
-import {requireAdmin} from "@/lib/admin/rbac";
-import {notFound} from "next/navigation";
+import { notFound } from "next/navigation";
+import { requireAdmin } from "@/lib/admin/rbac";
+import { getParentOptionsGrouped } from "@/lib/admin/queries/categories-operations/getParentOptionsGrouped";
+import { getCategoryById } from "@/lib/admin/queries/categories-operations/getCategoryById";
 import CategoryForm from "@/app/(admin)/admin/_components/category/CategoryForm";
-import {getParentOptionsGrouped} from "@/lib/admin/queries/categories-operations/getParentOptionsGrouped";
-import {getCategoryById} from "@/lib/admin/queries/categories-operations/getCategoryById";
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import { GENDER_LABELS } from "@/app/(admin)/admin/_lib/labels";
 
-interface CategoryPageProps{
-    params: Promise<{ id: string }>
-}
-
-export default async function CategoryPage({ params }: CategoryPageProps){
+export default async function CategoryPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
     await requireAdmin();
     const { id } = await params;
 
     const category = await getCategoryById(id);
-    if(!category) return notFound();
+    if (!category) notFound();
 
     const parentOptions = await getParentOptionsGrouped(id);
 
-    return(
-        <div>
-            <h1 className="text-xl mb-6">{category.name}</h1>
+    return (
+        <>
+            <PageHeader
+                back={{ href: "/admin/categories", label: "Category tree" }}
+                title={category.name}
+                description={`/${category.slug}`}
+                meta={
+                    <>
+                        <Badge tone="neutral">
+                            {GENDER_LABELS[category.gender] ?? category.gender}
+                        </Badge>
+                        <Badge tone="neutral">Level {category.level}</Badge>
+                    </>
+                }
+            />
+
             <CategoryForm
                 mode="edit"
                 defaults={{
@@ -32,6 +48,6 @@ export default async function CategoryPage({ params }: CategoryPageProps){
                 }}
                 parentOptions={parentOptions}
             />
-        </div>
-    )
+        </>
+    );
 }

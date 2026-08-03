@@ -2,11 +2,27 @@
 
 import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import {updateBrand} from "@/lib/admin/actions/brand-actions/updateBrand";
-import {createBrand} from "@/lib/admin/actions/brand-actions/createBrand";
-import {BrandActionState} from "@/lib/admin/actions/brand-actions/types/BrandActionState";
-import ImageUploader, {ImageRow} from "@/app/(admin)/admin/_components/images/ImageUploader";
+import { Plus, Tag, X } from "lucide-react";
+import { updateBrand } from "@/lib/admin/actions/brand-actions/updateBrand";
+import { createBrand } from "@/lib/admin/actions/brand-actions/createBrand";
+import type { BrandActionState } from "@/lib/admin/actions/brand-actions/types/BrandActionState";
 import slugify from "@/lib/slugify";
+
+import Card, { CardHeader } from "@/app/(admin)/admin/_components/ui/Card";
+import Button from "@/app/(admin)/admin/_components/ui/Button";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import {
+    Field,
+    FormError,
+    FormFooter,
+    FormSection,
+    Input,
+    Switch,
+    Textarea,
+} from "@/app/(admin)/admin/_components/ui/Form";
+import ImageUploader, {
+    type ImageRow,
+} from "@/app/(admin)/admin/_components/images/ImageUploader";
 
 export type BrandDefaults = {
     id: string;
@@ -20,9 +36,9 @@ export type BrandDefaults = {
 };
 
 export default function BrandForm({
-                                      mode,
-                                      defaults,
-                                  }: {
+    mode,
+    defaults,
+}: {
     mode: "create" | "edit";
     defaults?: BrandDefaults;
 }) {
@@ -41,7 +57,7 @@ export default function BrandForm({
 
     useEffect(() => {
         if (!state.ok) return;
-        toast.success(state.message ?? "Сохранено");
+        toast.success(state.message ?? "Saved");
         if (mode === "create") {
             formRef.current?.reset();
             setName("");
@@ -50,138 +66,204 @@ export default function BrandForm({
         }
     }, [state, mode]);
 
-    const err = (f: string) => state.errors?.[f]?.[0];
+    const err = (field: string) => state.errors?.[field]?.[0];
 
     const addTag = () => {
-        const v = tagInput.trim();
-        if (v && !tags.includes(v)) setTags([...tags, v]);
+        const value = tagInput.trim();
+        if (value && !tags.includes(value)) setTags([...tags, value]);
         setTagInput("");
     };
 
     return (
-        <form ref={formRef} action={formAction} className="max-w-2xl grid gap-4">
+        <form ref={formRef} action={formAction}>
             {mode === "edit" && defaults && (
                 <input type="hidden" name="id" value={defaults.id} />
             )}
 
-            <Field label="Название" error={err("name")}>
-                <input
-                    name="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="border rounded-md px-3 py-2 w-full"
-                />
-            </Field>
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+                <Card className="grid grid-cols-1 gap-7 p-5 sm:p-6">
+                    <FormError message={!state.ok ? state.message : undefined} />
 
-            <Field label="Slug" error={err("slug")} hint="Пусто — сгенерируется из названия">
-                <input
-                    name="slug"
-                    defaultValue={defaults?.slug ?? ""}
-                    placeholder={slugify(name)}
-                    className="border rounded-md px-3 py-2 w-full"
-                />
-            </Field>
+                    <FormSection
+                        title="Brand"
+                        description="How the brand is introduced across the store."
+                    >
+                        <Field label="Name" error={err("name")}>
+                            <Input
+                                name="name"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                invalid={Boolean(err("name"))}
+                                placeholder="Maison Ordinaire"
+                            />
+                        </Field>
 
-            <Field label="Описание" error={err("description")}>
-        <textarea
-            name="description"
-            rows={4}
-            defaultValue={defaults?.description ?? ""}
-            className="border rounded-md px-3 py-2 w-full"
-        />
-            </Field>
-
-            <Field label="Промо-текст" error={err("promoDetailsText")} hint="Например: до -70%">
-                <input
-                    name="promoDetailsText"
-                    defaultValue={defaults?.promoDetailsText ?? ""}
-                    className="border rounded-md px-3 py-2 w-full"
-                />
-            </Field>
-
-            {/* Логотип: переиспользуем загрузчик, но берём только первый файл */}
-            <div>
-                <ImageUploader
-                    images={logo}
-                    onChange={(next) => setLogo(next.slice(-1))}
-                    error={err("imageUrl")}
-                />
-                <input type="hidden" name="imageUrl" value={logo[0]?.url ?? ""} />
-            </div>
-
-            {/* Теги */}
-            <div>
-                <div className="text-sm text-gray-600 mb-1">Теги</div>
-                <div className="flex flex-wrap gap-2 mb-2">
-                    {tags.map((t) => (
-                        <span
-                            key={t}
-                            className="px-2 py-1 bg-gray-100 rounded-md text-sm flex items-center gap-1"
+                        <Field
+                            label="Slug"
+                            error={err("slug")}
+                            hint="Leave empty to generate from the name"
+                            optional
                         >
-              {t}
-                            <button
-                                type="button"
-                                onClick={() => setTags(tags.filter((x) => x !== t))}
-                                className="text-gray-400 hover:text-red-600"
-                            >
-                ✕
-              </button>
-            </span>
-                    ))}
+                            <Input
+                                name="slug"
+                                defaultValue={defaults?.slug ?? ""}
+                                placeholder={slugify(name) || "maison-ordinaire"}
+                                invalid={Boolean(err("slug"))}
+                            />
+                        </Field>
+
+                        <Field label="Description" error={err("description")}>
+                            <Textarea
+                                name="description"
+                                rows={4}
+                                defaultValue={defaults?.description ?? ""}
+                                invalid={Boolean(err("description"))}
+                            />
+                        </Field>
+
+                        <Field
+                            label="Promo line"
+                            error={err("promoDetailsText")}
+                            hint="Short highlight on the brand banner, e.g. “up to −70%”"
+                            optional
+                        >
+                            <Input
+                                name="promoDetailsText"
+                                defaultValue={defaults?.promoDetailsText ?? ""}
+                                invalid={Boolean(err("promoDetailsText"))}
+                            />
+                        </Field>
+                    </FormSection>
+
+                    <FormSection
+                        title="Logo"
+                        description="One image, shown on brand cards and banners."
+                    >
+                        <ImageUploader
+                            images={logo}
+                            onChange={(next) => setLogo(next.slice(-1))}
+                            error={err("imageUrl")}
+                            name={null}
+                            single
+                            label="Brand logo"
+                            hint="Transparent PNG or SVG-like artwork works best"
+                        />
+                        <input
+                            type="hidden"
+                            name="imageUrl"
+                            value={logo[0]?.url ?? ""}
+                        />
+                    </FormSection>
+
+                    <FormSection
+                        title="Tags"
+                        description="Used for filtering and merchandising blocks."
+                    >
+                        {tags.length > 0 && (
+                            <ul className="flex flex-wrap gap-1.5">
+                                {tags.map((tag) => (
+                                    <li key={tag}>
+                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-sunk py-1.5 pr-1.5 pl-3 text-xs font-medium text-ink">
+                                            {tag}
+                                            <button
+                                                type="button"
+                                                aria-label={`Remove ${tag}`}
+                                                onClick={() =>
+                                                    setTags(tags.filter((t) => t !== tag))
+                                                }
+                                                className="grid grid-cols-1 h-4 w-4 place-items-center rounded-full text-ink-faint transition-colors hover:bg-critical hover:text-white"
+                                            >
+                                                <X className="h-2.5 w-2.5" />
+                                            </button>
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+
+                        <div className="flex gap-2">
+                            <Input
+                                value={tagInput}
+                                onChange={(e) => setTagInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault(); // иначе Enter отправит форму
+                                        addTag();
+                                    }
+                                }}
+                                placeholder="premium, sale…"
+                            />
+                            <Button variant="soft" onClick={addTag}>
+                                <Plus className="h-4 w-4" />
+                                Add
+                            </Button>
+                        </div>
+
+                        <input type="hidden" name="tags" value={JSON.stringify(tags)} />
+                    </FormSection>
+                </Card>
+
+                <div className="grid grid-cols-1 content-start gap-3 xl:sticky xl:top-0">
+                    <Card>
+                        <CardHeader title="Visibility" />
+                        <Switch
+                            name="isActive"
+                            label="Active"
+                            hint="Hidden brands disappear from filters and listings"
+                            defaultChecked={defaults?.isActive ?? true}
+                        />
+                    </Card>
+
+                    <Card>
+                        <CardHeader title="Preview" />
+                        <div className="hatch grid grid-cols-1 h-32 place-items-center overflow-hidden rounded-field bg-sunk">
+                            {logo[0]?.url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={logo[0].url}
+                                    alt=""
+                                    className="h-full w-full object-contain p-4"
+                                />
+                            ) : (
+                                <Tag className="h-6 w-6 text-ink-faint" strokeWidth={1.5} />
+                            )}
+                        </div>
+
+                        <p className="mt-3 truncate text-sm font-medium text-ink">
+                            {name || "Untitled brand"}
+                        </p>
+                        <p className="truncate text-xs text-ink-faint">
+                            /{slugify(name) || "slug"}
+                        </p>
+
+                        {tags.length > 0 && (
+                            <div className="mt-3 flex flex-wrap gap-1.5 border-t border-line pt-3">
+                                {tags.slice(0, 6).map((tag) => (
+                                    <Badge key={tag} tone="neutral">
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </div>
+                        )}
+                    </Card>
                 </div>
-                <div className="flex gap-2">
-                    <input
-                        value={tagInput}
-                        onChange={(e) => setTagInput(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                e.preventDefault(); // иначе Enter отправит форму
-                                addTag();
-                            }
-                        }}
-                        placeholder="premium, sale…"
-                        className="border rounded-md px-3 py-2 flex-1"
-                    />
-                    <button type="button" onClick={addTag} className="px-4 border rounded-md">
-                        Добавить
-                    </button>
-                </div>
-                <input type="hidden" name="tags" value={JSON.stringify(tags)} />
             </div>
 
-            <label className="flex items-center gap-2">
-                <input type="checkbox" name="isActive" defaultChecked={defaults?.isActive ?? true} />
-                Активен
-            </label>
-
-            <button
-                type="submit"
-                disabled={pending}
-                className="px-4 py-2 bg-black text-white rounded-md disabled:opacity-50 justify-self-start"
+            <FormFooter
+                hint={
+                    mode === "edit"
+                        ? "Changes apply to every product of this brand"
+                        : "The brand becomes selectable in the product form"
+                }
             >
-                {pending ? "Сохраняю…" : mode === "edit" ? "Сохранить" : "Создать бренд"}
-            </button>
+                <Button type="submit" variant="accent" disabled={pending}>
+                    {pending
+                        ? "Saving…"
+                        : mode === "edit"
+                          ? "Save changes"
+                          : "Create brand"}
+                </Button>
+            </FormFooter>
         </form>
-    );
-}
-
-function Field({
-                   label,
-                   error,
-                   hint,
-                   children,
-               }: {
-    label: string;
-    error?: string;
-    hint?: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <label className="grid gap-1">
-            <span className="text-sm text-gray-600">{label}</span>
-            {children}
-            {hint && !error && <span className="text-xs text-gray-400">{hint}</span>}
-            {error && <span className="text-red-600 text-sm">{error}</span>}
-        </label>
     );
 }

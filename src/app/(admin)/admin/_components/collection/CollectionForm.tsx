@@ -1,16 +1,28 @@
 "use client";
 
-import {useActionState, useEffect, useRef, useState} from "react";
-import {toast} from "sonner";
-import {updateBrand} from "@/lib/admin/actions/brand-actions/updateBrand";
-import {createBrand} from "@/lib/admin/actions/brand-actions/createBrand";
-import {BrandActionState} from "@/lib/admin/actions/brand-actions/types/BrandActionState";
-import ImageUploader, {ImageRow} from "@/app/(admin)/admin/_components/images/ImageUploader";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { Layers } from "lucide-react";
+import type { FormActionState } from "@/lib/admin/admin-types/FormActionState";
+import { updateCollection } from "@/lib/admin/actions/collection-actions/updateCollection";
+import { createCollection } from "@/lib/admin/actions/collection-actions/createCollection";
 import slugify from "@/lib/slugify";
-import {FormActionState} from "@/lib/admin/admin-types/FormActionState";
-import {updateCollection} from "@/lib/admin/actions/collection-actions/updateCollection";
-import {createCollection} from "@/lib/admin/actions/collection-actions/createCollection";
-import FormField from "@/app/(admin)/admin/_components/product-form/FormField";
+
+import Card, { CardHeader } from "@/app/(admin)/admin/_components/ui/Card";
+import Button from "@/app/(admin)/admin/_components/ui/Button";
+import {
+    Field,
+    FormError,
+    FormFooter,
+    FormSection,
+    Input,
+    Select,
+    Switch,
+    Textarea,
+} from "@/app/(admin)/admin/_components/ui/Form";
+import ImageUploader, {
+    type ImageRow,
+} from "@/app/(admin)/admin/_components/images/ImageUploader";
 
 export type CollectionDefaults = {
     id: string;
@@ -23,128 +35,170 @@ export type CollectionDefaults = {
 };
 
 export default function CollectionForm({
-                                           mode,
-                                           defaults,
-                                       }: {
+    mode,
+    defaults,
+}: {
     mode: "create" | "edit";
     defaults?: CollectionDefaults;
 }) {
     const [state, formAction, pending] = useActionState<FormActionState, FormData>(
         mode === "edit" ? updateCollection : createCollection,
-        {ok: false},
+        { ok: false },
     );
 
     const formRef = useRef<HTMLFormElement>(null);
     const [title, setTitle] = useState(defaults?.title ?? "");
     const [banner, setBanner] = useState<ImageRow[]>(
-        defaults?.banner ? [{url: defaults.banner, isMain: true}] : [],
+        defaults?.banner ? [{ url: defaults.banner, isMain: true }] : [],
     );
 
     useEffect(() => {
         if (!state.ok) return;
-        toast.success(state.message ?? "Сохранено");
+        toast.success(state.message ?? "Saved");
         if (mode === "create") {
             formRef.current?.reset();
             setTitle("");
+            setBanner([]);
         }
     }, [state, mode]);
 
-    useEffect(() => {
-        console.log("action result:", state);
-    }, [state]);
-
-    const err = (f: string) => state.errors?.[f]?.[0];
+    const err = (field: string) => state.errors?.[field]?.[0];
 
     return (
-        <form ref={formRef} action={formAction} className="max-w-2xl grid gap-4">
+        <form ref={formRef} action={formAction}>
             {mode === "edit" && defaults && (
-                <input type="hidden" name="id" value={defaults.id}/>
-            )}
-            {state.message && !state.ok && (
-                <p className="text-red-600 text-sm">{state.message}</p>
+                <input type="hidden" name="id" value={defaults.id} />
             )}
 
-            <Field label="Название" error={err("title")}>
-                <input
-                    name="title"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    className="border rounded-md px-3 py-2 w-full"
-                />
-            </Field>
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+                <Card className="grid grid-cols-1 gap-7 p-5 sm:p-6">
+                    <FormError message={!state.ok ? state.message : undefined} />
 
-            <Field label="Slug" error={err("slug")} hint="Пусто — сгенерируется из названия">
-                <input
-                    name="slug"
-                    defaultValue={defaults?.slug ?? ""}
-                    placeholder={slugify(title)}
-                    className="border rounded-md px-3 py-2 w-full"
-                />
-            </Field>
+                    <FormSection
+                        title="Collection"
+                        description="A curated edit customers can browse as one story."
+                    >
+                        <Field label="Title" error={err("title")}>
+                            <Input
+                                name="title"
+                                value={title}
+                                onChange={(e) => setTitle(e.target.value)}
+                                invalid={Boolean(err("title"))}
+                                placeholder="Winter essentials"
+                            />
+                        </Field>
 
-            <FormField label="Пол" error={err("gender")}>
-                <select
-                    name="gender"
-                    defaultValue={defaults?.gender ?? "women"}
-                    className="border rounded-md px-3 py-2 w-full"
-                >
-                    <option value="women">Women</option>
-                    <option value="men">Men</option>
-                </select>
-            </FormField>
+                        <Field
+                            label="Slug"
+                            error={err("slug")}
+                            hint="Leave empty to generate from the title"
+                            optional
+                        >
+                            <Input
+                                name="slug"
+                                defaultValue={defaults?.slug ?? ""}
+                                placeholder={slugify(title) || "winter-essentials"}
+                                invalid={Boolean(err("slug"))}
+                            />
+                        </Field>
 
-            <Field label="Описание" error={err("description")}>
-                <textarea
-                    name="description"
-                    rows={4}
-                    defaultValue={defaults?.description ?? ""}
-                    className="border rounded-md px-3 py-2 w-full"
-                />
-            </Field>
+                        <Field label="Audience" error={err("gender")}>
+                            <Select
+                                name="gender"
+                                defaultValue={defaults?.gender ?? "women"}
+                                invalid={Boolean(err("gender"))}
+                            >
+                                <option value="women">Women</option>
+                                <option value="men">Men</option>
+                            </Select>
+                        </Field>
 
-            {/* Логотип: переиспользуем загрузчик, но берём только первый файл */}
-            <div>
-                <ImageUploader
-                    images={banner}
-                    onChange={(next) => setBanner(next.slice(-1))}
-                    error={err("banner")}
-                />
-                <input type="hidden" name="imageUrl" value={banner[0]?.url ?? ""}/>
+                        <Field label="Description" error={err("description")} optional>
+                            <Textarea
+                                name="description"
+                                rows={4}
+                                defaultValue={defaults?.description ?? ""}
+                                invalid={Boolean(err("description"))}
+                            />
+                        </Field>
+                    </FormSection>
+
+                    <FormSection
+                        title="Banner"
+                        description="Wide image used at the top of the collection page."
+                    >
+                        <ImageUploader
+                            images={banner}
+                            onChange={(next) => setBanner(next.slice(-1))}
+                            error={err("banner")}
+                            name={null}
+                            single
+                            label="Collection banner"
+                            hint="Landscape artwork, at least 1600px wide"
+                        />
+                        {/* поле называется banner — именно его читает серверный экшен */}
+                        <input
+                            type="hidden"
+                            name="banner"
+                            value={banner[0]?.url ?? ""}
+                        />
+                    </FormSection>
+                </Card>
+
+                <div className="grid grid-cols-1 content-start gap-3 xl:sticky xl:top-0">
+                    <Card>
+                        <CardHeader title="Visibility" />
+                        <Switch
+                            name="isActive"
+                            label="Active"
+                            hint="Hidden collections stay editable but are not published"
+                            defaultChecked={defaults?.isActive ?? true}
+                        />
+                    </Card>
+
+                    <Card>
+                        <CardHeader title="Preview" />
+                        <div className="hatch grid grid-cols-1 h-28 place-items-center overflow-hidden rounded-field bg-sunk">
+                            {banner[0]?.url ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img
+                                    src={banner[0].url}
+                                    alt=""
+                                    className="h-full w-full object-cover"
+                                />
+                            ) : (
+                                <Layers
+                                    className="h-6 w-6 text-ink-faint"
+                                    strokeWidth={1.5}
+                                />
+                            )}
+                        </div>
+
+                        <p className="mt-3 truncate text-sm font-medium text-ink">
+                            {title || "Untitled collection"}
+                        </p>
+                        <p className="truncate text-xs text-ink-faint">
+                            /{slugify(title) || "slug"}
+                        </p>
+                    </Card>
+                </div>
             </div>
 
-            <label className="flex items-center gap-2">
-                <input type="checkbox" name="isActive" defaultChecked={defaults?.isActive ?? true}/>
-                Активен
-            </label>
-
-            <button
-                type="submit"
-                disabled={pending}
-                className="px-4 py-2 bg-black text-white rounded-md disabled:opacity-50 justify-self-start"
+            <FormFooter
+                hint={
+                    mode === "edit"
+                        ? "Changes are visible on the storefront right away"
+                        : "You can add products right after creating the collection"
+                }
             >
-                {pending ? "Сохраняю…" : mode === "edit" ? "Сохранить" : "Создать коллекцию"}
-            </button>
+                <Button type="submit" variant="accent" disabled={pending}>
+                    {pending
+                        ? "Saving…"
+                        : mode === "edit"
+                          ? "Save changes"
+                          : "Create collection"}
+                </Button>
+            </FormFooter>
         </form>
-    );
-}
-
-function Field({
-                   label,
-                   error,
-                   hint,
-                   children,
-               }: {
-    label: string;
-    error?: string;
-    hint?: string;
-    children: React.ReactNode;
-}) {
-    return (
-        <label className="grid gap-1">
-            <span className="text-sm text-gray-600">{label}</span>
-            {children}
-            {hint && !error && <span className="text-xs text-gray-400">{hint}</span>}
-            {error && <span className="text-red-600 text-sm">{error}</span>}
-        </label>
     );
 }

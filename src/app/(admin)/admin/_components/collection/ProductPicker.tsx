@@ -1,8 +1,14 @@
 "use client";
 
-import {useMemo, useState, useTransition} from "react";
-import {toast} from "sonner";
+import { useMemo, useState, useTransition } from "react";
+import { toast } from "sonner";
+import { Check, ImageIcon, PackageSearch } from "lucide-react";
 import toggleAddProduct from "@/lib/admin/actions/categories-actions/toggleAddProduct";
+import cn from "@/app/(admin)/admin/_lib/cn";
+import Button from "@/app/(admin)/admin/_components/ui/Button";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import EmptyState from "@/app/(admin)/admin/_components/ui/EmptyState";
+import { euro } from "@/app/(admin)/admin/_lib/format";
 
 export type PickerProduct = {
     id: string;
@@ -13,179 +19,207 @@ export type PickerProduct = {
     price: string;
 };
 
+/**
+ * Выбор товаров в коллекцию. Работает с диффом относительно того, что было
+ * в коллекции на момент загрузки страницы: показываем ровно то, что уедет
+ * на сервер, и не трогаем товары с других страниц выдачи.
+ */
 export default function ProductPicker({
-                                          collectionId,
-                                          products,
-                                          addedIds,
-                                      }: {
+    collectionId,
+    products,
+    addedIds,
+}: {
     collectionId: string;
     products: PickerProduct[];
     addedIds: string[];
 }) {
-    // Что было в коллекции на момент загрузки страницы — точка отсчёта для диффа
     const initial = useMemo(() => new Set(addedIds), [addedIds]);
 
-    // Что отмечено сейчас. Стартуем с текущего состояния коллекции
     const [selected, setSelected] = useState<Set<string>>(
         () => new Set(products.filter((p) => initial.has(p.id)).map((p) => p.id)),
     );
-
     const [pending, start] = useTransition();
 
-    const toggle = (id: string) => {
+    const toggle = (id: string) =>
         setSelected((prev) => {
             const next = new Set(prev);
-            next.has(id) ? next.delete(id) : next.add(id);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
             return next;
         });
-    };
 
-    const allOnPage = products.map((p) => p.id);
-    const allChecked = allOnPage.length > 0 && allOnPage.every((id) => selected.has(id));
+    const idsOnPage = products.map((p) => p.id);
+    const allChecked =
+        idsOnPage.length > 0 && idsOnPage.every((id) => selected.has(id));
 
-    const toggleAll = () => {
-        setSelected(allChecked ? new Set() : new Set(allOnPage));
-    };
-
-    // Разница между тем, что было, и тем, что отмечено
-    const toAdd = allOnPage.filter((id) => selected.has(id) && !initial.has(id));
-    const toRemove = allOnPage.filter((id) => !selected.has(id) && initial.has(id));
+    const toAdd = idsOnPage.filter((id) => selected.has(id) && !initial.has(id));
+    const toRemove = idsOnPage.filter(
+        (id) => !selected.has(id) && initial.has(id),
+    );
     const hasChanges = toAdd.length > 0 || toRemove.length > 0;
+
+    const reset = () =>
+        setSelected(
+            new Set(products.filter((p) => initial.has(p.id)).map((p) => p.id)),
+        );
 
     const submit = () => {
         start(async () => {
-            // Удаление первым: если товар и убирают, и добавляют — такого быть не может,
-            // но порядок делает результат предсказуемым в любом случае
+            // Сначала снимаем, потом добавляем — порядок делает результат
+            // предсказуемым, если обе группы непустые.
             if (toRemove.length) {
                 const res = await toggleAddProduct(collectionId, toRemove, false);
-                if (!res.ok)
-                    toast.error(res.message ?? "Не удалось убрать товары");
-                return
+                if (!res.ok) {
+                    toast.error(res.message ?? "Could not remove products");
+                    return;
+                }
             }
 
             if (toAdd.length) {
                 const res = await toggleAddProduct(collectionId, toAdd, true);
-                if (!res.ok)
-                    toast.error(res.message ?? "Не удалось добавить товары");
-                return;
+                if (!res.ok) {
+                    toast.error(res.message ?? "Could not add products");
+                    return;
+                }
             }
 
             toast.success(
                 [
-                    toAdd.length ? `добавлено ${toAdd.length}` : null,
-                    toRemove.length ? `убрано ${toRemove.length}` : null,
+                    toAdd.length ? `${toAdd.length} added` : null,
+                    toRemove.length ? `${toRemove.length} removed` : null,
                 ]
                     .filter(Boolean)
-                    .join(", "),
+                    .join(" · "),
             );
         });
     };
 
     if (products.length === 0) {
-        return <p className="text-gray-500 py-8 text-center">Товаров не найдено</p>;
+        return (
+            <EmptyState
+                icon={PackageSearch}
+                title="No products match this search"
+                description="Only active products of the same audience are listed."
+            />
+        );
     }
 
     return (
         <div>
-            <table className="w-full text-left text-sm">
-                <thead className="text-gray-500 border-b">
-                <tr>
-                    <th className="py-2 w-10">
-                        <input
-                            type="checkbox"
-                            checked={allChecked}
-                            onChange={toggleAll}
-                            aria-label="Выбрать все на странице"
-                        />
-                    </th>
-                    <th className="py-2 w-14"/>
-                    <th className="py-2 font-normal">Товар</th>
-                    <th className="py-2 font-normal w-24">Цена</th>
-                    <th className="py-2 font-normal w-28">В коллекции</th>
-                </tr>
-                </thead>
-                <tbody>
-                {products.map((p) => {
-                    const checked = selected.has(p.id);
-                    const was = initial.has(p.id);
+            <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-xs text-ink-faint">
+                    {selected.size} selected on this page
+                </p>
+                <Button
+                    variant="soft"
+                    size="sm"
+                    onClick={() =>
+                        setSelected(allChecked ? new Set() : new Set(idsOnPage))
+                    }
+                >
+                    {allChecked ? "Clear page" : "Select page"}
+                </Button>
+            </div>
+
+            <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-4">
+                {products.map((product) => {
+                    const checked = selected.has(product.id);
+                    const was = initial.has(product.id);
                     const changed = checked !== was;
 
                     return (
-                        <tr
-                            key={p.id}
-                            onClick={() => toggle(p.id)}
-                            className={
-                                "border-b cursor-pointer " +
-                                (changed ? "bg-amber-50" : "hover:bg-gray-50")
-                            }
-                        >
-                            <td className="py-2">
-                                <input
-                                    type="checkbox"
-                                    checked={checked}
-                                    onChange={() => toggle(p.id)}
-                                    onClick={(e) => e.stopPropagation()}
-                                />
-                            </td>
-                            <td className="py-2">
-                                {p.image && (
-                                    <img
-                                        src={p.image}
-                                        alt=""
-                                        className="w-10 h-12 object-cover rounded"
-                                    />
+                        <li key={product.id}>
+                            <button
+                                type="button"
+                                onClick={() => toggle(product.id)}
+                                className={cn(
+                                    "group relative w-full overflow-hidden rounded-card bg-card p-2 text-left transition-all duration-200",
+                                    checked
+                                        ? "ring-2 ring-accent"
+                                        : "ring-1 ring-line-strong hover:ring-ink/20",
                                 )}
-                            </td>
-                            <td className="py-2">
-                                <div>{p.name}</div>
-                                <div className="text-gray-400 text-xs">
-                                    {p.brandName ?? "—"} · {p.gender}
-                                </div>
-                            </td>
-                            <td className="py-2">€{p.price}</td>
-                            <td className="py-2 text-xs">
-                                {was ? (
-                                    <span className="text-green-600">да</span>
-                                ) : (
-                                    <span className="text-gray-400">нет</span>
-                                )}
-                            </td>
-                        </tr>
+                            >
+                                <span className="hatch relative block aspect-[3/4] overflow-hidden rounded-xl bg-sunk">
+                                    {product.image ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={product.image}
+                                            alt=""
+                                            loading="lazy"
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="grid grid-cols-1 h-full place-items-center">
+                                            <ImageIcon className="h-5 w-5 text-ink-faint" />
+                                        </span>
+                                    )}
+
+                                    <span
+                                        className={cn(
+                                            "absolute top-2 right-2 grid h-6 w-6 place-items-center rounded-full transition-colors",
+                                            checked
+                                                ? "bg-accent text-white"
+                                                : "bg-card/90 text-transparent group-hover:text-ink-faint",
+                                        )}
+                                    >
+                                        <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                                    </span>
+
+                                    {changed && (
+                                        <span className="absolute bottom-2 left-2">
+                                            <Badge tone={checked ? "positive" : "critical"}>
+                                                {checked ? "will add" : "will remove"}
+                                            </Badge>
+                                        </span>
+                                    )}
+                                </span>
+
+                                <span className="mt-2 block truncate px-1 text-sm font-medium text-ink">
+                                    {product.name}
+                                </span>
+                                <span className="mt-0.5 flex items-baseline justify-between gap-2 px-1 pb-1">
+                                    <span className="truncate text-xs text-ink-faint">
+                                        {product.brandName ?? "—"}
+                                    </span>
+                                    <span className="tnum shrink-0 text-xs font-semibold text-ink">
+                                        {euro(product.price)}
+                                    </span>
+                                </span>
+                            </button>
+                        </li>
                     );
                 })}
-                </tbody>
-            </table>
+            </ul>
 
-            {/* Панель сохранения появляется только при наличии изменений */}
             {hasChanges && (
-                <div className="sticky bottom-4 mt-4 flex items-center gap-4 bg-white border rounded-md px-4 py-3 shadow-sm">
-                      <span className="text-sm text-gray-600 flex-1">
-                            {toAdd.length > 0 && <>Добавить: {toAdd.length}</>}
-                          {toAdd.length > 0 && toRemove.length > 0 && " · "}
-                          {toRemove.length > 0 && <>Убрать: {toRemove.length}</>}
-                      </span>
+                <div className="sticky bottom-4 z-10 mt-4 flex flex-wrap items-center justify-between gap-3 rounded-full border border-line-strong bg-card/85 px-4 py-2.5 shadow-float backdrop-blur-md">
+                    <span className="flex items-center gap-2 text-xs">
+                        {toAdd.length > 0 && (
+                            <Badge tone="positive">+{toAdd.length} to add</Badge>
+                        )}
+                        {toRemove.length > 0 && (
+                            <Badge tone="critical">−{toRemove.length} to remove</Badge>
+                        )}
+                    </span>
 
-                    <button
-                        type="button"
-                        disabled={pending}
-                        onClick={() =>
-                            setSelected(
-                                new Set(products.filter((p) => initial.has(p.id)).map((p) => p.id)),
-                            )
-                        }
-                        className="px-3 py-1.5 text-sm text-gray-500"
-                    >
-                        Отменить
-                    </button>
-
-                    <button
-                        type="button"
-                        disabled={pending}
-                        onClick={submit}
-                        className="px-4 py-2 bg-black text-white rounded-md text-sm disabled:opacity-50"
-                    >
-                        {pending ? "Сохраняю…" : "Сохранить"}
-                    </button>
+                    <span className="flex items-center gap-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            disabled={pending}
+                            onClick={reset}
+                        >
+                            Discard
+                        </Button>
+                        <Button
+                            variant="accent"
+                            size="sm"
+                            disabled={pending}
+                            onClick={submit}
+                        >
+                            {pending ? "Saving…" : "Save selection"}
+                        </Button>
+                    </span>
                 </div>
             )}
         </div>

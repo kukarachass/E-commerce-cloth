@@ -1,149 +1,332 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+    Ban,
+    Monitor,
+    ShoppingCart,
+    Receipt,
+    ShieldCheck,
+} from "lucide-react";
 import { requireAdmin } from "@/lib/admin/rbac";
 import getUserById from "@/lib/admin/queries/users-queries/getUserById";
-import Link from "next/link";
-import UserActions from "@/app/(admin)/admin/_components/users/UsersActions";
 
-export default async function UserPage(
-    { params }: { params: Promise<{ id: string }> }
-) {
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Card, { CardHeader, DetailRow } from "@/app/(admin)/admin/_components/ui/Card";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import Avatar from "@/app/(admin)/admin/_components/ui/Avatar";
+import { StatCard } from "@/app/(admin)/admin/_components/ui/Metric";
+import EmptyState from "@/app/(admin)/admin/_components/ui/EmptyState";
+import UserActions from "@/app/(admin)/admin/_components/users/UsersActions";
+import {
+    euro,
+    formatDate,
+    formatDateTime,
+    toNumber,
+} from "@/app/(admin)/admin/_lib/format";
+import {
+    FULFILLMENT_LABELS,
+    FULFILLMENT_TONES,
+    GENDER_LABELS,
+    PAYMENT_LABELS,
+    PAYMENT_TONES,
+    ROLE_LABELS,
+} from "@/app/(admin)/admin/_lib/labels";
+
+export default async function UserPage({
+    params,
+}: {
+    params: Promise<{ id: string }>;
+}) {
     await requireAdmin();
     const { id } = await params;
 
     const user = await getUserById(id);
-    if (!user) return notFound();
+    if (!user) notFound();
+
+    const paidOrders = user.orders.filter((o) => o.paymentStatus === "paid");
+    const lifetimeSpend = paidOrders.reduce(
+        (sum, o) => sum + toNumber(o.totalAmount),
+        0,
+    );
+    const avgOrder = paidOrders.length ? lifetimeSpend / paidOrders.length : 0;
+    const cartItems = user.cart?.items ?? [];
+    const fullName = [user.name, user.lastName].filter(Boolean).join(" ");
 
     return (
-        <div className="p-6 space-y-8">
-            {/* ИНФО О ЮЗЕРЕ */}
-            <div>
-                <h1 className="text-lg font-semibold">
-                    {user.name} {user.lastName ?? ""}
-                </h1>
-                <p className="text-gray-500 text-sm">{user.email}</p>
-                <div className="text-sm text-gray-500 mt-1 space-y-0.5">
-                    <p>Телефон: {user.phoneNumber ?? "—"}</p>
-                    <p>Пол: {user.gender ?? "—"}</p>
-                    <p>Роль: {user.role}</p>
-                    <p>Email подтверждён: {user.emailVerified ? "да" : "нет"}</p>
-                    <p>Регистрация: {new Date(user.createdAt).toLocaleDateString()}</p>
-                </div>
-
-                {user.banned && (
-                    <p className="text-red-600 text-sm mt-2">
-                        Заблокирован: {user.banReason ?? "без причины"}
-                        {user.banExpires
-                            ? ` (до ${new Date(user.banExpires).toLocaleDateString()})`
-                            : " (бессрочно)"}
-                    </p>
-                )}
-            </div>
-
-            <UserActions
-                userId={user.id}
-                isBanned={!!user.banned}
-                role={user.role}
-                emailVerified={user.emailVerified}
+        <>
+            <PageHeader
+                back={{ href: "/admin/users", label: "All customers" }}
+                title={fullName || "Unnamed customer"}
+                description={user.email}
+                meta={
+                    <>
+                        <Badge tone={user.role === "admin" ? "dark" : "neutral"}>
+                            {ROLE_LABELS[user.role] ?? user.role}
+                        </Badge>
+                        <Badge tone={user.emailVerified ? "positive" : "caution"} dot>
+                            {user.emailVerified ? "Email verified" : "Email unverified"}
+                        </Badge>
+                        {user.banned && <Badge tone="critical">Banned</Badge>}
+                        <Badge tone="neutral">
+                            Joined {formatDate(user.createdAt)}
+                        </Badge>
+                    </>
+                }
             />
 
-            {/* активные сессии */}
-            <div>
-                <h2 className="font-semibold mb-2">Сессии ({user.sessions.length})</h2>
-                {user.sessions.length === 0 ? (
-                    <p className="text-gray-400 text-sm">Активных сессий нет</p>
-                ) : (
-                    <table className="w-full text-sm border">
-                        <thead className="bg-gray-100 border-b">
-                        <tr>
-                            <th className="py-2 px-3 text-left">IP</th>
-                            <th className="py-2 px-3 text-left">Устройство</th>
-                            <th className="py-2 px-3 text-left">Истекает</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {user.sessions.map((s) => (
-                            <tr key={s.id} className="border-b">
-                                <td className="py-2 px-3">{s.ipAddress ?? "—"}</td>
-                                <td className="py-2 px-3 truncate max-w-xs">{s.userAgent ?? "—"}</td>
-                                <td className="py-2 px-3">{new Date(s.expiresAt).toLocaleString()}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
-
-            {/* КОРЗИНА */}
-            <div>
-                <h2 className="font-semibold mb-2">Корзина</h2>
-                {!user.cart || user.cart.items.length === 0 ? (
-                    <p className="text-gray-400 text-sm">Корзина пуста</p>
-                ) : (
-                    <>
-                        <table className="w-full text-sm border">
-                            <thead className="bg-gray-100 border-b">
-                            <tr>
-                                <th className="py-2 px-3 text-left">Товар</th>
-                                <th className="py-2 px-3 text-left">Размер</th>
-                                <th className="py-2 px-3 text-left">Кол-во</th>
-                                <th className="py-2 px-3 text-left">Цена</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {user.cart.items.map((item) => (
-                                <tr key={item.id} className="border-b">
-                                    <td className="py-2 px-3">{item.product?.name ?? "—"}</td>
-                                    <td className="py-2 px-3">{item.productSize?.size ?? "—"}</td>
-                                    <td className="py-2 px-3">{item.quantity}</td>
-                                    <td className="py-2 px-3">€{item.priceAtAddition}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                        <p className="text-sm text-gray-500 mt-2">
-                            Итого: €{user.cart.totalAmount} · К оплате: €{user.cart.grandTotal}
+            {user.banned && (
+                <div className="mb-3 flex items-start gap-3 rounded-card border border-critical/25 bg-critical-soft px-4 py-3.5">
+                    <Ban className="mt-0.5 h-4 w-4 shrink-0 text-critical" />
+                    <div className="text-sm">
+                        <p className="font-semibold text-critical">
+                            Account is blocked
                         </p>
-                    </>
-                )}
+                        <p className="text-ink-soft">
+                            {user.banReason ?? "No reason recorded"} ·{" "}
+                            {user.banExpires
+                                ? `until ${formatDate(user.banExpires)}`
+                                : "permanent"}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <StatCard
+                    label="Lifetime spend"
+                    value={euro(lifetimeSpend)}
+                    sub={`${paidOrders.length} paid orders`}
+                    variant="dark"
+                />
+                <StatCard
+                    label="Average order"
+                    value={euro(avgOrder)}
+                    sub="across paid orders"
+                    icon={Receipt}
+                />
+                <StatCard
+                    label="Cart right now"
+                    value={euro(user.cart?.grandTotal ?? 0)}
+                    sub={`${cartItems.length} lines`}
+                    icon={ShoppingCart}
+                />
+                <StatCard
+                    label="Active sessions"
+                    value={user.sessions.length}
+                    sub="signed-in devices"
+                    icon={Monitor}
+                />
             </div>
 
-            {/* ЗАКАЗЫ */}
-            <div>
-                <h2 className="font-semibold mb-2">Заказы ({user.orders.length})</h2>
-                {user.orders.length === 0 ? (
-                    <p className="text-gray-400 text-sm">Заказов нет</p>
-                ) : (
-                    <div className="space-y-4">
-                        {user.orders.map((order) => (
-                            <div key={order.id} className="border rounded-md p-3">
-                                <div className="flex justify-between text-sm mb-2">
-                                    <span>
-                                        Заказ #{order.id.slice(0, 8)} · {new Date(order.createdAt).toLocaleDateString()}
-                                    </span>
-                                    <span>{order.paymentStatus} / {order.fulfillmentStatus}</span>
-                                </div>
-                                <Link className="bg-black p-1 rounded-[4px] text-white" href={`/orders/${order.id}`}>Перейти к заказу</Link>
-                                <table className="w-full text-sm">
-                                    <tbody>
-                                    {order.items.map((item) => {
-                                        const snapshot = item.productSnapshot as { name?: string };
-                                        return (
-                                            <tr key={item.id} className="border-b last:border-0">
-                                                <td className="py-1">{snapshot?.name ?? "товар удалён"}</td>
-                                                <td className="py-1">{item.size}</td>
-                                                <td className="py-1">x{item.quantity}</td>
-                                                <td className="py-1">€{item.price}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                    </tbody>
-                                </table>
-                                <p className="text-sm text-gray-500 mt-2">Итого: €{order.totalAmount}</p>
+            <div className="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+                {/* ── история ────────────────────────────────────── */}
+                <div className="grid grid-cols-1 content-start gap-3">
+                    <Card>
+                        <CardHeader
+                            title={`Orders · ${user.orders.length}`}
+                            hint="Newest first"
+                        />
+
+                        {user.orders.length === 0 ? (
+                            <EmptyState
+                                icon={Receipt}
+                                title="No orders yet"
+                                description="This customer has not checked out."
+                                compact
+                            />
+                        ) : (
+                            <ul className="grid grid-cols-1 gap-2.5">
+                                {user.orders.map((order) => (
+                                    <li key={order.id}>
+                                        <Link
+                                            href={`/admin/orders/${order.id}`}
+                                            className="block rounded-card border border-line-strong p-3.5 transition-colors hover:border-ink/20 hover:bg-sunk/60"
+                                        >
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="font-mono text-[13px] font-semibold text-ink">
+                                                    #{order.id.slice(0, 8)}
+                                                </span>
+                                                <Badge tone={PAYMENT_TONES[order.paymentStatus]} dot>
+                                                    {PAYMENT_LABELS[order.paymentStatus]}
+                                                </Badge>
+                                                <Badge
+                                                    tone={FULFILLMENT_TONES[order.fulfillmentStatus]}
+                                                >
+                                                    {FULFILLMENT_LABELS[order.fulfillmentStatus]}
+                                                </Badge>
+                                                <span className="tnum ml-auto text-sm font-semibold text-ink">
+                                                    {euro(order.totalAmount)}
+                                                </span>
+                                            </div>
+
+                                            <ul className="mt-2.5 grid grid-cols-1 gap-1 border-t border-line pt-2.5">
+                                                {order.items.map((item) => {
+                                                    const snapshot = item.productSnapshot as {
+                                                        name?: string;
+                                                    };
+                                                    return (
+                                                        <li
+                                                            key={item.id}
+                                                            className="flex items-center gap-2 text-xs text-ink-soft"
+                                                        >
+                                                            <span className="min-w-0 flex-1 truncate">
+                                                                {snapshot?.name ?? "Product removed"}
+                                                            </span>
+                                                            <span className="shrink-0 text-ink-faint">
+                                                                {item.size} · ×{item.quantity}
+                                                            </span>
+                                                            <span className="tnum w-16 shrink-0 text-right">
+                                                                {euro(item.price)}
+                                                            </span>
+                                                        </li>
+                                                    );
+                                                })}
+                                            </ul>
+
+                                            <p className="mt-2 text-[11px] text-ink-faint">
+                                                {formatDateTime(order.createdAt)}
+                                            </p>
+                                        </Link>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Card>
+
+                    <Card>
+                        <CardHeader
+                            title="Current cart"
+                            hint={
+                                user.cart
+                                    ? `Subtotal ${euro(user.cart.totalAmount)} · due ${euro(user.cart.grandTotal)}`
+                                    : undefined
+                            }
+                        />
+
+                        {cartItems.length === 0 ? (
+                            <EmptyState
+                                icon={ShoppingCart}
+                                title="Cart is empty"
+                                compact
+                            />
+                        ) : (
+                            <ul className="grid grid-cols-1">
+                                {cartItems.map((item) => (
+                                    <li
+                                        key={item.id}
+                                        className="flex items-center gap-3 border-b border-line py-2.5 first:pt-0 last:border-0 last:pb-0 text-sm"
+                                    >
+                                        <span className="min-w-0 flex-1 truncate text-ink">
+                                            {item.product?.name ?? "—"}
+                                        </span>
+                                        <Badge tone="neutral">
+                                            {item.productSize?.size ?? "—"}
+                                        </Badge>
+                                        <span className="tnum w-10 shrink-0 text-right text-xs text-ink-faint">
+                                            ×{item.quantity}
+                                        </span>
+                                        <span className="tnum w-20 shrink-0 text-right font-medium text-ink">
+                                            {euro(item.priceAtAddition)}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Card>
+                </div>
+
+                {/* ── профиль и управление ───────────────────────── */}
+                <div className="grid grid-cols-1 content-start gap-3">
+                    <Card>
+                        <div className="flex items-center gap-3.5">
+                            <Avatar
+                                name={fullName}
+                                email={user.email}
+                                src={user.image}
+                                size="lg"
+                            />
+                            <div className="min-w-0">
+                                <p className="truncate text-sm font-semibold text-ink">
+                                    {fullName || "Unnamed customer"}
+                                </p>
+                                <p className="truncate text-xs text-ink-faint">
+                                    {user.email}
+                                </p>
                             </div>
-                        ))}
-                    </div>
-                )}
+                        </div>
+
+                        <div className="mt-4 border-t border-line pt-2">
+                            <DetailRow label="Phone" value={user.phoneNumber ?? "—"} />
+                            <DetailRow
+                                label="Shops for"
+                                value={
+                                    user.gender
+                                        ? (GENDER_LABELS[user.gender] ?? user.gender)
+                                        : "—"
+                                }
+                            />
+                            <DetailRow
+                                label="Date of birth"
+                                value={
+                                    user.dateOfBirth ? formatDate(user.dateOfBirth) : "—"
+                                }
+                            />
+                            <DetailRow
+                                label="Stripe customer"
+                                value={user.stripeCustomerId ?? "—"}
+                                mono
+                            />
+                            <DetailRow label="User id" value={user.id} mono />
+                        </div>
+                    </Card>
+
+                    <UserActions
+                        userId={user.id}
+                        isBanned={!!user.banned}
+                        role={user.role}
+                        emailVerified={user.emailVerified}
+                    />
+
+                    <Card>
+                        <CardHeader
+                            title={`Sessions · ${user.sessions.length}`}
+                            action={
+                                <ShieldCheck
+                                    className="h-4 w-4 text-ink-faint"
+                                    strokeWidth={1.8}
+                                />
+                            }
+                        />
+
+                        {user.sessions.length === 0 ? (
+                            <EmptyState
+                                icon={Monitor}
+                                title="No active sessions"
+                                compact
+                            />
+                        ) : (
+                            <ul className="grid grid-cols-1 gap-2">
+                                {user.sessions.map((s) => (
+                                    <li
+                                        key={s.id}
+                                        className="rounded-xl bg-sunk px-3 py-2.5"
+                                    >
+                                        <p className="tnum text-xs font-medium text-ink">
+                                            {s.ipAddress ?? "unknown ip"}
+                                        </p>
+                                        <p className="mt-0.5 truncate text-[11px] text-ink-faint">
+                                            {s.userAgent ?? "unknown device"}
+                                        </p>
+                                        <p className="mt-1 text-[11px] text-ink-soft">
+                                            expires {formatDateTime(s.expiresAt)}
+                                        </p>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </Card>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

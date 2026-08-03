@@ -1,95 +1,168 @@
-import Link from "next/link";
+import { CreditCard, Users } from "lucide-react";
+import { requireAdmin } from "@/lib/admin/rbac";
 import getUsers from "@/lib/admin/queries/users-queries/users";
-import {Gender} from "@/hooks/useGender";
 
-export default async function UsersPage(
-    {searchParams}: { searchParams: Promise<{ page?: string; search?: string; gender?: Gender | "all" }> }
-) {
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Card from "@/app/(admin)/admin/_components/ui/Card";
+import DataTable, { type Column } from "@/app/(admin)/admin/_components/ui/DataTable";
+import FilterBar from "@/app/(admin)/admin/_components/ui/FilterBar";
+import Pagination from "@/app/(admin)/admin/_components/ui/Pagination";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import Avatar from "@/app/(admin)/admin/_components/ui/Avatar";
+import EmptyState from "@/app/(admin)/admin/_components/ui/EmptyState";
+import { GENDER_LABELS } from "@/app/(admin)/admin/_lib/labels";
+import { buildUrl, first, type SearchParams } from "@/app/(admin)/admin/_lib/query";
+
+type UserRow = Awaited<ReturnType<typeof getUsers>>["rows"][number];
+
+const GENDERS = ["all", "men", "women"] as const;
+type GenderFilter = (typeof GENDERS)[number];
+
+function parseGender(value: string | undefined): GenderFilter {
+    return GENDERS.includes(value as GenderFilter)
+        ? (value as GenderFilter)
+        : "all";
+}
+
+export default async function UsersPage({
+    searchParams,
+}: {
+    searchParams: Promise<SearchParams>;
+}) {
+    await requireAdmin();
+
     const sp = await searchParams;
+    const search = first(sp.search);
+    const gender = parseGender(first(sp.gender));
+    const page = Number(first(sp.page)) || 1;
 
-    const {rows, total, page, totalPages} = await getUsers({
-        page: Number(sp.page) || 1,
-        search: sp.search,
-        gender: (sp.gender as "men" | "women" | "all") ?? "all",
+    const { rows, total, totalPages, perPage } = await getUsers({
+        page,
+        search,
+        gender,
     });
 
+    const columns: Column<UserRow>[] = [
+        {
+            key: "customer",
+            header: "Customer",
+            width: "minmax(0,2fr)",
+            mobile: "title",
+            cell: (u) => (
+                <span className="flex min-w-0 items-center gap-3">
+                    <Avatar name={u.name} email={u.email} src={u.image} size="md" />
+                    <span className="min-w-0">
+                        <span className="block truncate font-medium text-ink">
+                            {[u.name, u.lastName].filter(Boolean).join(" ") || "Unnamed"}
+                        </span>
+                        <span className="block truncate text-xs text-ink-faint">
+                            {u.email}
+                        </span>
+                    </span>
+                </span>
+            ),
+        },
+        {
+            key: "phone",
+            header: "Phone",
+            width: "minmax(0,1fr)",
+            label: "Phone",
+            cell: (u) => (
+                <span className="tnum truncate text-ink-soft">
+                    {u.phoneNumber ?? "—"}
+                </span>
+            ),
+        },
+        {
+            key: "gender",
+            header: "Shops for",
+            width: "120px",
+            label: "Shops for",
+            cell: (u) =>
+                u.gender ? (
+                    <Badge tone="neutral">{GENDER_LABELS[u.gender] ?? u.gender}</Badge>
+                ) : (
+                    <span className="text-xs text-ink-faint">—</span>
+                ),
+        },
+        {
+            key: "stripe",
+            header: "Billing",
+            width: "120px",
+            label: "Billing",
+            cell: (u) =>
+                u.stripeCustomerId ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs text-ink-soft">
+                        <CreditCard className="h-3.5 w-3.5" strokeWidth={1.8} />
+                        Linked
+                    </span>
+                ) : (
+                    <span className="text-xs text-ink-faint">—</span>
+                ),
+        },
+        {
+            key: "verified",
+            header: "Email",
+            width: "130px",
+            align: "right",
+            label: "Email",
+            mobile: "trailing",
+            cell: (u) => (
+                <Badge tone={u.emailVerified ? "positive" : "caution"} dot>
+                    {u.emailVerified ? "Verified" : "Unverified"}
+                </Badge>
+            ),
+        },
+    ];
+
     return (
-        <div>
-            <h1 className="text-lg font-semibold mb-4">Пользователи ({total})</h1>
+        <>
+            <PageHeader
+                title="Customers"
+                count={total}
+                description="Accounts, contact details and their shopping history."
+            />
 
-            <form method="get" className="flex gap-2 mb-4">
-                <input
-                    name="search"
-                    defaultValue={sp.search ?? ""}
-                    placeholder="Поиск по имени или почте"
-                    className="border rounded-md px-3 py-2 flex-1"
+            <FilterBar
+                searchValue={search}
+                searchPlaceholder="Search by name or email"
+                resetHref="/admin/users"
+                selects={[
+                    {
+                        name: "gender",
+                        value: gender,
+                        options: [
+                            { value: "all", label: "Audience: any" },
+                            { value: "women", label: "Women" },
+                            { value: "men", label: "Men" },
+                        ],
+                    },
+                ]}
+            />
+
+            <Card padded={false} className="p-2 sm:p-3">
+                <DataTable
+                    columns={columns}
+                    rows={rows}
+                    getKey={(u) => u.id}
+                    href={(u) => `/admin/users/${u.id}`}
+                    empty={
+                        <EmptyState
+                            icon={Users}
+                            title="No customers found"
+                            description="Try a different search or clear the filters."
+                        />
+                    }
                 />
-                <select name="gender" defaultValue={sp.gender ?? "all"} className="border rounded-md px-3 py-2">
-                    <option value="all">Все</option>
-                    <option value="men">Мужчина</option>
-                    <option value="women">Женщина</option>
-                </select>
-                <button className="px-4 py-2 border rounded-md">Найти</button>
-            </form>
+            </Card>
 
-            <table className="w-full text-left text-sm border">
-                <thead className="bg-gray-100 border-b">
-                <tr>
-                    <th className="py-2 px-3">Id</th>
-                    <th className="py-2 px-3">Имя</th>
-                    <th className="py-2 px-3">Email</th>
-                    <th className="py-2 px-3">Телефон</th>
-                    <th className="py-2 px-3">Пол</th>
-                    <th className="py-2 px-3">Подтвержден</th>
-                </tr>
-                </thead>
-                <tbody>
-                {rows.length === 0 && (
-                    <tr>
-                        <td colSpan={5} className="py-6 text-center text-gray-400">
-                            Пользователи не найдены
-                        </td>
-                    </tr>
-                )}
-                {rows.map((u) => (
-                    <tr key={u.id} className="border-b">
-                        <td className="py-2 px-3 flex gap-2">
-                            {u.id}
-                            <Link href={`/admin/users/${u.id}`}>
-                                Go to
-                            </Link>
-                        </td>
-                        <td className="py-2 px-3">
-                            {u.name} {u.lastName ?? ""}
-                        </td>
-                        <td className="py-2 px-3">{u.email}</td>
-                        <td className="py-2 px-3 text-center">{u.phoneNumber ?? "—"}</td>
-                        <td className="py-2 px-3 text-center">{u.gender}</td>
-                        <td className="py-2 px-3 text-center">{u.emailVerified ? "да" : "нет"}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-
-            {totalPages > 1 && (
-                <div className="flex gap-2 mt-4">
-                    {Array.from({length: totalPages}, (_, i) => i + 1).map((p) => (
-                        <Link
-                            key={p}
-                            href={{
-                                pathname: "/admin/users",
-                                query: {...sp, page: p},
-                            }}
-                            className={
-                                "px-3 py-1 border rounded-md " +
-                                (p === page ? "bg-black text-white" : "")
-                            }
-                        >
-                            {p}
-                        </Link>
-                    ))}
-                </div>
-            )}
-        </div>
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                perPage={perPage}
+                buildHref={(p) => buildUrl("/admin/users", { search, gender, page: p })}
+            />
+        </>
     );
 }

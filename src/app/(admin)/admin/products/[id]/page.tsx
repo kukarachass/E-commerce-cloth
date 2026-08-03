@@ -1,15 +1,20 @@
 import { notFound } from "next/navigation";
+import { asc, eq } from "drizzle-orm";
+import { ExternalLink } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/rbac";
-import { getCategoryGroups } from "@/lib/admin/queries/categories";
 import { db } from "@/db";
 import { brand } from "@/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { getCategoryGroups } from "@/lib/admin/queries/categories";
+import { getProductForEdit } from "@/lib/admin/actions/product-actions/getProductForEdit";
+
 import ProductForm from "@/app/(admin)/admin/_components/products/ProductForm";
-import {getProductForEdit} from "@/lib/admin/actions/product-actions/getProductForEdit";
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Badge from "@/app/(admin)/admin/_components/ui/Badge";
+import { LinkButton } from "@/app/(admin)/admin/_components/ui/Button";
 
 export default async function EditProductPage({
-                                                  params,
-                                              }: {
+    params,
+}: {
     params: Promise<{ id: string }>;
 }) {
     await requireAdmin();
@@ -17,21 +22,48 @@ export default async function EditProductPage({
 
     const [item, brands, categoryGroups] = await Promise.all([
         getProductForEdit(id),
-        db.select({ id: brand.id, name: brand.name }).from(brand)
-            .where(eq(brand.isActive, true)).orderBy(asc(brand.name)),
+        db
+            .select({ id: brand.id, name: brand.name })
+            .from(brand)
+            .where(eq(brand.isActive, true))
+            .orderBy(asc(brand.name)),
         getCategoryGroups(),
     ]);
 
     if (!item) notFound();
 
+    const stock = item.sizes.reduce((sum, s) => sum + s.stockAmount, 0);
+
     return (
-        <div>
-            <div className="flex items-center justify-between mb-6">
-                <h1 className="text-xl">{item.name}</h1>
-                <span className={item.isActive ? "text-green-600 text-sm" : "text-gray-400 text-sm"}>
-          {item.isActive ? "Активен" : "Скрыт"}
-        </span>
-            </div>
+        <>
+            <PageHeader
+                back={{ href: "/admin/products", label: "All products" }}
+                title={item.name}
+                description={`/${item.slug}`}
+                meta={
+                    <>
+                        <Badge tone={item.isActive ? "positive" : "neutral"} dot>
+                            {item.isActive ? "Live" : "Hidden"}
+                        </Badge>
+                        <Badge tone={stock > 0 ? "neutral" : "caution"}>
+                            {stock} in stock
+                        </Badge>
+                        {item.discount > 0 && (
+                            <Badge tone="accent">−{item.discount}%</Badge>
+                        )}
+                    </>
+                }
+                actions={
+                    <LinkButton
+                        href={`/product/${item.slug}`}
+                        variant="outline"
+                        target="_blank"
+                    >
+                        <ExternalLink className="h-4 w-4" />
+                        View in store
+                    </LinkButton>
+                }
+            />
 
             <ProductForm
                 mode="edit"
@@ -57,9 +89,12 @@ export default async function EditProductPage({
                         sizeSystem: s.sizeSystem,
                         stockAmount: s.stockAmount,
                     })),
-                    images: item.images.map((i) => ({ url: i.url, isMain: i.isMain })),
+                    images: item.images.map((i) => ({
+                        url: i.url,
+                        isMain: i.isMain,
+                    })),
                 }}
             />
-        </div>
+        </>
     );
 }

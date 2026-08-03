@@ -1,102 +1,121 @@
-import Link from "next/link";
+import { ScrollText } from "lucide-react";
 import { requireAdmin } from "@/lib/admin/rbac";
-import getAuditLog, { AuditAction } from "@/lib/admin/queries/audit-queries/getAuditLog";
-import AuditRow from "@/app/(admin)/admin/_components/audit/AuditRow";
+import getAuditLog, {
+    type AuditAction,
+} from "@/lib/admin/queries/audit-queries/getAuditLog";
 
-const ACTIONS: AuditAction[] = ["create", "update", "delete", "restore", "login", "export"];
+import PageHeader from "@/app/(admin)/admin/_components/ui/PageHeader";
+import Card from "@/app/(admin)/admin/_components/ui/Card";
+import FilterBar from "@/app/(admin)/admin/_components/ui/FilterBar";
+import SegmentedTabs from "@/app/(admin)/admin/_components/ui/SegmentedTabs";
+import Pagination from "@/app/(admin)/admin/_components/ui/Pagination";
+import EmptyState from "@/app/(admin)/admin/_components/ui/EmptyState";
+import AuditRow from "@/app/(admin)/admin/_components/audit/AuditRow";
+import { buildUrl, first, type SearchParams } from "@/app/(admin)/admin/_lib/query";
+
+const ACTIONS: AuditAction[] = [
+    "create",
+    "update",
+    "delete",
+    "restore",
+    "login",
+    "export",
+];
+
+function parseAction(value: string | undefined) {
+    return ACTIONS.includes(value as AuditAction)
+        ? (value as AuditAction)
+        : undefined;
+}
 
 export default async function AuditPage({
-                                            searchParams,
-                                        }: {
-    searchParams: Promise<{ page?: string; search?: string; action?: string; entityType?: string }>;
+    searchParams,
+}: {
+    searchParams: Promise<SearchParams>;
 }) {
     await requireAdmin();
-    const sp = await searchParams;
 
-    const { rows, total, page, totalPages, entityTypes } = await getAuditLog({
-        page: Number(sp.page) || 1,
-        search: sp.search,
-        action: sp.action as AuditAction | undefined,
-        entityType: sp.entityType,
+    const sp = await searchParams;
+    const search = first(sp.search);
+    const action = parseAction(first(sp.action));
+    const entityType = first(sp.entityType);
+    const page = Number(first(sp.page)) || 1;
+
+    const { rows, total, totalPages, perPage, entityTypes } = await getAuditLog({
+        page,
+        search,
+        action,
+        entityType,
     });
 
+    const tabHref = (next?: AuditAction) =>
+        buildUrl("/admin/audit", { search, entityType, action: next });
+
     return (
-        <div className="p-6">
-            <h1 className="text-lg font-semibold mb-4">Аудит ({total})</h1>
+        <>
+            <PageHeader
+                title="Activity log"
+                count={total}
+                description="Who changed what, when, and from which address."
+            />
 
-            <form method="get" className="flex flex-wrap gap-2 mb-4">
-                <input
-                    name="search"
-                    defaultValue={sp.search ?? ""}
-                    placeholder="Email админа или ID сущности"
-                    className="border rounded-md px-3 py-2 flex-1 min-w-60"
+            <div className="mb-4">
+                <SegmentedTabs
+                    size="sm"
+                    items={[
+                        { href: tabHref(), label: "All", active: !action },
+                        ...ACTIONS.map((a) => ({
+                            href: tabHref(a),
+                            label: a[0].toUpperCase() + a.slice(1),
+                            active: action === a,
+                        })),
+                    ]}
                 />
+            </div>
 
-                <select
-                    name="action"
-                    defaultValue={sp.action ?? ""}
-                    className="border rounded-md px-3 py-2"
-                >
-                    <option value="">Все действия</option>
-                    {ACTIONS.map((a) => (
-                        <option key={a} value={a}>{a}</option>
-                    ))}
-                </select>
+            <FilterBar
+                searchValue={search}
+                searchPlaceholder="Search by admin email or entity id"
+                resetHref="/admin/audit"
+                selects={[
+                    {
+                        name: "entityType",
+                        value: entityType ?? "",
+                        options: [
+                            { value: "", label: "Entity: any" },
+                            ...entityTypes.map((t) => ({ value: t, label: t })),
+                        ],
+                    },
+                ]}
+            >
+                {action && <input type="hidden" name="action" value={action} />}
+            </FilterBar>
 
-                <select
-                    name="entityType"
-                    defaultValue={sp.entityType ?? ""}
-                    className="border rounded-md px-3 py-2"
-                >
-                    <option value="">Все сущности</option>
-                    {entityTypes.map((t) => (
-                        <option key={t} value={t}>{t}</option>
-                    ))}
-                </select>
-
-                <button className="px-4 py-2 border rounded-md">Найти</button>
-            </form>
-
-            <table className="w-full text-left text-sm border">
-                <thead className="bg-gray-100 border-b text-gray-500">
-                <tr>
-                    <th className="py-2 px-3 font-normal">Когда</th>
-                    <th className="py-2 px-3 font-normal">Кто</th>
-                    <th className="py-2 px-3 font-normal">Действие</th>
-                    <th className="py-2 px-3 font-normal">Сущность</th>
-                    <th className="py-2 px-3 font-normal">IP</th>
-                    <th className="py-2 px-3 font-normal">Изменения</th>
-                </tr>
-                </thead>
-                <tbody>
+            <Card padded={false} className="p-2 sm:p-3">
                 {rows.length === 0 ? (
-                    <tr>
-                        <td colSpan={6} className="py-6 text-center text-gray-400">
-                            Записей нет
-                        </td>
-                    </tr>
+                    <EmptyState
+                        icon={ScrollText}
+                        title="Nothing recorded here"
+                        description="Adjust the filters — the log only keeps admin actions."
+                    />
                 ) : (
-                    rows.map((row) => <AuditRow key={row.id} row={row} />)
+                    <ul className="grid grid-cols-1">
+                        {rows.map((row) => (
+                            <AuditRow key={row.id} row={row} />
+                        ))}
+                    </ul>
                 )}
-                </tbody>
-            </table>
+            </Card>
 
-            {totalPages > 1 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                        <Link
-                            key={p}
-                            href={{ pathname: "/admin/audit", query: { ...sp, page: p } }}
-                            className={
-                                "px-3 py-1 border rounded-md " +
-                                (p === page ? "bg-black text-white" : "")
-                            }
-                        >
-                            {p}
-                        </Link>
-                    ))}
-                </div>
-            )}
-        </div>
+            <Pagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                perPage={perPage}
+                buildHref={(p) =>
+                    buildUrl("/admin/audit", { search, action, entityType, page: p })
+                }
+            />
+        </>
     );
 }
